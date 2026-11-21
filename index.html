@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Engineering Chemistry Virtual Laboratory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-page: #f4f7fb;
+      --bg-card: #ffffff;
+      --ink-primary: #0f172a;
+      --ink-secondary: #475569;
+      --ink-muted: #64748b;
+      --accent-teal: #0f766e;
+      --accent-teal-light: #f0fdfa;
+      --accent-teal-border: #99f6e4;
+      --border-subtle: #e2e8f0;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+      --shadow-hover: 0 20px 30px -10px rgba(15, 118, 110, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--ink-primary);
+      line-height: 1.45;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Compact Hero Banner */
+    .hero {
+      background: linear-gradient(135deg, #0b192c 0%, #11324d 52%, #0f766e 100%);
+      color: #ffffff;
+      padding: 2.15rem 1.5rem 2.85rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 18% 25%, rgba(45, 212, 191, 0.16) 0%, transparent 45%),
+        radial-gradient(circle at 85% 75%, rgba(56, 189, 248, 0.14) 0%, transparent 45%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.65rem, 3.2vw, 2.35rem);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+    }
+
+    /* Filter & Search Bar */
+    .controls-wrapper {
+      max-width: 1280px;
+      width: 100%;
+      margin: -1.55rem auto 1.35rem;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .controls-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .filter-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .filter-btn {
+      border: 1px solid var(--border-subtle);
+      background: #f8fafc;
+      color: var(--ink-secondary);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.4rem 0.78rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .filter-btn:hover {
+      background: #f1f5f9;
+      color: var(--ink-primary);
+    }
+
+    .filter-btn.active {
+      background: var(--accent-teal);
+      border-color: var(--accent-teal);
+      color: #ffffff;
+    }
+
+    .search-box {
+      position: relative;
+      min-width: 230px;
+      flex: 1;
+      max-width: 320px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.46rem 0.8rem 0.46rem 2.15rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.84rem;
+      color: var(--ink-primary);
+      background: #f8fafc;
+      outline: none;
+      transition: border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent-teal);
+      background: #ffffff;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.72rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.84rem;
+      color: var(--ink-muted);
+      pointer-events: none;
+    }
+
+    /* Main Grid */
+    .main-content {
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto 2rem;
+      padding: 0 1.5rem;
+      flex: 1;
+    }
+
+    .exp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1.05rem;
+    }
+
+    .exp-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 1.15rem;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .exp-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3.5px;
+      background: linear-gradient(90deg, #0f766e, #0284c7);
+      opacity: 0;
+      transition: opacity 0.22s ease;
+    }
+
+    .exp-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+      border-color: #99f6e4;
+    }
+
+    .exp-card:hover::after {
+      opacity: 1;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .exp-badge-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .exp-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--accent-teal);
+      background: var(--accent-teal-light);
+      border: 1px solid var(--accent-teal-border);
+      padding: 0.18rem 0.5rem;
+      border-radius: 6px;
+    }
+
+    .exp-category {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+      background: #f1f5f9;
+      padding: 0.18rem 0.52rem;
+      border-radius: 6px;
+    }
+
+    .exp-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: #f8fafc;
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.08rem;
+    }
+
+    .exp-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--ink-primary);
+      line-height: 1.32;
+      margin-bottom: 0.38rem;
+    }
+
+    .exp-subtitle {
+      font-size: 0.82rem;
+      color: var(--ink-secondary);
+      line-height: 1.42;
+      margin-bottom: 0.95rem;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.72rem;
+      border-top: 1px solid #f1f5f9;
+      font-size: 0.78rem;
+    }
+
+    .stage-tag {
+      color: var(--ink-muted);
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .launch-cta {
+      font-weight: 700;
+      color: var(--accent-teal);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: transform 0.18s ease;
+    }
+
+    .exp-card:hover .launch-cta {
+      transform: translateX(3px);
+    }
+
+    .empty-state {
+      display: none;
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: var(--ink-muted);
+      background: var(--bg-card);
+      border-radius: 14px;
+      border: 1px dashed var(--border-subtle);
+    }
+
+    footer {
+      background: #ffffff;
+      border-top: 1px solid var(--border-subtle);
+      padding: 0.95rem 1.5rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+    }
+
+    @media (max-width: 640px) {
+      .hero {
+        padding: 1.75rem 1rem 2.4rem;
+      }
+      .controls-wrapper, .main-content {
+        padding: 0 1rem;
+      }
+      .exp-grid {
+        grid-template-columns: 1fr;
+      }
+      .search-box {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <h1>Engineering Chemistry Virtual Laboratory</h1>
+    </div>
+  </header>
+
+  <section class="controls-wrapper" aria-label="Filter experiments">
+    <div class="controls-bar">
+      <div class="filter-pills" role="tablist">
+        <button class="filter-btn active" data-cat="All">All Experiments (12)</button>
+        <button class="filter-btn" data-cat="Water & Volumetric">Water &amp; Volumetric</button>
+        <button class="filter-btn" data-cat="Electro & Spectro">Electro &amp; Spectroanalytical</button>
+        <button class="filter-btn" data-cat="Lubricants & Properties">Lubricants &amp; Properties</button>
+        <button class="filter-btn" data-cat="Polymer Synthesis">Polymer Synthesis</button>
+      </div>
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search experiment or reagent..." aria-label="Search experiments" />
+      </div>
+    </div>
+  </section>
+
+  <main class="main-content">
+    <div class="exp-grid" id="expGrid">
+      <a href="experiments/01_edta_hardness.html" class="exp-card" data-category="Water & Volumetric">
+        <div>
+          <div class="card-header">
+            <div class="exp-badge-wrap">
+              <span class="exp-num">EXP 01</span>
+              <span class="exp-category">Water Analysis</span>
+            </div>
+            <div class="exp-icon">💧</div>
+          </div>
+          <h2 class="exp-title">Estimation of Hardness of Water by Complexometric Method using EDTA</h2>
+          <p class="exp-subtitle">Standard MgSO₄·7H₂O, Disodium EDTA, Eriochrome Black-T (EBT) &amp; NH₄OH–NH₄Cl Buffer</p>
+        </div>
+        <div class="card-footer">
+          <span class="stage-tag">📋 3 Stages</span>
+          <span class="launch-cta">Launch Lab →</span>
+        </div>
+      </a>
+
+      <a href="experiments/02_chloride_determination.html" class="exp-card" data-category="Water & Volumetric">
+        <div>
+          <div class="card-header">
+            <div class="exp-badge-wrap">
+              <span class="exp-num">EXP 02</span>
+              <span class="exp-category">Water Analysis</span>
+            </div>
+            <div class="exp-icon">🧪</div>
+          </div>
+          <h2 class="exp-title">Determination of Chloride Content in the Given Sample Water by Argentometric Method</h2>
+          <p class="exp-subtitle">Precipitation Titration using Standard NaCl, AgNO₃ &amp; Potassium Chromate (K₂CrO₄)</p>
+        </div>
+        <div class="card-footer">
+          <span class="stage-tag">📋 3 Stages</span>
+          <span class="launch-cta">Launch Lab →</span>
+        </div>
+      </a>
+
+      <a href="experiments/03_iron_determination.html" class="exp-card" data-category="Water & Volumetric">
+        <div>
+          <div class="card-header">
+            <div class="exp-badge-wrap">
+              <span class="exp-num">EXP 03</span>
+              <span class="exp-category">Volumetric &amp; Redox</span>
+            </div>
+            <div class="exp-icon">⚗️</div>
+          </div>
+          <h2 class="exp-title">Determination of Iron using Potassium Dichromate</h2>
+          <p class="exp-subtitle">Redox Dichrometry using Standard K₂Cr₂O₇, Acid Mixture (H₂SO₄ + H₃PO₄) &amp; Diphenylamine</p>
+        </div>
+        <div class="card-footer">
+          <span class="stage-tag">📋 2 Stages</span>
+          <span class="launch-cta">Launch Lab →</span>
+        </div>
+      </a>
+
+      <a href="experiments/04_conductometric_titration.html" class="exp-card" data-category="Electro & Spectro">
+        <div>
+          <div class="card-header">
+            <div class="exp-badge-wrap">
+              <span class="exp-num">EXP 04</span>
+              <span class="exp-category">Electroanalytical</span>
+            </div>
+            <div class="exp-icon">⚡</div>
+          </div>
+          <h2 class="exp-title">Conductometric Titration of Strong Acid vs Strong Base</h2>
+          <p class="exp-subtitle">Estimation of Unknown HCl using Standardized NaOH &amp; ELICO CM 180 Conductivity Meter</p>
+        </div>
+        <div class="card-footer">
+          <span class="stage-tag">📋 3 Stages</span>
+          <span class="launch-cta">Launch Lab →</span>
+        </div>
+      </a>
+
+      <a href="experiments/05_ph_metry.html" class="exp-card" data-category="Electro & Spectro">
+        <div>
+          <div class="card-header">
+            <div class="exp-badge-wrap">
+              <span class="exp-num">EXP 05</span>
+              <span class="exp-category">Electroanalytical</span>
+            </div>
+            <div class="exp-icon">📊</div>
+          </div>
+          <h2 class="exp-title">Titration of Strong Acid vs Strong Base by pH Metry</h2>
+          <p class="exp-subtitle">Calibration of ELICO LI 120 Digital pH Meter &amp; ΔpH/ΔV Endpoint Estimation of HCl</p>
+        </div>
+        <div class="card-footer">
+          <span class="stage-tag">📋 2 Stages</span>
+          <span class="launch-cta">Launch Lab →</span>
+        </div>
+      </a>
+
+      <a href="experiments/06_colorimeter_copper.html" class="exp-card" data-category="Electro & Spectro">
+        <div>
+          <div class="card-header">
+            <div class="exp-badge-wrap">
+              <span class="exp-num">EXP 06</span>
+              <span class="exp-category">Spectroanalytical</span>
+            </div>
+            <div class="exp-icon">🔵</div>
+          </div>
+          <h2 class="exp-title">Estimation of Copper Present in the Given Solution by Colorimetric Method</h2>
+          <p class="exp-subtitle">Beer-Lambert Law Calibration Curve using CuSO₄·5H₂O &amp; 1:1 NH₄OH (ELICO CL 63 / CL 223)</p>
+        </div>
+        <div class="card-footer">
+          <span class="stage-tag">📋 3 Phases</span>
+          <span class="launch-cta">Launch Lab →</span>
+        </div>
+      </a>
+
+      <a href="experiments/07_redwood_viscometer.html" class="exp-card" data-category="Lubricants & Properties">
+        <div>
+          <div class="card-header">
+            <div class="exp-badge-wrap">
+              <span class="exp-num">EXP 07</span>
+              <span class="exp-category">Lubricants &amp; Properties</span>
+            </div>
+            <div class="exp-icon">🛢️</div>
+          </div>
+          <h2 class="exp-title">Determination of Viscosity of Sample Oil by Redwood Viscometer No-1</h2>
+          <p class="exp-subtitle">Kinematic &amp; Absolute Viscosity Variation with Temperature using 50 mL Kohlrausch Flask</p>
+        </div>
+        <div class="card-footer">
+          <span class="stage-tag">📋 Temp Runs</span>
+          <span class="launch-cta">Launch Lab →</span>
+        </div>
+      </a>
+
+      <a href="experiments/09_conductometric_mixture.html" class="exp-card" data-category="Electro & Spectro">
+        <div>
+          <div class="card-header">
+            <div class="exp-badge-wrap">
+              <span class="exp-num">EXP 08</span>
+              <span class="exp-category">Electroanalytical</span>
+            </div>
+            <div class="exp-icon">📈</div>
+          </div>
+          <h2 class="exp-title">Conductometric Titration of Mixture of Strong Acid and Weak Acid by Strong Base</h2>
+          <p class="exp-subtitle">Simultaneous Estimation of HCl &amp; CH₃COOH using Standardized NaOH Solution</p>
+        </div>
+        <div class="card-footer">
+          <span class="stage-tag">📋 3 Stages</span>
+          <span class="launch-cta">Launch Lab →</span>
+        </div>
+      </a>
+
+      <a href="experiments/08_stalagmometer.html" class="exp-card" data-category="Lubricants & Properties">
+        <div>
+          <div class="card-header">
+            <div class="exp-badge-wrap">
+              <span class="exp-num">EXP 09</span>
+              <span class="exp-category">Lubricants &amp; Properties</span>
+            </div>
+            <div class="exp-icon">🫧</div>
+          </div>
+          <h2 class="exp-title">Determination of Surface Tension of a Liquid by Drop Method using Stalagmometer</h2>
+          <p class="exp-subtitle">Drop-Count &amp; Density Method for Distilled Water, 5% Acetone &amp; 10% Acetone Solutions</p>
+        </div>
+        <div class="card-footer">
+          <span class="stage-tag">📋 Drop Count</span>
+          <span class="launch-cta">Launch Lab →</span>
+        </div>
+      </a>
+
+      <a href="experiments/10_acid_value_oil.html" class="exp-card" data-category="Lubricants & Properties">
+        <div>
+          <div class="card-header">
+            <div class="exp-badge-wrap">
+              <span class="exp-num">EXP 10</span>
+              <span class="exp-category">Lubricants &amp; Properties</span>
+            </div>
+            <div class="exp-icon">🧴</div>
+          </div>
+          <h2 class="exp-title">Estimation of Acid Value of Given Lubricant Oil</h2>
+          <p class="exp-subtitle">Neutralization Titration using Standardized Alcoholic KOH &amp; Isopropyl Alcohol</p>
+        </div>
+        <div class="card-footer">
+          <span class="stage-tag">📋 3 Stages</span>
+          <span class="launch-cta">Launch Lab →</span>
+        </div>
+      </a>
+
+      <a href="experiments/11_bakelite_synthesis.html" class="exp-card" data-category="Polymer Synthesis">
+        <div>
+          <div class="card-header">
+            <div class="exp-badge-wrap">
+              <span class="exp-num">EXP 11</span>
+              <span class="exp-category">Polymer Synthesis</span>
+            </div>
+            <div class="exp-icon">🧱</div>
+          </div>
+          <h2 class="exp-title">Preparation of Phenol-Formaldehyde Resin (Bakelite)</h2>
+          <p class="exp-subtitle">Acid-Catalyzed Thermosetting Condensation Polymerization using Phenol, Formalin &amp; Conc. HCl</p>
+        </div>
+        <div class="card-footer">
+          <span class="stage-tag">📋 Synthesis</span>
+          <span class="launch-cta">Launch Lab →</span>
+        </div>
+      </a>
+
+      <a href="experiments/12_nylon_66_synthesis.html" class="exp-card" data-category="Polymer Synthesis">
+        <div>
+          <div class="card-header">
+            <div class="exp-badge-wrap">
+              <span class="exp-num">EXP 12</span>
+              <span class="exp-category">Polymer Synthesis</span>
+            </div>
+            <div class="exp-icon">🧵</div>
+          </div>
+          <h2 class="exp-title">Preparation of Nylon-6,6</h2>
+          <p class="exp-subtitle">Interfacial Step-Growth Condensation Polymerization of Adipoyl Chloride &amp; Hexamethylenediamine</p>
+        </div>
+        <div class="card-footer">
+          <span class="stage-tag">📋 Synthesis</span>
+          <span class="launch-cta">Launch Lab →</span>
+        </div>
+      </a>
+    </div>
+    <div class="empty-state" id="emptyState">
+      No experiments match your filter criteria. Try clearing the search box or selecting <strong>All Experiments</strong>.
+    </div>
+  </main>
+
+  <footer>
+    Engineering Chemistry Virtual Laboratory &middot; Interactive Benchtop Simulation Suite
+  </footer>
+
+  <script>
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.exp-card');
+    const searchInput = document.getElementById('searchInput');
+    const emptyState = document.getElementById('emptyState');
+
+    let activeCategory = 'All';
+
+    function filterCards() {
+      const query = searchInput.value.trim().toLowerCase();
+      let visibleCount = 0;
+
+      cards.forEach(card => {
+        const cat = card.getAttribute('data-category');
+        const text = card.textContent.toLowerCase();
+        const matchesCat = (activeCategory === 'All' || cat === activeCategory);
+        const matchesSearch = (!query || text.includes(query));
+
+        if (matchesCat && matchesSearch) {
+          card.style.display = 'flex';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeCategory = btn.getAttribute('data-cat');
+        filterCards();
+      });
+    });
+
+    searchInput.addEventListener('input', filterCards);
+  </script>
+</body>
+</html>

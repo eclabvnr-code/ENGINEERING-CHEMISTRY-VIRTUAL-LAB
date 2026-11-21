@@ -1,0 +1,3394 @@
+<!DOCTYPE html>
+<html lang="en" data-layout-mode="auto">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Engineering Chemistry Lab — Titration of Strong Acid Vs Strong Base by pH Metry</title>
+  <style>
+    :root {
+      --bg-space: #0b1120;
+      --panel-bg: rgba(15, 23, 42, 0.96);
+      --panel-border: rgba(255, 255, 255, 0.12);
+      --accent-cyan: #38bdf8;
+      --accent-brick-red: #0284c7;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    html, body {
+      height: 100vh;
+      max-height: 100vh;
+      width: 100vw;
+      background-color: var(--bg-space);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    header.lab-navbar {
+      height: 44px;
+      min-height: 44px;
+      background: rgba(15, 23, 42, 0.98);
+      border-bottom: 1px solid var(--panel-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 50;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: #fff;
+      font-size: 0.82rem;
+    }
+
+    .brand-title h1 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.1;
+    }
+
+    .brand-title p {
+      font-size: 0.62rem;
+      color: var(--accent-cyan);
+    }
+
+    .stage-nav {
+      display: flex;
+      background: rgba(30, 41, 59, 0.7);
+      padding: 2px;
+      border-radius: 6px;
+      border: 1px solid var(--panel-border);
+      gap: 3px;
+    }
+
+    .stage-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .stage-btn.active {
+      background: var(--accent-brick-red);
+      color: #fff;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-nav {
+      background: #1e293b;
+      border: 1px solid var(--panel-border);
+      color: var(--text-main);
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-nav:hover {
+      border-color: var(--accent-cyan);
+      background: #334155;
+    }
+
+    .btn-nav.primary {
+      background: var(--accent-brick-red);
+      border-color: var(--accent-cyan);
+    }
+
+    .btn-nav.highlight {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #fff;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    }
+
+    .lab-workspace {
+      flex: 1;
+      height: calc(100vh - 44px);
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      position: relative;
+      overflow: hidden;
+      transition: grid-template-columns 0.3s ease;
+    }
+
+    .lab-workspace.analysis-active {
+      grid-template-columns: 1fr;
+    }
+
+    main.workbench-stage {
+      position: relative;
+      height: 100%;
+      background: #090e17;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .svg-viewport-wrapper {
+      flex: 1;
+      width: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at 48% 45%, #182b3b 0%, #0a1421 58%, #070d16 100%);
+    }
+
+    #apparatus-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .dynamic-apparatus {
+      cursor: pointer;
+    }
+    .dynamic-apparatus:hover {
+      filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.8));
+    }
+
+    .interactive-element {
+      cursor: pointer;
+      transition: filter 0.15s ease;
+    }
+    .interactive-element:hover {
+      filter: brightness(1.2);
+    }
+
+    #elico-li120-meter {
+      transform-origin: 25px 42px;
+      transition: transform 0.85s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.85s ease;
+    }
+    .meter-minimized {
+      transform: translate(12px, 20px) scale(0.38) !important;
+      opacity: 0.25 !important;
+      pointer-events: none;
+    }
+
+    .beaker-switchable {
+      transition: transform 0.75s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.75s ease;
+    }
+
+    .dashboard-bar {
+      height: 48px;
+      background: rgba(15, 23, 42, 0.96);
+      border-top: 1px solid var(--panel-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 30;
+      font-size: 0.75rem;
+    }
+
+    .dashboard-chips {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .dash-chip {
+      background: #1e293b;
+      border: 1px solid #334155;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      color: #94a3b8;
+    }
+    .dash-chip.active {
+      border-color: var(--accent-cyan);
+      color: #38bdf8;
+      background: rgba(2, 132, 199, 0.15);
+    }
+
+    .cond-panel {
+      display: none;
+      flex: 0 0 190px;
+      min-height: 180px;
+      background: linear-gradient(135deg, rgba(9,18,32,0.98), rgba(15,31,49,0.98));
+      border-top: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 8px 14px;
+      gap: 12px;
+      overflow: hidden;
+      color: #e2e8f0;
+      font-size: 11px;
+    }
+
+    .cond-actions {
+      width: 250px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .cond-actions button {
+      background: linear-gradient(180deg, #20354d, #142438);
+      border: 1px solid #52708c;
+      color: #f8fafc;
+      border-radius: 5px;
+      padding: 5px 9px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 11px;
+      transition: all 0.15s;
+    }
+    .cond-actions button:hover:not(:disabled) {
+      border-color: #38bdf8;
+      background: #1d4260;
+    }
+    .cond-actions button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .cond-live {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      flex-wrap: wrap;
+      color: #bae6fd;
+      font-variant-numeric: tabular-nums;
+    }
+    .cond-live span {
+      background: #10263b;
+      border: 1px solid #294a66;
+      border-radius: 4px;
+      padding: 2.5px 6px;
+      font-size: 10px;
+    }
+
+    .cond-graph-wrap {
+      flex: 1;
+      min-width: 170px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .cond-graph-wrap svg {
+      width: 100%;
+      height: 130px;
+      background: linear-gradient(180deg, #08111f, #0b1726);
+      border: 1px solid #36506c;
+      border-radius: 8px;
+    }
+
+    .cond-table-wrap {
+      width: 260px;
+      flex-shrink: 0;
+      overflow-y: auto;
+      border: 1px solid #36506c;
+      border-radius: 8px;
+      background: #091321;
+    }
+
+    .cond-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10px;
+      text-align: right;
+    }
+    .cond-table th, .cond-table td {
+      padding: 3.5px 5px;
+      border-bottom: 1px solid #24364a;
+      white-space: nowrap;
+    }
+    .cond-table th {
+      position: sticky;
+      top: 0;
+      background: #172235;
+      color: #bae6fd;
+      font-size: 9.5px;
+    }
+    .cond-table tr.row-highlight {
+      background: rgba(56, 189, 248, 0.25) !important;
+    }
+
+    aside.guide-panel, aside.table-panel-sidebar {
+      background: var(--panel-bg);
+      border-left: 1px solid var(--panel-border);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+      z-index: 20;
+    }
+
+    .panel-head {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--panel-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-head h2 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--accent-cyan);
+      font-weight: 700;
+    }
+
+    .protocol-scroll-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .step-card {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 6px 9px;
+      transition: all 0.15s;
+    }
+    .step-card.active {
+      border-color: var(--accent-cyan);
+      background: rgba(2, 132, 199, 0.16);
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+    }
+    .step-card.done {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    .step-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--accent-cyan);
+      margin-bottom: 2px;
+    }
+    .step-card.done .step-top {
+      color: var(--accent-emerald);
+    }
+
+    .step-desc {
+      font-size: 0.72rem;
+      color: #f1f5f9;
+      line-height: 1.35;
+    }
+
+    .step-exec-btn {
+      margin-top: 5px;
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #fff;
+      padding: 4px 6px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .step-exec-btn:hover {
+      background: var(--accent-brick-red);
+      border-color: var(--accent-cyan);
+    }
+
+    .telemetry-card {
+      margin: 6px 10px;
+      background: #090e1a;
+      border: 1px solid var(--panel-border);
+      border-radius: 6px;
+      padding: 6px 8px;
+    }
+
+    .telemetry-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2px 0;
+      font-size: 0.68rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .telemetry-row:last-child {
+      border-bottom: none;
+    }
+    .telemetry-label {
+      color: var(--text-muted);
+    }
+    .telemetry-val {
+      font-family: monospace;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .table-sidebar-body {
+      flex: 1;
+      overflow: hidden;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .table-sidebar-body .cond-table-wrap {
+      width: 100% !important;
+      height: 100% !important;
+      flex: 1 !important;
+      border: 1px solid var(--panel-border) !important;
+      border-radius: 6px !important;
+    }
+
+    /* Analysis Workspace */
+    .analysis-workspace {
+      display: none;
+      width: 100%;
+      height: 100%;
+      grid-template-columns: 360px 1fr;
+      background: #070d17;
+      overflow: hidden;
+      position: absolute;
+      inset: 0;
+      z-index: 40;
+    }
+
+    .analysis-left-pane {
+      background: rgba(15, 23, 42, 0.98);
+      border-right: 1px solid var(--panel-border);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .analysis-table-container {
+      flex: 1;
+      overflow: hidden;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .analysis-table-container .cond-table-wrap {
+      width: 100% !important;
+      height: 100% !important;
+      flex: 1 !important;
+      border: 1px solid rgba(56, 189, 248, 0.3) !important;
+      border-radius: 6px !important;
+      background: #091321;
+    }
+
+    .analysis-tabs-group {
+      padding: 8px;
+      background: rgba(15, 23, 42, 0.9);
+      border-top: 1px solid var(--panel-border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .tab-action-btn {
+      background: linear-gradient(180deg, #1e293b, #0f172a);
+      border: 1px solid #475569;
+      color: #cbd5e1;
+      border-radius: 6px;
+      padding: 7px 5px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.2s;
+    }
+
+    .tab-action-btn:hover:not(:disabled) {
+      border-color: var(--accent-cyan);
+      background: #1e3a5f;
+      color: #fff;
+    }
+
+    .tab-action-btn.active {
+      border-color: var(--accent-cyan);
+      background: linear-gradient(180deg, #0284c7, #0369a1);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    }
+
+    .tab-action-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .analysis-info-box {
+      margin: 0 8px 8px;
+      padding: 6px 8px;
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 5px;
+      font-size: 0.66rem;
+      color: #bae6fd;
+      line-height: 1.35;
+    }
+
+    .analysis-right-pane {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: radial-gradient(ellipse at 50% 50%, #0c1a2d 0%, #060c16 100%);
+      overflow: hidden;
+      padding: 10px 14px;
+    }
+
+    .graph-sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 6px 8px;
+    }
+
+    .graph-title-block h3 {
+      font-size: 0.88rem;
+      color: #f8fafc;
+      font-weight: 700;
+    }
+
+    .graph-title-block p {
+      font-size: 0.66rem;
+      color: var(--accent-cyan);
+    }
+
+    .graph-sheet-wrapper {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #08111e;
+      border: 1px solid #294462;
+      border-radius: 8px;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+    }
+
+    #millimeter-graph-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      place-items: center;
+      padding: 16px;
+    }
+    .modal-backdrop.open {
+      display: grid;
+    }
+
+    .modal-window {
+      background: #0f172a;
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      width: 100%;
+      max-width: 800px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-head {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--panel-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(30, 41, 59, 0.4);
+    }
+    .modal-head h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .btn-close-modal {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 14px 18px;
+      overflow-y: auto;
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    .chem-eq-card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 5px;
+      padding: 6px 10px;
+      margin: 6px 0;
+      font-family: monospace;
+      color: #e0f2fe;
+    }
+
+    .obs-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 0.74rem;
+    }
+    .obs-table th, .obs-table td {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 5px 6px;
+      text-align: center;
+    }
+    .obs-table th {
+      background: rgba(30, 41, 59, 0.8);
+      color: var(--accent-cyan);
+    }
+    .obs-table input {
+      width: 84px;
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #fff;
+      padding: 2px 4px;
+      border-radius: 3px;
+      text-align: center;
+      font-weight: 700;
+    }
+  
+    /* ================= HEADER LAYOUT MODE & FULLSCREEN CONTROLS ================= */
+    .header-right-cluster {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .mode-selector {
+      display: flex;
+      gap: 3px;
+      padding: 2px;
+      border: 1px solid #334155;
+      border-radius: 7px;
+      background: #111c30;
+    }
+
+    .mode-btn {
+      border: 1px solid transparent;
+      background: transparent;
+      color: #cbd5e1;
+      padding: 4px 8px;
+      border-radius: 5px;
+      font-weight: 700;
+      font-size: 0.68rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .mode-btn:hover {
+      background: #1e293b;
+      color: #fff;
+    }
+
+    .mode-btn.active {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #fff;
+    }
+
+    .fullscreen-btn {
+      border: 1px solid #38bdf8;
+      background: #075985;
+      color: #fff;
+      padding: 4px 9px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.68rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .fullscreen-btn:hover {
+      background: #0284c7;
+    }
+
+    button:focus-visible {
+      outline: 2px solid #7dd3fc;
+      outline-offset: 2px;
+    }
+
+    :fullscreen {
+      background: #0b1120;
+    }
+
+    /* ================= MOBILE ONE-STEP FOCUS & RESPONSIVE MODES ================= */
+    .mobile-step-progress {
+      color: #38bdf8;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      padding: 3px 2px;
+    }
+
+    .mobile-current-step {
+      padding: 12px 13px !important;
+      border-width: 1px !important;
+    }
+
+    .mobile-current-step .step-desc {
+      font-size: 0.9rem !important;
+      line-height: 1.45 !important;
+    }
+
+    .mobile-current-step .step-exec-btn {
+      min-height: 42px !important;
+      font-size: 0.82rem !important;
+      margin-top: 8px !important;
+    }
+
+    @media (max-width: 1080px) {
+      html[data-layout-mode="auto"] header.lab-navbar,
+      html[data-layout-mode="mobile"] header.lab-navbar {
+        height: auto;
+        min-height: 44px;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 7px 10px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      html[data-layout-mode="auto"],
+      html[data-layout-mode="mobile"] {
+        height: auto !important;
+        min-height: 100% !important;
+        max-height: none !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+      }
+
+      html[data-layout-mode="auto"] body,
+      html[data-layout-mode="mobile"] body {
+        height: auto !important;
+        min-height: 100% !important;
+        max-height: none !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+      }
+
+      html[data-layout-mode="auto"] header.lab-navbar,
+      html[data-layout-mode="mobile"] header.lab-navbar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 7px !important;
+        padding: 8px 10px !important;
+      }
+
+      html[data-layout-mode="auto"] .stage-nav,
+      html[data-layout-mode="mobile"] .stage-nav {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        width: 100% !important;
+      }
+
+      html[data-layout-mode="auto"] .stage-btn,
+      html[data-layout-mode="mobile"] .stage-btn {
+        white-space: normal !important;
+        line-height: 1.2 !important;
+        padding: 6px 6px !important;
+        font-size: 0.68rem !important;
+        text-align: center !important;
+      }
+
+      html[data-layout-mode="auto"] .header-right-cluster,
+      html[data-layout-mode="mobile"] .header-right-cluster {
+        justify-content: space-between !important;
+        width: 100% !important;
+        gap: 6px !important;
+      }
+
+      html[data-layout-mode="auto"] .nav-actions,
+      html[data-layout-mode="mobile"] .nav-actions {
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+      }
+
+      html[data-layout-mode="auto"] .lab-workspace,
+      html[data-layout-mode="mobile"] .lab-workspace {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: 100% !important;
+        max-height: none !important;
+        overflow: visible !important;
+        align-items: stretch !important;
+      }
+
+      html[data-layout-mode="auto"] main.workbench-stage,
+      html[data-layout-mode="mobile"] main.workbench-stage {
+        display: flex !important;
+        flex-direction: column !important;
+        position: static !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        flex: 0 0 auto !important;
+      }
+
+      html[data-layout-mode="auto"] .svg-viewport-wrapper,
+      html[data-layout-mode="mobile"] .svg-viewport-wrapper {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 100 !important;
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        height: 38dvh !important;
+        min-height: 220px !important;
+        max-height: 350px !important;
+        padding: 4px 8px !important;
+        overflow: hidden !important;
+        background: #090e17 !important;
+        border-bottom: 1px solid rgba(56, 189, 248, 0.45) !important;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35) !important;
+      }
+
+      html[data-layout-mode="auto"] #apparatus-svg,
+      html[data-layout-mode="mobile"] #apparatus-svg {
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        object-fit: contain !important;
+      }
+
+      html[data-layout-mode="auto"] .dashboard-bar,
+      html[data-layout-mode="mobile"] .dashboard-bar {
+        position: relative !important;
+        z-index: 1 !important;
+        height: auto !important;
+        min-height: 44px !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        padding: 8px 10px !important;
+      }
+
+      html[data-layout-mode="auto"] .dashboard-chips,
+      html[data-layout-mode="mobile"] .dashboard-chips {
+        flex-wrap: wrap !important;
+        gap: 5px !important;
+      }
+
+      html[data-layout-mode="auto"] aside.guide-panel,
+      html[data-layout-mode="mobile"] aside.guide-panel,
+      html[data-layout-mode="auto"] aside.table-panel-sidebar,
+      html[data-layout-mode="mobile"] aside.table-panel-sidebar,
+      html[data-layout-mode="auto"] #stage2-cond-panel,
+      html[data-layout-mode="mobile"] #stage2-cond-panel {
+        position: relative !important;
+        z-index: 1 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        flex: 0 0 auto !important;
+        border-left: none !important;
+        border-top: 1px solid var(--panel-border) !important;
+      }
+
+      html[data-layout-mode="auto"] #stage2-cond-panel,
+      html[data-layout-mode="mobile"] #stage2-cond-panel {
+        flex-direction: column !important;
+        padding: 10px !important;
+      }
+
+      html[data-layout-mode="auto"] .cond-actions,
+      html[data-layout-mode="mobile"] .cond-actions,
+      html[data-layout-mode="auto"] .cond-graph-wrap,
+      html[data-layout-mode="mobile"] .cond-graph-wrap,
+      html[data-layout-mode="auto"] .cond-table-wrap,
+      html[data-layout-mode="mobile"] .cond-table-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      html[data-layout-mode="auto"] .cond-table-wrap,
+      html[data-layout-mode="mobile"] .cond-table-wrap {
+        max-height: 220px !important;
+      }
+
+      html[data-layout-mode="auto"] .protocol-scroll-box,
+      html[data-layout-mode="mobile"] .protocol-scroll-box {
+        flex: 0 0 auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        padding: 7px 9px !important;
+      }
+
+      html[data-layout-mode="auto"] .analysis-workspace[style*="grid"],
+      html[data-layout-mode="mobile"] .analysis-workspace[style*="grid"] {
+        position: relative !important;
+        inset: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        overflow: visible !important;
+      }
+
+      html[data-layout-mode="auto"] .analysis-left-pane,
+      html[data-layout-mode="mobile"] .analysis-left-pane,
+      html[data-layout-mode="auto"] .analysis-right-pane,
+      html[data-layout-mode="mobile"] .analysis-right-pane {
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        border-right: none !important;
+      }
+
+      html[data-layout-mode="auto"] .graph-sheet-wrapper,
+      html[data-layout-mode="mobile"] .graph-sheet-wrapper {
+        min-height: 300px !important;
+        height: 44dvh !important;
+      }
+
+      html[data-layout-mode="auto"] input,
+      html[data-layout-mode="mobile"] input,
+      html[data-layout-mode="auto"] select,
+      html[data-layout-mode="mobile"] select,
+      html[data-layout-mode="auto"] textarea,
+      html[data-layout-mode="mobile"] textarea {
+        font-size: 16px !important;
+        max-width: 100% !important;
+      }
+
+      html[data-layout-mode="auto"] button,
+      html[data-layout-mode="mobile"] button {
+        min-height: 38px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      html[data-layout-mode="auto"] .svg-viewport-wrapper,
+      html[data-layout-mode="mobile"] .svg-viewport-wrapper {
+        height: 30dvh !important;
+        min-height: 185px !important;
+        max-height: 240px !important;
+      }
+    }
+
+    /* Explicit mobile mode remains mobile even on a wide desktop browser. */
+    html[data-layout-mode="mobile"] {
+      height: auto !important;
+      min-height: 100% !important;
+      max-height: none !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+    }
+    html[data-layout-mode="mobile"] body {
+      height: auto !important;
+      min-height: 100% !important;
+      max-height: none !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+    }
+    html[data-layout-mode="mobile"] header.lab-navbar {
+      height: auto !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 7px !important;
+      padding: 8px 10px !important;
+    }
+    html[data-layout-mode="mobile"] .stage-nav {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      width: 100% !important;
+    }
+    html[data-layout-mode="mobile"] .stage-btn {
+      white-space: normal !important;
+      line-height: 1.2 !important;
+      padding: 6px !important;
+      text-align: center !important;
+    }
+    html[data-layout-mode="mobile"] .header-right-cluster {
+      justify-content: space-between !important;
+      width: 100% !important;
+    }
+    html[data-layout-mode="mobile"] .lab-workspace {
+      display: flex !important;
+      flex-direction: column !important;
+      height: auto !important;
+      min-height: 100% !important;
+      max-height: none !important;
+      overflow: visible !important;
+    }
+    html[data-layout-mode="mobile"] main.workbench-stage {
+      display: flex !important;
+      flex-direction: column !important;
+      position: static !important;
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      overflow: visible !important;
+      flex: 0 0 auto !important;
+    }
+    html[data-layout-mode="mobile"] .svg-viewport-wrapper {
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 100 !important;
+      flex: 0 0 auto !important;
+      width: 100% !important;
+      height: 38dvh !important;
+      min-height: 220px !important;
+      max-height: 350px !important;
+      padding: 4px 8px !important;
+      overflow: hidden !important;
+      background: #090e17 !important;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.45) !important;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35) !important;
+    }
+    html[data-layout-mode="mobile"] #apparatus-svg {
+      display: block !important;
+      width: 100% !important;
+      height: 100% !important;
+      max-height: 100% !important;
+      object-fit: contain !important;
+    }
+    html[data-layout-mode="mobile"] .dashboard-bar {
+      height: auto !important;
+      flex-wrap: wrap !important;
+      gap: 6px !important;
+      padding: 8px 10px !important;
+    }
+    html[data-layout-mode="mobile"] .dashboard-chips {
+      flex-wrap: wrap !important;
+    }
+    html[data-layout-mode="mobile"] aside.guide-panel,
+    html[data-layout-mode="mobile"] aside.table-panel-sidebar,
+    html[data-layout-mode="mobile"] #stage2-cond-panel {
+      position: relative !important;
+      z-index: 1 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      flex: 0 0 auto !important;
+      border-left: none !important;
+      border-top: 1px solid var(--panel-border) !important;
+    }
+    html[data-layout-mode="mobile"] #stage2-cond-panel {
+      flex-direction: column !important;
+      padding: 10px !important;
+    }
+    html[data-layout-mode="mobile"] .cond-actions,
+    html[data-layout-mode="mobile"] .cond-graph-wrap,
+    html[data-layout-mode="mobile"] .cond-table-wrap {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+    html[data-layout-mode="mobile"] .cond-table-wrap {
+      max-height: 220px !important;
+    }
+    html[data-layout-mode="mobile"] .protocol-scroll-box {
+      flex: 0 0 auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      padding: 7px 9px !important;
+    }
+    html[data-layout-mode="mobile"] .analysis-workspace[style*="grid"] {
+      position: relative !important;
+      inset: auto !important;
+      display: flex !important;
+      flex-direction: column !important;
+      height: auto !important;
+      overflow: visible !important;
+    }
+    html[data-layout-mode="mobile"] .analysis-left-pane,
+    html[data-layout-mode="mobile"] .analysis-right-pane {
+      width: 100% !important;
+      height: auto !important;
+      overflow: visible !important;
+      border-right: none !important;
+    }
+    html[data-layout-mode="mobile"] .graph-sheet-wrapper {
+      min-height: 300px !important;
+      height: 44dvh !important;
+    }
+
+    /* Explicit desktop mode restores the original two-column workbench even on narrow screens. */
+    html[data-layout-mode="desktop"] {
+      height: 100vh !important;
+      max-height: 100vh !important;
+      overflow: hidden !important;
+    }
+    html[data-layout-mode="desktop"] body {
+      height: 100vh !important;
+      max-height: 100vh !important;
+      overflow: hidden !important;
+    }
+    html[data-layout-mode="desktop"] header.lab-navbar {
+      height: 44px !important;
+      min-height: 44px !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      flex-wrap: nowrap !important;
+    }
+    html[data-layout-mode="desktop"] .lab-workspace {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) 340px !important;
+      height: calc(100vh - 44px) !important;
+      max-height: calc(100vh - 44px) !important;
+      overflow: hidden !important;
+    }
+    html[data-layout-mode="desktop"] .lab-workspace.analysis-active {
+      grid-template-columns: 1fr !important;
+    }
+    html[data-layout-mode="desktop"] main.workbench-stage {
+      display: flex !important;
+      flex-direction: column !important;
+      height: 100% !important;
+      min-height: 0 !important;
+      max-height: 100% !important;
+      overflow: hidden !important;
+    }
+    html[data-layout-mode="desktop"] .svg-viewport-wrapper {
+      position: relative !important;
+      top: auto !important;
+      height: auto !important;
+      max-height: none !important;
+      min-height: 0 !important;
+      flex: 1 1 auto !important;
+    }
+    html[data-layout-mode="desktop"] aside.guide-panel,
+    html[data-layout-mode="desktop"] aside.table-panel-sidebar {
+      height: 100% !important;
+      max-height: 100% !important;
+      overflow: hidden !important;
+    }
+
+  
+    /* ================= MOBILE STAGE 2: HIDE TELEMETRY/CONTROLS & ENLARGE SETUP ================= */
+    @media (max-width: 700px) {
+      html[data-layout-mode="auto"][data-stage="2"] #stage2-cond-panel,
+      html[data-layout-mode="mobile"][data-stage="2"] #stage2-cond-panel {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        flex: 0 0 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: 0 !important;
+        overflow: hidden !important;
+      }
+
+      html[data-layout-mode="auto"][data-stage="2"] .svg-viewport-wrapper,
+      html[data-layout-mode="mobile"][data-stage="2"] .svg-viewport-wrapper {
+        height: 56dvh !important;
+        min-height: 300px !important;
+        max-height: 490px !important;
+        padding: 2px !important;
+      }
+    }
+
+    @media (max-width: 380px) {
+      html[data-layout-mode="auto"][data-stage="2"] .svg-viewport-wrapper,
+      html[data-layout-mode="mobile"][data-stage="2"] .svg-viewport-wrapper {
+        height: 50dvh !important;
+        min-height: 260px !important;
+        max-height: 410px !important;
+        padding: 2px !important;
+      }
+    }
+
+    /* Explicit mobile mode override on any screen width in Stage 2 */
+    html[data-layout-mode="mobile"][data-stage="2"] #stage2-cond-panel {
+      display: none !important;
+      height: 0 !important;
+      min-height: 0 !important;
+      flex: 0 0 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      border: 0 !important;
+      overflow: hidden !important;
+    }
+
+    html[data-layout-mode="mobile"][data-stage="2"] .svg-viewport-wrapper {
+      height: 56dvh !important;
+      min-height: 300px !important;
+      max-height: 490px !important;
+      padding: 2px !important;
+    }
+
+  </style>
+</head>
+<body>
+
+  <header class="lab-navbar">
+    <div class="brand-group">
+      <div class="brand-badge">pH</div>
+      <div class="brand-title">
+        <h1>Engineering Chemistry Virtual Laboratory</h1>
+        <p>Titration of Strong Acid Vs Strong Base by pH Metry</p>
+      </div>
+    </div>
+
+    <div class="stage-nav">
+      <button class="stage-btn active" id="btn-stg-1" onclick="switchStage(1)">Stage 1: Calibration of pH Meter</button>
+      <button class="stage-btn" id="btn-stg-2" onclick="switchStage(2)">Stage 2: Estimation of Unknown HCl</button>
+    </div>
+
+    <div class="header-right-cluster">
+      <div class="nav-actions">
+        <button class="btn-nav" id="btn-view-toggle" onclick="toggleAnalysisApparatusView()" style="display:none;">📊 View Graph Sheet</button>
+        <button class="btn-nav" id="sound-toggle-btn" onclick="toggleAudioEngine()">🔊 Sound: ON</button>
+        <button class="btn-nav" onclick="openModalWindow('modal-theory')">📖 Theory</button>
+        <button class="btn-nav primary" onclick="openModalWindow('modal-calc')">📊 Logbook</button>
+      </div>
+      <div class="mode-selector" role="group" aria-label="Display layout">
+        <button type="button" class="mode-btn active" data-mode="auto" onclick="setLayoutMode('auto')">Auto</button>
+        <button type="button" class="mode-btn" data-mode="desktop" onclick="setLayoutMode('desktop')">Desktop</button>
+        <button type="button" class="mode-btn" data-mode="mobile" onclick="setLayoutMode('mobile')">Mobile</button>
+      </div>
+      <button type="button" class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ Full screen</button>
+    </div>
+  </header>
+
+  <div class="lab-workspace" id="lab-workspace">
+    
+    <!-- MAIN WORKBENCH STAGE -->
+    <main class="workbench-stage" id="workbench-stage">
+      <div class="svg-viewport-wrapper">
+        <svg id="apparatus-svg" viewBox="0 0 980 470" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="glass-tube-realistic" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.80"/>
+              <stop offset="15%" stop-color="#e0f2fe" stop-opacity="0.22"/>
+              <stop offset="50%" stop-color="#ffffff" stop-opacity="0.05"/>
+              <stop offset="85%" stop-color="#38bdf8" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0.75"/>
+            </linearGradient>
+
+            <linearGradient id="flask-glass-realistic" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/>
+              <stop offset="18%" stop-color="#e0f2fe" stop-opacity="0.20"/>
+              <stop offset="60%" stop-color="#ffffff" stop-opacity="0.06"/>
+              <stop offset="88%" stop-color="#38bdf8" stop-opacity="0.22"/>
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0.80"/>
+            </linearGradient>
+
+            <linearGradient id="liquid-aqueous" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#7dd3fc" stop-opacity="0.65"/>
+              <stop offset="50%" stop-color="#bae6fd" stop-opacity="0.50"/>
+              <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.70"/>
+            </linearGradient>
+
+            <linearGradient id="chassis-outer" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#f5f4ef"/>
+              <stop offset="8%" stop-color="#eae6dd"/>
+              <stop offset="90%" stop-color="#dfdad0"/>
+              <stop offset="100%" stop-color="#cbc5b9"/>
+            </linearGradient>
+
+            <linearGradient id="chassis-recess" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#e9e5db"/>
+              <stop offset="100%" stop-color="#fdfcf8"/>
+            </linearGradient>
+
+            <linearGradient id="knob-sheen" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#3c4146"/>
+              <stop offset="45%" stop-color="#191b1e"/>
+              <stop offset="100%" stop-color="#0a0a0c"/>
+            </linearGradient>
+
+            <linearGradient id="silver-insert" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#e2e8f0"/>
+              <stop offset="50%" stop-color="#94a3b8"/>
+              <stop offset="100%" stop-color="#cbd5e1"/>
+            </linearGradient>
+
+            <linearGradient id="ldpe-bottle-sheen" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.90"/>
+              <stop offset="20%" stop-color="#f1f5f9" stop-opacity="0.95"/>
+              <stop offset="68%" stop-color="#cbd5e1" stop-opacity="0.75"/>
+              <stop offset="100%" stop-color="#94a3b8" stop-opacity="0.85"/>
+            </linearGradient>
+
+            <linearGradient id="display-bezel-glass" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22"/>
+              <stop offset="35%" stop-color="#ffffff" stop-opacity="0.03"/>
+              <stop offset="70%" stop-color="#000000" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#000000" stop-opacity="0.55"/>
+            </linearGradient>
+
+            <filter id="chassis-shadow" x="-10%" y="-10%" width="130%" height="130%">
+              <feDropShadow dx="0" dy="8" stdDeviation="7" flood-color="#000000" flood-opacity="0.65"/>
+            </filter>
+
+            <!-- Clean Red LED Glow Filter (Single Sharp Layer) -->
+            <filter id="led-clean-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="0" stdDeviation="2.2" flood-color="#ff1e38" flood-opacity="0.85"/>
+            </filter>
+          </defs>
+
+          <!-- Lab Bench Background -->
+          <g id="workbench-background">
+            <rect x="0" y="0" width="980" height="260" fill="#111827"/>
+            <rect x="0" y="0" width="980" height="22" fill="#1f2937"/>
+            <path d="M0 22 H980" stroke="#334155" stroke-width="2"/>
+            <rect x="24" y="28" width="932" height="210" rx="3" fill="#263445" stroke="#64748b" stroke-width="2"/>
+            <rect x="34" y="38" width="912" height="190" fill="#1b2838" stroke="#3b4b60" stroke-width="1.5"/>
+            <rect x="0" y="280" width="980" height="190" fill="#111418"/>
+            <rect x="0" y="280" width="980" height="12" fill="#242a30"/>
+            <line x1="0" y1="280" x2="980" y2="280" stroke="#4b535b" stroke-width="2"/>
+            <path d="M0 310 H980 M0 440 H980" stroke="#252b31" stroke-width="1" opacity=".65"/>
+          </g>
+
+          <!-- ================= 1. ELICO LI 120 pH METER (CLEAN OPTICAL BEZEL, NO GHOSTS) ================= -->
+          <g id="elico-li120-meter" transform="translate(25, 42)" filter="url(#chassis-shadow)">
+            <rect x="0" y="0" width="530" height="340" rx="18" fill="url(#chassis-outer)" stroke="#a8a29e" stroke-width="2.5"/>
+            <rect x="6" y="6" width="518" height="328" rx="14" fill="none" stroke="#ffffff" stroke-width="1.2" opacity="0.8"/>
+
+            <rect x="36" y="16" width="110" height="24" rx="3" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+            <text x="91" y="33" font-family="Arial, sans-serif" font-weight="900" font-size="14" fill="#0f172a" text-anchor="middle" letter-spacing="1.2">C3/PH/6</text>
+
+            <rect x="24" y="50" width="482" height="268" rx="8" fill="url(#chassis-recess)" stroke="#292524" stroke-width="3"/>
+            <rect x="27" y="53" width="476" height="262" rx="6" fill="none" stroke="#78716c" stroke-width="1" opacity="0.6"/>
+
+            <!-- STBY / READ Toggle -->
+            <g id="stby-read-group" class="interactive-element" onclick="toggleStbyRead()" transform="translate(90, 72)">
+              <text x="0" y="0" font-family="Arial, sans-serif" font-size="9" font-weight="900" fill="#0f172a" text-anchor="middle">STBY</text>
+              <circle id="led-stby" cx="0" cy="11" r="5" fill="#f59e0b" stroke="#78350f" stroke-width="1"/>
+              <rect x="-8" y="21" width="16" height="24" rx="4" fill="#1c1917" stroke="#44403c"/>
+              <rect id="rocker-stby" x="-6" y="23" width="12" height="20" rx="3" fill="#dc2626"/>
+              <circle id="led-read" cx="0" cy="55" r="5" fill="#450a0a" stroke="#292524" stroke-width="1"/>
+              <text x="0" y="71" font-family="Arial, sans-serif" font-size="9" font-weight="900" fill="#0f172a" text-anchor="middle">READ</text>
+            </g>
+
+            <!-- SINGLE-LAYER HIGH-CONTRAST DIGITAL LED DISPLAY (COMPLETELY REMOVED GHOST 88.88 LAYER) -->
+            <g id="led-display-module" transform="translate(175, 75)">
+              <rect x="0" y="0" width="180" height="74" rx="8" fill="#18181b" stroke="#3f3f46" stroke-width="3"/>
+              <!-- Optical dark acrylic filter -->
+              <rect x="5" y="5" width="170" height="64" rx="5" fill="#150204" stroke="#290307" stroke-width="1.2"/>
+              <!-- Active LED reading with no shadow digits -->
+              <text id="ph-meter-reading" x="90" y="52" 
+                    font-family="'Courier New', Courier, monospace" 
+                    font-size="44" 
+                    font-weight="900" 
+                    text-anchor="middle"
+                    fill="#ff1e38" 
+                    filter="url(#led-clean-glow)"
+                    letter-spacing="2">--.--</text>
+              <path d="M 6 6 L 120 6 L 50 68 L 6 68 Z" fill="url(#display-bezel-glass)" opacity="0.35" pointer-events="none"/>
+            </g>
+
+            <!-- pH / mV Toggle -->
+            <g id="ph-mv-group" class="interactive-element" onclick="togglePhMv()" transform="translate(440, 72)">
+              <text x="0" y="0" font-family="Arial, sans-serif" font-size="10" font-weight="900" fill="#0f172a" text-anchor="middle">pH</text>
+              <circle id="led-ph" cx="0" cy="11" r="5" fill="#ef4444" stroke="#7f1d1d" stroke-width="1"/>
+              <rect x="-8" y="21" width="16" height="24" rx="4" fill="#1c1917" stroke="#44403c"/>
+              <rect id="rocker-ph" x="-6" y="23" width="12" height="20" rx="3" fill="#dc2626"/>
+              <circle id="led-mv" cx="0" cy="55" r="5" fill="#450a0a" stroke="#292524" stroke-width="1"/>
+              <text x="0" y="71" font-family="Arial, sans-serif" font-size="9" font-weight="900" fill="#0f172a" text-anchor="middle">mV</text>
+            </g>
+
+            <!-- Temp Dial -->
+            <g id="temp-group" transform="translate(100, 222)">
+              <text x="0" y="-48" font-family="Arial, sans-serif" font-size="11" font-weight="900" fill="#0f172a" text-anchor="middle">°C</text>
+              <g font-family="Arial, sans-serif" font-size="8.5" font-weight="700" fill="#1c1917" text-anchor="middle">
+                <text x="-40" y="16">0</text><text x="-44" y="-3">10</text><text x="-39" y="-22">20</text>
+                <text x="-24" y="-36" fill="#0284c7" font-weight="900">27</text><text x="-9" y="-44">40</text>
+                <text x="9" y="-44">50</text><text x="26" y="-36">60</text><text x="39" y="-22">70</text>
+              </g>
+              <g id="meter-temp-knob" class="interactive-element" onclick="stepSetTemperature()" style="transform-origin: 0 0; transform: rotate(-120deg); transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1);">
+                <circle cx="0" cy="0" r="32" fill="url(#knob-sheen)" stroke="#0f172a" stroke-width="2"/>
+                <circle cx="0" cy="0" r="28" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="3 3"/>
+                <circle cx="0" cy="0" r="20" fill="url(#silver-insert)" stroke="#475569" stroke-width="1"/>
+                <polygon points="0,-33 -3.5,-23 3.5,-23" fill="#ffffff"/>
+              </g>
+            </g>
+
+            <!-- CAL Dial -->
+            <g id="cal-group" transform="translate(265, 222)">
+              <text x="0" y="-48" font-family="Arial, sans-serif" font-size="11" font-weight="900" fill="#0f172a" text-anchor="middle">CAL</text>
+              <path d="M -26 -36 Q 0 -46 26 -36" fill="none" stroke="#1c1917" stroke-width="2"/>
+              <polygon points="-26,-36 -21,-42 -20,-35" fill="#1c1917"/>
+              <polygon points="26,-36 21,-42 20,-35" fill="#1c1917"/>
+              <g id="meter-cal-knob" class="interactive-element" onclick="stepAdjustCalKnob()" style="transform-origin: 0 0; transform: rotate(0deg); transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);">
+                <circle cx="0" cy="0" r="33" fill="url(#knob-sheen)" stroke="#090a0b" stroke-width="2.2"/>
+                <circle cx="0" cy="0" r="23" fill="url(#silver-insert)" stroke="#64748b" stroke-width="1.2"/>
+                <line x1="0" y1="-33" x2="0" y2="-23" stroke="#f8fafc" stroke-width="2"/>
+              </g>
+            </g>
+
+            <!-- % SLOPE Dial -->
+            <g id="slope-group" transform="translate(430, 222)">
+              <text x="0" y="-48" font-family="Arial, sans-serif" font-size="11" font-weight="900" fill="#0f172a" text-anchor="middle">% SLOPE</text>
+              <g font-family="Arial, sans-serif" font-size="8.5" font-weight="700" fill="#1c1917" text-anchor="middle">
+                <text x="-40" y="8">80</text><text x="0" y="-38">90</text><text x="40" y="-8">100</text><text x="44" y="10">105</text>
+              </g>
+              <g id="meter-slope-knob" class="interactive-element" onclick="stepSetSlopeKnob()" style="transform-origin: 0 0; transform: rotate(-50deg); transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);">
+                <circle cx="0" cy="0" r="32" fill="url(#knob-sheen)" stroke="#090a0b" stroke-width="2"/>
+                <circle cx="0" cy="0" r="28" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="3 3"/>
+                <circle cx="0" cy="0" r="18" fill="url(#silver-insert)" stroke="#475569" stroke-width="1"/>
+                <polygon points="0,-33 -3.5,-23 3.5,-23" fill="#ffffff"/>
+              </g>
+            </g>
+
+            <!-- Branding -->
+            <g id="elico-branding" transform="translate(36, 305)">
+              <text font-family="'Arial Black', Arial, sans-serif" font-weight="900" font-size="19" fill="#0284c7" font-style="italic" letter-spacing="1">ELICO<tspan font-size="10" dy="-7">®</tspan></text>
+              <text x="330" y="-2" font-family="'Arial Black', Arial, sans-serif" font-weight="900" font-size="12" fill="#0f172a" letter-spacing="0.5">LI 120  pH METER</text>
+            </g>
+          </g>
+
+          <!-- BNC Probe Cable -->
+          <g id="ph-probe-cable-group">
+            <path id="ph-probe-cable-main" d="M 555 240 C 620 240, 640 330, 680 280 S 715 160, 725 125" fill="none" stroke="#090d10" stroke-width="5" stroke-linecap="round"/>
+            <path id="ph-probe-cable-sheen" d="M 555 240 C 620 240, 640 330, 680 280 S 715 160, 725 125" fill="none" stroke="#475569" stroke-width="1.6" stroke-linecap="round"/>
+          </g>
+
+          <!-- ================= SCENE A: STAGE 1 CALIBRATION BENCH ================= -->
+          <g id="stage1-assembly" transform="translate(680, 25)">
+            <rect x="150" y="380" width="120" height="15" rx="3" fill="#334155" stroke="#1e293b"/>
+            <rect x="195" y="40" width="9" height="340" fill="#94a3b8" stroke="#475569"/>
+
+            <!-- 3 Switchable Calibration Beakers -->
+            <g id="stage1-beaker-rack" transform="translate(0, 260)">
+              <!-- Distilled Water Beaker -->
+              <g id="beaker-distilled" class="beaker-switchable" style="transform: translate(0px, 0px); opacity: 1;">
+                <path d="M 10 20 H 90 L 84 95 Q 83 103 75 103 H 25 Q 17 103 16 95 Z" fill="url(#glass-tube-realistic)" stroke="#cbd5e1" stroke-width="1.5"/>
+                <path d="M 14 50 Q 50 53 86 50 L 82 95 Q 81 100 75 100 H 25 Q 19 100 18 95 Z" fill="#7dd3fc" opacity="0.35"/>
+                <ellipse cx="50" cy="50" rx="36" ry="4" fill="#bae6fd" opacity="0.6"/>
+                <text x="50" y="122" font-family="Arial, sans-serif" font-size="8.5" font-weight="700" fill="#93c5fd" text-anchor="middle">Distilled Water</text>
+              </g>
+
+              <!-- Buffer pH 9.20 Beaker -->
+              <g id="beaker-buffer9" class="beaker-switchable" style="transform: translate(140px, 0px); opacity: 0;">
+                <path d="M 10 20 H 90 L 84 95 Q 83 103 75 103 H 25 Q 17 103 16 95 Z" fill="url(#glass-tube-realistic)" stroke="#cbd5e1" stroke-width="1.5"/>
+                <path d="M 14 45 Q 50 48 86 45 L 82 95 Q 81 100 75 100 H 25 Q 19 100 18 95 Z" fill="#38bdf8" opacity="0.55"/>
+                <ellipse cx="50" cy="45" rx="36" ry="4" fill="#7dd3fc" opacity="0.75"/>
+                <text x="50" y="122" font-family="Arial, sans-serif" font-size="8.5" font-weight="700" fill="#38bdf8" text-anchor="middle">Buffer pH 9.20</text>
+              </g>
+
+              <!-- Buffer pH 4.00 Beaker -->
+              <g id="beaker-buffer4" class="beaker-switchable" style="transform: translate(140px, 0px); opacity: 0;">
+                <path d="M 10 20 H 90 L 84 95 Q 83 103 75 103 H 25 Q 17 103 16 95 Z" fill="url(#glass-tube-realistic)" stroke="#cbd5e1" stroke-width="1.5"/>
+                <path d="M 14 45 Q 50 48 86 45 L 82 95 Q 81 100 75 100 H 25 Q 19 100 18 95 Z" fill="#f43f5e" opacity="0.55"/>
+                <ellipse cx="50" cy="45" rx="36" ry="4" fill="#fb7185" opacity="0.75"/>
+                <text x="50" y="122" font-family="Arial, sans-serif" font-size="8.5" font-weight="700" fill="#f43f5e" text-anchor="middle">Buffer pH 4.00</text>
+              </g>
+            </g>
+
+            <!-- Combined Electrode Arm (Stage 1) -->
+            <g id="stage1-electrode-arm" style="transform: translateY(0px);">
+              <rect x="190" y="145" width="20" height="14" rx="2" fill="#1e293b"/>
+              <line x1="190" y1="152" x2="45" y2="152" stroke="#64748b" stroke-width="4.5"/>
+              <path d="M 45 140 Q 35 140 35 152 Q 35 164 45 164" fill="none" stroke="#94a3b8" stroke-width="4.5"/>
+
+              <g transform="translate(45, 100)">
+                <rect x="-6" y="0" width="12" height="15" rx="2" fill="#0f172a" stroke="#475569"/>
+                <rect x="-4.5" y="15" width="9" height="195" rx="4" fill="url(#glass-tube-realistic)" stroke="#94a3b8" stroke-width="1"/>
+                <line x1="-1.5" y1="20" x2="-1.5" y2="190" stroke="#cbd5e1" stroke-width="0.8"/>
+                <line x1="1.5" y1="20" x2="1.5" y2="190" stroke="#38bdf8" stroke-width="0.8"/>
+                <circle cx="0" cy="214" r="7.5" fill="#bae6fd" stroke="#38bdf8" stroke-width="1.2" opacity="0.85"/>
+                <text x="14" y="100" font-family="Arial, sans-serif" font-size="7.5" fill="#cbd5e1">Combined Electrode</text>
+              </g>
+            </g>
+          </g>
+
+          <!-- ================= SCENE B: STAGE 2 TITRATION BENCH ASSEMBLY ================= -->
+          <g id="titration-bench-rig" transform="translate(680, 20)" style="display:none; opacity: 0.15;">
+            <rect x="130" y="360" width="130" height="15" rx="3" fill="#334155" stroke="#1e293b"/>
+            <rect x="180" y="20" width="8" height="340" fill="#94a3b8" stroke="#475569"/>
+
+            <!-- Magnetic Stirrer Plate -->
+            <g id="magnetic-stirrer-plate" transform="translate(20, 350)">
+              <rect x="0" y="0" width="115" height="18" rx="3" fill="#1e293b" stroke="#334155" stroke-width="1.2"/>
+              <rect x="8" y="2" width="99" height="4" rx="1" fill="#f8fafc" stroke="#cbd5e1" stroke-width="0.8"/>
+              <circle cx="28" cy="11" r="3" fill="#64748b"/>
+              <circle cx="85" cy="11" r="3" fill="#0284c7"/>
+            </g>
+
+            <!-- Micro-Burette (1N NaOH) -->
+            <g id="stage-micro-burette" opacity="0" pointer-events="none">
+              <rect x="175" y="80" width="18" height="12" rx="2" fill="#1e293b"/>
+              <line x1="175" y1="86" x2="48" y2="86" stroke="#64748b" stroke-width="4"/>
+              
+              <polygon points="40,16 56,16 51,25 45,25" fill="url(#glass-tube-realistic)" stroke="#cbd5e1" stroke-width="0.8"/>
+              <rect x="44" y="25" width="8" height="235" rx="1.5" fill="none" stroke="#cbd5e1" stroke-width="1"/>
+              
+              <rect id="micro-burette-fill" x="44.8" y="257" width="6.4" height="0" fill="url(#liquid-aqueous)" opacity="0.75"/>
+              <ellipse id="micro-burette-meniscus" cx="48" cy="257" rx="3.2" ry="1" fill="#0284c7" opacity="0"/>
+              
+              <g stroke="#ffffff" stroke-width="0.5" opacity="0.85">
+                <line x1="48" y1="32" x2="52" y2="32"/><line x1="48" y1="70" x2="52" y2="70"/>
+                <line x1="48" y1="108" x2="52" y2="108"/><line x1="48" y1="146" x2="52" y2="146"/>
+                <line x1="48" y1="184" x2="52" y2="184"/><line x1="48" y1="222" x2="52" y2="222"/>
+              </g>
+
+              <path d="M 45 260 L 48 274 L 51 260 Z" fill="url(#glass-tube-realistic)" stroke="#94a3b8" stroke-width="0.8"/>
+              <g id="micro-stopcock-rotor" transform="translate(48, 256)">
+                <circle cx="0" cy="0" r="3.5" fill="#cbd5e1"/>
+                <rect id="micro-rotor-bar" x="-7" y="-2.5" width="14" height="5" rx="1.5" fill="#0284c7" stroke="#38bdf8" stroke-width="0.5"/>
+              </g>
+              <text x="60" y="20" font-family="Arial, sans-serif" font-size="6.5" fill="#38bdf8" font-weight="700">Micro-Burette (1N NaOH)</text>
+              <ellipse id="micro-naoh-drop" cx="48" cy="278" rx="1.8" ry="2.6" fill="#7dd3fc" opacity="0"/>
+            </g>
+
+            <!-- Reagent NaOH Beaker -->
+            <g id="obj-naoh-beaker" transform="translate(130, 280)" opacity="0" style="transform-origin: 30px 40px; transition: transform 1.1s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;">
+              <path d="M 6 10 H 54 L 50 68 Q 49 74 43 74 H 17 Q 11 74 10 68 Z" fill="url(#glass-tube-realistic)" stroke="#cbd5e1" stroke-width="1.2"/>
+              <path d="M 10 24 Q 30 26 50 24 L 48 68 Q 47 73 42 73 H 18 Q 13 73 12 68 Z" fill="#38bdf8" opacity="0.6"/>
+              <text x="30" y="46" font-size="6.5" font-weight="bold" fill="#ffffff" text-anchor="middle">1N NaOH</text>
+            </g>
+            <path id="naoh-pour-stream" d="M 48 16 L 48 30" stroke="#7dd3fc" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0"/>
+
+            <!-- 100 mL Beaker on Stirrer (50 mL MARK ELEVATED TO Y=52 FOR FULL ELECTRODE IMMERSION) -->
+            <g id="hcl-beaker-station" transform="translate(30, 255)">
+              <g id="beaker-hcl">
+                <path d="M 14 102 H 86" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+                <path d="M 10 20 L 7 15 L 14 20 H 88 L 84 98 Q 83 103 76 103 H 24 Q 17 103 16 98 Z" 
+                      fill="url(#glass-tube-realistic)" stroke="#cbd5e1" stroke-width="1.5"/>
+                <!-- Enamel markings -->
+                <line x1="22" y1="36" x2="32" y2="36" stroke="#ffffff" stroke-width="1" opacity="0.85"/>
+                <text x="36" y="38" font-size="5.5" fill="#f8fafc" font-weight="700">80</text>
+                
+                <!-- 50 mL Calibrated Mark -->
+                <line x1="22" y1="52" x2="35" y2="52" stroke="#ffffff" stroke-width="1.4" opacity="0.95"/>
+                <text x="38" y="54" font-size="6.5" fill="#38bdf8" font-weight="900">50mL</text>
+
+                <line x1="22" y1="74" x2="30" y2="74" stroke="#ffffff" stroke-width="1" opacity="0.85"/>
+                <text x="34" y="76" font-size="5.5" fill="#f8fafc" font-weight="700">20</text>
+
+                <!-- Full 50 mL Solution Column (Reaches Y=52, fully submerging bulb at Y=69-76) -->
+                <path id="hcl-beaker-liquid" d="M 13 52 Q 50 55 87 52 L 83 98 Q 82 102 76 102 H 24 Q 18 102 17 98 Z" fill="url(#liquid-aqueous)" opacity="0"/>
+                <ellipse id="hcl-beaker-meniscus" cx="50" cy="52" rx="36" ry="3.5" fill="#bae6fd" opacity="0"/>
+                
+                <rect id="hcl-stir-pellet" x="44" y="96" width="12" height="3" rx="1.5" fill="#f8fafc" stroke="#94a3b8" stroke-width="0.5" opacity="0.85"/>
+                <path id="hcl-vortex" d="M 40 52 Q 50 56 60 52" fill="none" stroke="#f8fafc" stroke-width="1.2" opacity="0"/>
+                <text id="hcl-beaker-caption" x="50" y="118" font-family="Arial, sans-serif" font-size="8.5" font-weight="700" fill="#f1f5f9" text-anchor="middle">100 mL Beaker (50 mL HCl)</text>
+              </g>
+            </g>
+
+            <!-- Combined Glass Electrode on Movable Clamp -->
+            <g id="movable-electrode-arm" style="transform: translateY(-80px);">
+              <rect x="175" y="160" width="18" height="12" rx="2" fill="#1e293b"/>
+              <line x1="175" y1="166" x2="80" y2="166" stroke="#64748b" stroke-width="4"/>
+              <path d="M 80 156 Q 70 156 70 166 Q 70 176 80 176" fill="none" stroke="#94a3b8" stroke-width="4"/>
+
+              <g id="combined-electrode" transform="translate(80, 120)">
+                <rect x="-6" y="0" width="12" height="15" rx="2" fill="#0f172a" stroke="#475569"/>
+                <rect x="-4.5" y="15" width="9" height="185" rx="4" fill="url(#glass-tube-realistic)" stroke="#94a3b8" stroke-width="1"/>
+                <line x1="-1.5" y1="20" x2="-1.5" y2="180" stroke="#cbd5e1" stroke-width="0.8"/>
+                <line x1="1.5" y1="20" x2="1.5" y2="180" stroke="#38bdf8" stroke-width="0.8"/>
+                <!-- Sensitive Glass Bulb (Dips 20px under the meniscus at Y=52) -->
+                <circle cx="0" cy="204" r="7.5" fill="#bae6fd" stroke="#38bdf8" stroke-width="1.2" opacity="0.85"/>
+                <text x="16" y="80" font-family="Arial, sans-serif" font-size="7.5" fill="#cbd5e1">Combined Electrode</text>
+              </g>
+            </g>
+          </g>
+
+          <!-- ================= SCENE C: FOREGROUND GLASSWARE PREPARATION ================= -->
+          <g id="stage-glassware-prep" opacity="0" pointer-events="none" style="display:none; transition: opacity 0.5s ease;">
+            
+            <!-- 100 mL VOLUMETRIC FLASK RIG -->
+            <g id="hcl-vol-flask-positioner" transform="translate(210, 195)">
+              <g id="obj-hcl-vol-flask-assembly" style="transform-origin: 30px 115px; transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);">
+                <ellipse cx="30" cy="8" rx="9" ry="3.2" fill="url(#glass-tube-realistic)" stroke="#cbd5e1" stroke-width="1.2"/>
+                <ellipse cx="30" cy="8" rx="6.5" ry="1.8" fill="#0f172a" opacity="0.5"/>
+                
+                <rect x="24.5" y="10" width="11" height="105" fill="url(#glass-tube-realistic)" stroke="#94a3b8" stroke-width="1.2"/>
+                <line x1="18" y1="52" x2="42" y2="52" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round"/>
+
+                <path d="M 24.5 115 C 24 135 4 150 4 172 C 4 186 14 188 30 188 C 46 188 56 186 56 172 C 56 150 36 135 35.5 115 Z" 
+                      fill="url(#flask-glass-realistic)" stroke="#94a3b8" stroke-width="1.4"/>
+                <path d="M 12 187 H 48" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>
+
+                <path id="hcl-prep-bulb-liquid" d="M 7 172 C 7 185 15 186.5 30 186.5 C 45 186.5 53 185 53 172 C 53 160 48 152 30 152 C 12 152 7 160 7 172 Z" fill="url(#liquid-aqueous)" opacity="0.75"/>
+                <path id="hcl-prep-full-liquid" d="M 25 115 C 24.5 135 5.5 150 5.5 172 C 5.5 185.5 14.5 187 30 187 C 45.5 187 54.5 185.5 54.5 172 C 54.5 150 35.5 135 35 115 Z" fill="url(#liquid-aqueous)" opacity="0"/>
+                <rect id="hcl-prep-neck-liquid" x="25" y="115" width="10" height="0" fill="url(#liquid-aqueous)" opacity="0"/>
+                <ellipse id="hcl-prep-neck-meniscus" cx="30" cy="115" rx="5" ry="1.5" fill="#bae6fd" opacity="0"/>
+
+                <text x="30" y="202" font-size="7.5" fill="#f8fafc" text-anchor="middle" font-weight="700">100 mL Vol. Flask (HCl)</text>
+                <text id="hcl-prep-vol-label" x="30" y="212" font-size="6.8" fill="#38bdf8" text-anchor="middle"></text>
+
+                <!-- Stopper -->
+                <g id="flask-glass-stopper" opacity="0" style="transform: translateY(-28px); transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease;">
+                  <polygon points="26,8 34,8 32,-4 28,-4" fill="url(#glass-tube-realistic)" stroke="#94a3b8" stroke-width="1"/>
+                  <ellipse cx="30" cy="-6" rx="8" ry="3" fill="url(#glass-tube-realistic)" stroke="#cbd5e1" stroke-width="1.2"/>
+                </g>
+              </g>
+            </g>
+
+            <path id="hcl-wash-jet" d="M 240 220 L 240 270" stroke="#7dd3fc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="4 2" opacity="0"/>
+            <path id="flask-to-burette-stream" d="M 500 28 L 500 60" stroke="#38bdf8" stroke-width="2.8" stroke-linecap="round" fill="none" opacity="0"/>
+
+            <!-- Wash Bottle -->
+            <g id="hcl-wash-bottle-positioner" transform="translate(340, 255)">
+              <g class="dynamic-apparatus" id="obj-hcl-wash" onclick="step1MakeUpHCl()" style="transform-origin: 35px 75px; transition: transform 0.9s cubic-bezier(0.25, 1, 0.5, 1);">
+                <rect id="wash-bottle-body" x="10" y="30" width="50" height="95" rx="12" fill="url(#ldpe-bottle-sheen)" stroke="#94a3b8" stroke-width="1.2"/>
+                <path d="M 35 16 L 35 -6 Q 35 -26 18 -26 L -16 -26 Q -38 -26 -46 -8 L -56 16" fill="none" stroke="#0284c7" stroke-width="4.5" stroke-linecap="round"/>
+                <text x="35" y="85" font-size="7.5" fill="#0284c7" font-weight="bold" text-anchor="middle">Wash Bottle</text>
+                <text x="35" y="95" font-size="6" fill="#64748b" text-anchor="middle">Distilled H₂O</text>
+              </g>
+            </g>
+
+            <!-- 50 mL Transfer Burette & Receiving Beaker -->
+            <g id="stage-transfer-burette-rig" transform="translate(460, 20)">
+              <rect x="100" y="365" width="120" height="15" rx="3" fill="#334155" stroke="#1e293b"/>
+              <rect x="145" y="10" width="8" height="355" fill="#94a3b8" stroke="#475569"/>
+              
+              <rect x="140" y="95" width="18" height="14" rx="2" fill="#1e293b"/>
+              <line x1="140" y1="102" x2="40" y2="102" stroke="#64748b" stroke-width="4.5"/>
+              <rect x="31" y="93" width="18" height="18" rx="3" fill="#334155" stroke="#cbd5e1" stroke-width="0.8"/>
+              <circle cx="40" cy="89" r="3" fill="#cbd5e1"/>
+
+              <g id="hcl-50ml-burette" transform="translate(40, 0)">
+                <polygon points="-12,14 12,14 6,24 -6,24" fill="url(#glass-tube-realistic)" stroke="#cbd5e1" stroke-width="0.8"/>
+                <rect x="-7" y="24" width="14" height="236" rx="2" fill="url(#glass-tube-realistic)" stroke="#cbd5e1" stroke-width="1.2"/>
+                
+                <rect id="transfer-burette-fill" x="-5.6" y="260" width="11.2" height="0" fill="url(#liquid-aqueous)" opacity="0.75"/>
+                <ellipse id="transfer-burette-meniscus" cx="0" cy="260" rx="5.6" ry="1.4" fill="#0284c7" opacity="0"/>
+                
+                <g stroke="#ffffff" stroke-width="0.65" opacity="0.95">
+                  <line x1="1" y1="28" x2="6" y2="28"/><line x1="2.5" y1="49" x2="6" y2="49"/>
+                  <line x1="1" y1="70" x2="6" y2="70"/><line x1="2.5" y1="91" x2="6" y2="91"/>
+                  <line x1="1" y1="112" x2="6" y2="112"/><line x1="2.5" y1="133" x2="6" y2="133"/>
+                  <line x1="1" y1="154" x2="6" y2="154"/><line x1="2.5" y1="175" x2="6" y2="175"/>
+                  <line x1="1" y1="196" x2="6" y2="196"/><line x1="2.5" y1="217" x2="6" y2="217"/>
+                  <line x1="1" y1="238" x2="6" y2="238"/>
+                </g>
+                <g font-family="Arial, sans-serif" font-size="5.5" font-weight="700" fill="#f8fafc" opacity="0.95">
+                  <text x="8" y="30">0</text><text x="8" y="72">10</text><text x="8" y="114">20</text>
+                  <text x="8" y="156">30</text><text x="8" y="198">40</text><text x="8" y="240">50</text>
+                </g>
+
+                <path d="M -5 260 L -1.5 284 L 1.5 284 L 5 260 Z" fill="url(#glass-tube-realistic)" stroke="#94a3b8" stroke-width="0.8"/>
+                <g id="transfer-stopcock" transform="translate(0, 266)">
+                  <circle cx="0" cy="0" r="4.5" fill="#cbd5e1" stroke="#64748b" stroke-width="0.8"/>
+                  <rect id="transfer-rotor" x="-10" y="-3" width="20" height="6" rx="1.8" fill="#0284c7" stroke="#38bdf8" stroke-width="0.6" style="transform-origin: 0px 0px; transition: transform 0.3s ease;"/>
+                </g>
+                
+                <path id="transfer-stream" d="M 0 284 L 0 326" stroke="#38bdf8" stroke-width="2.6" stroke-linecap="round" opacity="0" stroke-dasharray="3 2"/>
+                <ellipse id="transfer-drip-drop" cx="0" cy="286" rx="2" ry="2.8" fill="#7dd3fc" opacity="0"/>
+                <text x="24" y="22" font-size="7.5" fill="#38bdf8" font-weight="700">50 mL Burette (HCl)</text>
+              </g>
+
+              <!-- Receiving 100 mL Beaker (Fills up cleanly to 50 mL mark at Y=46) -->
+              <g id="transfer-receiving-beaker" transform="translate(10, 296)">
+                <path d="M 6 80 H 54" stroke="#94a3b8" stroke-width="2.8" stroke-linecap="round"/>
+                <path d="M 2 16 L 0 12 L 6 16 H 58 L 54 78 Q 53 81 48 81 H 12 Q 7 81 6 78 Z" 
+                      fill="url(#glass-tube-realistic)" stroke="#cbd5e1" stroke-width="1.4"/>
+                <line x1="8" y1="46" x2="18" y2="46" stroke="#ffffff" stroke-width="1" opacity="0.9"/>
+                <text x="20" y="48" font-size="5" fill="#38bdf8" font-weight="700">50mL</text>
+
+                <path id="transfer-beaker-liquid" d="M 6 78 L 54 78 L 54 78 Q 53 81 48 81 H 12 Q 7 81 6 78 Z" fill="url(#liquid-aqueous)" opacity="0"/>
+                <ellipse id="transfer-beaker-meniscus" cx="30" cy="78" rx="24" ry="2.8" fill="#bae6fd" opacity="0"/>
+                <text x="30" y="96" font-size="7.5" fill="#f8fafc" text-anchor="middle" font-weight="700">100 mL Beaker</text>
+              </g>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Stage 1 Footer Dashboard -->
+      <footer class="dashboard-bar" id="stage1-dashboard">
+        <div class="dashboard-chips">
+          <span class="dash-chip" id="chip-pwr">Power: OFF</span>
+          <span class="dash-chip" id="chip-mode">Mode: STBY</span>
+          <span class="dash-chip" id="chip-func">Function: pH</span>
+          <span class="dash-chip" id="chip-temp">Temp: 0 °C</span>
+          <span class="dash-chip" id="chip-slope">Slope: --</span>
+          <span class="dash-chip" id="chip-medium">Medium: Rinse Water</span>
+        </div>
+        <button class="btn-nav" onclick="resetStage1()">↺ Reset Stage 1</button>
+      </footer>
+
+      <!-- Stage 2 Footer Telemetry & Controls Dashboard -->
+      <section class="cond-panel" id="stage2-cond-panel">
+        <div class="cond-actions">
+          <strong style="color:#7dd3fc">pH Telemetry &amp; Titration Controls</strong>
+          <div class="cond-live">
+            <span>Power: ON</span>
+            <span>Temp: 25°C</span>
+            <span>Mode: READ</span>
+            <span>Func: pH</span>
+          </div>
+          <div class="cond-live">
+            <span>Current pH: <b id="dashboard-ph" style="color:#ff2238">--.--</b></span>
+          </div>
+          <div style="display:flex; gap:5px; flex-wrap:wrap;">
+            <button id="btn-add-naoh" onclick="condTitrateStep()" disabled>+ Next NaOH Addition</button>
+            <button id="btn-autorun" onclick="condAutoRunTitration()" disabled style="background:#0369a1; border-color:#38bdf8;">⚡ Auto Titrate All</button>
+            <button onclick="resetStage2()">↺ Reset Stage 2</button>
+          </div>
+          <small id="cond-hint" style="color:#94a3b8; line-height:1.2;">Follow the protocol on the right panel.</small>
+        </div>
+
+        <div class="cond-graph-wrap">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="color:#7dd3fc">Real-Time Titration Curve Preview</strong>
+            <span id="preview-endpoint" style="color:#38bdf8; font-weight:700; font-size:10px;">Equivalence Point: Pending</span>
+          </div>
+          <svg id="cond-graph" viewBox="0 0 420 120">
+            <path d="M 38 10 V 98 H 405" fill="none" stroke="#94a3b8" stroke-width="1.2"/>
+            <text x="6" y="16" fill="#cbd5e1" font-size="8">pH</text>
+            <text x="220" y="114" fill="#cbd5e1" font-size="8" text-anchor="middle">Volume of NaOH added (mL)</text>
+            <g font-size="7.5" fill="#94a3b8" text-anchor="middle">
+              <text x="38" y="106">0</text><text x="111" y="106">2</text><text x="184" y="106">4</text>
+              <text x="257" y="106">6</text><text x="331" y="106">8</text><text x="404" y="106">10</text>
+            </g>
+            <g id="cond-graph-points"></g>
+            <path id="cond-graph-curve" d="" fill="none" stroke="#38bdf8" stroke-width="1.6"/>
+            <text id="cond-graph-placeholder" x="220" y="55" fill="#64748b" font-size="11" text-anchor="middle">Data points plot here</text>
+          </svg>
+        </div>
+
+        <div class="cond-table-wrap" id="cond-table-wrap">
+          <table class="cond-table" id="observation-table">
+            <thead>
+              <tr>
+                <th>S.No</th>
+                <th>Vol NaOH (mL)</th>
+                <th>pH</th>
+                <th>ΔV</th>
+                <th>ΔpH</th>
+                <th>ΔpH/ΔV</th>
+              </tr>
+            </thead>
+            <tbody id="cond-table-body">
+              <!-- 30 rows populated here -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- Side Guide Protocol Panel -->
+    <aside class="guide-panel" id="guide-panel">
+      <div class="panel-head">
+        <h2 id="guide-panel-title">Stage 1 Protocol</h2>
+        <span style="font-size:0.65rem; color:var(--accent-emerald); font-weight:700;">GUIDED</span>
+      </div>
+
+      <div class="protocol-scroll-box" id="protocol-steps"></div>
+
+      <div class="telemetry-card">
+        <div class="telemetry-row">
+          <span class="telemetry-label" id="hud-label-1">Active Medium:</span>
+          <span class="telemetry-val" id="hud-val-1" style="color:var(--accent-cyan)">Distilled Water</span>
+        </div>
+        <div class="telemetry-row" id="hud-row-naoh" style="display:none;">
+          <span class="telemetry-label">NaOH Delivered:</span>
+          <span class="telemetry-val" id="hud-naoh-vol" style="color:var(--accent-cyan)">0.00 mL</span>
+        </div>
+        <div class="telemetry-row">
+          <span class="telemetry-label">Meter Reading:</span>
+          <span class="telemetry-val" id="hud-ph-display" style="color:var(--accent-rose)">--.--</span>
+        </div>
+        <div class="telemetry-row">
+          <span class="telemetry-label">Status:</span>
+          <span class="telemetry-val" id="hud-status" style="color:var(--text-muted)">Uncalibrated</span>
+        </div>
+      </div>
+
+      <div style="padding: 0 12px 10px;">
+        <button class="btn-nav primary" style="width:100%; justify-content:center; padding:7px;" onclick="openModalWindow('modal-calc')">
+          📝 View Observations &amp; Calculations
+        </button>
+      </div>
+    </aside>
+
+    <!-- Sidebar Reading Table Panel (Stage 2 Steps 6 & 7) -->
+    <aside class="table-panel-sidebar" id="table-panel-sidebar" style="display: none;">
+      <div class="panel-head">
+        <h2>Observation Table</h2>
+        <span style="font-size:0.65rem; color:var(--accent-cyan); font-weight:700;">LIVE LOG</span>
+      </div>
+
+      <div style="padding: 6px 10px; display: flex; gap: 6px; background: rgba(15, 23, 42, 0.6); border-bottom: 1px solid var(--panel-border);">
+        <button id="side-add-btn" onclick="condTitrateStep()" class="btn-nav" style="flex:1; justify-content:center; font-size:0.68rem;">+ Next NaOH</button>
+        <button id="side-auto-btn" onclick="condAutoRunTitration()" class="btn-nav primary" style="flex:1; justify-content:center; font-size:0.68rem;">⚡ Auto Titrate</button>
+      </div>
+
+      <div class="table-sidebar-body" id="table-sidebar-body"></div>
+
+      <div class="telemetry-card">
+        <div class="telemetry-row">
+          <span class="telemetry-label">NaOH Delivered:</span>
+          <span class="telemetry-val" id="table-hud-naoh" style="color:var(--accent-cyan)">0.00 mL</span>
+        </div>
+        <div class="telemetry-row">
+          <span class="telemetry-label">Display pH:</span>
+          <span class="telemetry-val" id="table-hud-ph" style="color:#ff2238">--.--</span>
+        </div>
+        <div class="telemetry-row">
+          <span class="telemetry-label">Status:</span>
+          <span class="telemetry-val" id="table-hud-status" style="color:var(--accent-emerald)">Titrating</span>
+        </div>
+      </div>
+
+      <div style="padding: 0 10px 10px;">
+        <button class="btn-nav primary" style="width:100%; justify-content:center; padding:7px;" onclick="openModalWindow('modal-calc')">
+          📝 Open Logbook
+        </button>
+      </div>
+    </aside>
+
+    <!-- Post-Titration Analysis Workspace (Millimeter Graph Sheet) -->
+    <div class="analysis-workspace" id="analysis-workspace">
+      <div class="analysis-left-pane">
+        <div class="panel-head">
+          <h2>Observation Notebook</h2>
+          <span style="font-size:0.65rem; color:var(--accent-emerald); font-weight:700;">30 READINGS COMPLETE</span>
+        </div>
+
+        <div class="analysis-table-container" id="analysis-table-container"></div>
+
+        <div class="analysis-tabs-group">
+          <button id="btn-plot-diff" class="tab-action-btn active" onclick="actionPlotDifferentialData()">
+            <span style="font-size:1.1rem;">📈</span>
+            <span>Plot ΔpH/ΔV Curve</span>
+          </button>
+          <button id="btn-draw-peak" class="tab-action-btn" onclick="actionLocatePeak()" disabled>
+            <span style="font-size:1.1rem;">📍</span>
+            <span>Find Equivalence Point</span>
+          </button>
+        </div>
+
+        <div class="analysis-info-box" id="analysis-info-box">
+          Click <b>"Plot ΔpH/ΔV Curve"</b> to plot the first derivative values against NaOH volume.
+        </div>
+
+        <div style="padding: 0 10px 10px;">
+          <button class="btn-nav primary" style="width:100%; justify-content:center; padding:7px;" onclick="openModalWindow('modal-calc')">
+            📝 Open Estimation Logbook
+          </button>
+        </div>
+      </div>
+
+      <div class="analysis-right-pane">
+        <div class="graph-sheet-header">
+          <div class="graph-title-block">
+            <h3>Millimeter Graph Sheet — First Derivative (ΔpH/ΔV vs Volume of NaOH)</h3>
+            <p>Determining the Equivalence Point ($V_e$) for Strong Acid vs Strong Base Titration</p>
+          </div>
+          <div style="background: rgba(15,23,42,0.85); border: 1px solid rgba(56,189,248,0.4); padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;">
+            Equivalence Point ($V_e$): <span id="banner-ve-val" style="color:var(--accent-cyan);">Pending Extrapolation</span>
+          </div>
+        </div>
+
+        <div class="graph-sheet-wrapper">
+          <svg id="millimeter-graph-svg" viewBox="0 0 740 460" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <pattern id="mm-fine-grid" width="5.8" height="5.67" patternUnits="userSpaceOnUse">
+                <path d="M 5.8 0 L 0 0 0 5.67" fill="none" stroke="rgba(56, 189, 248, 0.08)" stroke-width="0.5"/>
+              </pattern>
+              <pattern id="mm-major-grid" width="58" height="56.67" patternUnits="userSpaceOnUse">
+                <rect width="58" height="56.67" fill="url(#mm-fine-grid)"/>
+                <path d="M 58 0 L 0 0 0 56.67" fill="none" stroke="rgba(56, 189, 248, 0.35)" stroke-width="1.3"/>
+              </pattern>
+            </defs>
+
+            <rect x="0" y="0" width="740" height="460" fill="#081322"/>
+            <rect x="80" y="40" width="600" height="340" fill="url(#mm-major-grid)" stroke="#38bdf8" stroke-width="1.6"/>
+
+            <!-- Axes -->
+            <line x1="80" y1="40" x2="80" y2="380" stroke="#e2e8f0" stroke-width="1.8"/>
+            <line x1="80" y1="380" x2="680" y2="380" stroke="#e2e8f0" stroke-width="1.8"/>
+
+            <text x="380" y="415" fill="#f8fafc" font-size="11.5" font-weight="700" text-anchor="middle">Volume of NaOH added in mL (x-axis) ⟶</text>
+            <text x="24" y="210" fill="#f8fafc" font-size="11.5" font-weight="700" text-anchor="middle" transform="rotate(-90 24 210)">ΔpH / ΔV (y-axis) ⟶</text>
+
+            <!-- X Marks -->
+            <g font-size="9.5" fill="#bae6fd" font-weight="700" text-anchor="middle">
+              <text x="80" y="396">0.0</text>
+              <text x="140" y="396">1.0</text>
+              <text x="200" y="396">2.0</text>
+              <text x="260" y="396">3.0</text>
+              <text x="290" y="396" fill="#f43f5e">3.5</text>
+              <text x="320" y="396">4.0</text>
+              <text x="380" y="396">5.0</text>
+              <text x="440" y="396">6.0</text>
+              <text x="500" y="396">7.0</text>
+              <text x="560" y="396">8.0</text>
+              <text x="620" y="396">9.0</text>
+              <text x="680" y="396">10.0</text>
+            </g>
+
+            <!-- Y Marks (0 to 50 for ΔpH/ΔV) -->
+            <g font-size="9.5" fill="#bae6fd" font-weight="700" text-anchor="end">
+              <text x="72" y="384">0</text>
+              <text x="72" y="316">10</text>
+              <text x="72" y="248">20</text>
+              <text x="72" y="180">30</text>
+              <text x="72" y="112">40</text>
+              <text x="72" y="44">50</text>
+            </g>
+
+            <!-- Differential Points & Peak -->
+            <g id="sheet-plotted-points"></g>
+            <path id="sheet-differential-curve" d="" fill="none" stroke="#f59e0b" stroke-width="2.6" opacity="0"/>
+            <line id="sheet-drop-line" x1="0" y1="0" x2="0" y2="0" stroke="#f43f5e" stroke-width="2" stroke-dasharray="5 3" opacity="0"/>
+            <circle id="sheet-peak-dot" cx="0" cy="0" r="5.5" fill="#f43f5e" stroke="#ffffff" stroke-width="2" opacity="0"/>
+            <text id="sheet-peak-label" x="0" y="0" fill="#f8fafc" font-size="10.5" font-weight="800" opacity="0"></text>
+
+            <text id="sheet-placeholder-text" x="380" y="210" fill="#64748b" font-size="13" font-weight="600" text-anchor="middle">
+              Click "Plot ΔpH/ΔV Curve" on the left panel to begin analysis
+            </text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Theory Modal -->
+  <div class="modal-backdrop" id="modal-theory">
+    <div class="modal-window">
+      <div class="modal-head">
+        <h3>Theory: Titration of Strong Acid Vs Strong Base by pH Metry</h3>
+        <button class="btn-close-modal" onclick="closeModalWindow('modal-theory')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h4 style="color:var(--accent-cyan);">1. Combined Glass Electrode &amp; Calibration</h4>
+        <p>A pH meter measures potential difference between a hydrogen ion-sensitive glass electrode and an Ag/AgCl reference electrode immersed in the solution according to the Nernst equation:</p>
+        <div class="chem-eq-card">E = E₀ - 2.303 (RT / F) × pH</div>
+        <p>Two standard buffer solutions are used for two-point calibration:</p>
+        <ul style="margin-left:18px; margin-top:4px;">
+          <li><b>Buffer pH 9.20</b>: Adjusts zero-intercept asymmetry using the <b>CAL</b> knob.</li>
+          <li><b>Buffer pH 4.00</b>: Evaluates response slope. Any difference $\Delta = |4.00 - X|$ is compensated equally: half with the <b>% SLOPE</b> knob and the remaining half with the <b>CAL</b> knob.</li>
+        </ul>
+
+        <h4 style="color:var(--accent-cyan); margin-top:14px;">2. Titration Principle &amp; Differential Endpoint Detection</h4>
+        <p>When strong hydrochloric acid (HCl) is titrated against sodium hydroxide (NaOH):</p>
+        <div class="chem-eq-card">HCl + NaOH → NaCl + H₂O<br>(H⁺ + Cl⁻) + (Na⁺ + OH⁻) → Na⁺ + Cl⁻ + H₂O</div>
+        <p>Near the equivalence point, the pH changes sharply over minute volume additions. By calculating the first derivative:</p>
+        <div class="chem-eq-card">Differential Quotient = ΔpH / ΔV</div>
+        <p>Plotting $\Delta\text{pH}/\Delta V$ against the volume of NaOH yields a sharp maximum peak at the equivalence point ($V_e$), giving high endpoint accuracy.</p>
+        
+        <h4 style="color:var(--accent-cyan); margin-top:12px;">Quantitative Formulae</h4>
+        <div class="chem-eq-card">
+          Normality of HCl: N(HCl) = [N(NaOH) × V_e] / V(HCl)<br>
+          Strength of HCl (g/L): Strength = N(HCl) × 36.5 g/mol
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logbook Modal -->
+  <div class="modal-backdrop" id="modal-calc">
+    <div class="modal-window">
+      <div class="modal-head">
+        <h3>Observation Notebook &amp; Quantitative Calculations</h3>
+        <button class="btn-close-modal" onclick="closeModalWindow('modal-calc')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h4 style="color:var(--accent-cyan);">Part A: Two-Point Calibration Data</h4>
+        <table class="obs-table">
+          <thead>
+            <tr>
+              <th>Stage</th>
+              <th>Standard Buffer</th>
+              <th>Initial Reading</th>
+              <th>Adjustment Applied</th>
+              <th>Calibrated Reading</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1st Calibration</td>
+              <td>pH 9.20</td>
+              <td>9.45</td>
+              <td>CAL knob adjusted</td>
+              <td><strong>9.20</strong></td>
+            </tr>
+            <tr>
+              <td>2nd Calibration</td>
+              <td>pH 4.00</td>
+              <td>4.46 (Diff = 0.46)</td>
+              <td>Half (% Slope) → 4.23<br>Half (CAL) → 4.00</td>
+              <td><strong>4.00</strong></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4 style="color:var(--accent-cyan); margin-top:14px;">Part B: Standard Titrant &amp; Unknown HCl Parameters</h4>
+        <table class="obs-table">
+          <thead>
+            <tr>
+              <th>Titrant</th>
+              <th>Normality N(NaOH)</th>
+              <th>Volume of HCl Aliquot Taken (V)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Standardized NaOH</td>
+              <td>1.0000 N</td>
+              <td>50.0 mL (via 50 mL burette)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4 style="color:var(--accent-cyan); margin-top:14px;">Part C: Estimation of HCl from Differential Peak</h4>
+        <table class="obs-table">
+          <thead>
+            <tr>
+              <th>Volume of HCl (mL)</th>
+              <th>Equivalence Point V_e (mL)</th>
+              <th>Calculated Normality N(HCl)</th>
+              <th>Strength of HCl (g/L)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>50.0</td>
+              <td><input type="number" step="0.05" id="v3-val" placeholder="V_e"></td>
+              <td><input type="number" step="0.0001" id="calc-HCl" placeholder="N"></td>
+              <td><input type="number" step="0.0001" id="calc-strength-HCl" placeholder="g/L"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="display:flex; justify-content:space-between; margin-top:12px;">
+          <button class="btn-nav primary" onclick="verifyCalculations()">🔍 Verify Calculations</button>
+          <button class="btn-nav" onclick="populateSimulatedData()">⚡ Fill Simulation Ground-Truth</button>
+        </div>
+
+        <div id="verify-banner" style="margin-top:10px; padding:8px 12px; border-radius:6px; display:none; font-size:0.8rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const titrationSchedule = [
+      0.0, 1.0, 2.0, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 
+      3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.1, 
+      4.2, 4.3, 4.4, 4.5, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0
+    ];
+
+    const labState = {
+      stage: 1,
+      audio: true,
+      isAnimating: false,
+
+      // Stage 1
+      stg1Step: 0,
+      powerOn: false,
+      stbyRead: 'STBY',
+      phMv: 'pH',
+      temperature: 0,
+      slopeKnob: 50,
+      activeBuffer: 'Distilled Water',
+      displayValue: '--.--',
+
+      // Stage 2
+      stg2Step: 0,
+      currentScheduleIndex: -1,
+      hclMadeUp: false,
+      hclTransferred50: false,
+      hclCellImmersed: false,
+      hclBuretteReady: false,
+      observations: [],
+      Ve_true: 3.50,
+      N_NaOH: 1.0000,
+      N_HCl_true: 0.0700,
+      analysisModeActive: false,
+      dataPlottedOnSheet: false
+    };
+
+    const stage1Steps = [
+      { label: "Step 1", title: "Power ON & Warm Up", text: "Switch ON the pH meter and allow internal electronics to warm up for 1–2 minutes.", fn: stepPowerOn },
+      { label: "Step 2", title: "Temperature Compensation", text: "Set the temperature component dial to room temperature (25 °C).", fn: stepSetTemperature },
+      { label: "Step 3", title: "Set to READ Mode", text: "Keep the STANDBY/READ selector switch in READ mode.", fn: stepSetReadMode },
+      { label: "Step 4", title: "Set to pH Mode", text: "Set the pH/mV selector switch to the pH mode.", fn: stepSetPhMode },
+      { label: "Step 5", title: "Set % Slope to 90%", text: "Temporarily set the % SLOPE knob to 90%.", fn: stepSetSlopeKnob },
+      { label: "Step 6", title: "Immerse in Buffer pH 9.20", text: "Rinse electrode with distilled water and immerse it in standard buffer pH 9.20.", fn: stepImmerseBuffer9 },
+      { label: "Step 7", title: "Calibrate to 9.20 (CAL Knob)", text: "Observe reading. Adjust the CAL knob until display reads exactly 9.20.", fn: stepAdjustCalKnob },
+      { label: "Step 8", title: "Immerse in Buffer pH 4.00", text: "Rinse electrode with distilled water and immerse it in standard buffer pH 4.00.", fn: stepImmerseBuffer4 },
+      { label: "Step 9", title: "Observe & Calculate Difference", text: "Observe display reading X = 4.46. Calculate Difference = |4.00 - 4.46| = 0.46.", fn: stepCalculateDifference },
+      { label: "Step 10", title: "Dual Knob Adjustment", text: "Decrease reading to 4.23 via % Slope knob, then to 4.00 via CAL knob.", fn: stepDualAdjustment },
+      { label: "Step 11", title: "Proceed to Estimation", text: "Rinse electrode, gently blot dry with tissue paper (do not rub). Calibration complete! Proceed to Stage 2.", fn: stepProceedToStage2 }
+    ];
+
+    const stage2Steps = [
+      { label: "Step 1", title: "Make up Unknown HCl", text: "Make up the given unknown HCl solution up to the mark (100 mL) with distilled water, cover with stopper, and invert 3 times to mix thoroughly.", fn: step1MakeUpHCl },
+      { label: "Step 2", title: "Transfer 50 mL into Beaker", text: "Fill the 50 mL burette with made-up HCl solution and transfer 50 mL slowly into a 100 mL beaker.", fn: step2Transfer50mLHCl },
+      { label: "Step 3", title: "Immerse Combined Electrode", text: "Immerse the combined glass electrode in the 100 mL beaker containing 50 mL of unknown HCl solution.", fn: step3ImmerseElectrode },
+      { label: "Step 4", title: "Setup Micro-Burette with NaOH", text: "Fill the micro burette with 1N NaOH solution from reagent beaker and fix it to the stand.", fn: step4SetupMicroBurette },
+      { label: "Step 5", title: "Record Initial pH (0.0 mL)", text: "Note down the stable initial pH reading of the solution (1.15) before addition of NaOH.", fn: step5RecordInitialPH },
+      { label: "Step 6", title: "Portionwise Titration", text: "Add NaOH from the micro-burette according to the 30-point schedule, gently stir with glass rod/stirrer, and note the stable pH value.", fn: condTitrateStep },
+      { label: "Step 7", title: "Complete All 30 Points", text: "Continue addition of NaOH up to 10.0 mL (including 0.1 mL intervals between 2.5 and 4.5 mL).", fn: condAutoRunTitration },
+      { label: "Step 8", title: "Differential Plot (ΔpH/ΔV vs V)", text: "Plot a graph between volume of NaOH on x-axis and ΔpH/ΔV on y-axis to find the equivalence point.", fn: actionPlotDifferentialData }
+    ];
+
+    let audioCtx = null;
+    function playTone(type) {
+      if (!labState.audio) return;
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
+
+      if (type === 'click') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.setValueAtTime(750, now);
+        osc.frequency.exponentialRampToValueAtTime(150, now + 0.04);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.04);
+      } else if (type === 'beep') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.setValueAtTime(1050, now);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.1);
+      } else if (type === 'glass') {
+        [1800, 2400].forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.frequency.setValueAtTime(freq, now + idx * 0.03);
+          gain.gain.setValueAtTime(0.12, now + idx * 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.03 + 0.25);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + idx * 0.03);
+          osc.stop(now + idx * 0.03 + 0.28);
+        });
+      } else if (type === 'chime') {
+        [523, 659, 784, 1046].forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.12, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.45);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.45);
+        });
+      }
+    }
+
+    function toggleAudioEngine() {
+      labState.audio = !labState.audio;
+      document.getElementById('sound-toggle-btn').innerText = labState.audio ? '🔊 Sound: ON' : '🔇 Sound: OFF';
+    }
+
+    function setMeterDisplay(val) {
+      document.getElementById('ph-meter-reading').textContent = val;
+      document.getElementById('hud-ph-display').textContent = val;
+      if (document.getElementById('dashboard-ph')) {
+        document.getElementById('dashboard-ph').textContent = val;
+      }
+      if (document.getElementById('table-hud-ph')) {
+        document.getElementById('table-hud-ph').textContent = val;
+      }
+    }
+
+    function computeTheoreticalPH(V) {
+      const V0 = 50.0;
+      const Ve = labState.Ve_true; // 3.50 mL
+      const totalV = V0 + V;
+
+      if (V < Ve) {
+        const remainingH = (Ve - V) * 1.0;
+        const concH = remainingH / totalV;
+        return parseFloat((-Math.log10(concH)).toFixed(2));
+      } else if (Math.abs(V - Ve) < 0.001) {
+        return 7.00;
+      } else {
+        const excessOH = (V - Ve) * 1.0;
+        const concOH = excessOH / totalV;
+        const pOH = -Math.log10(concOH);
+        return parseFloat((14.00 - pOH).toFixed(2));
+      }
+    }
+
+    function isMobileFocusActive() {
+      const mode = document.documentElement.getAttribute('data-layout-mode') || 'auto';
+      return mode === 'mobile' || (mode === 'auto' && window.matchMedia('(max-width: 700px)').matches);
+    }
+
+    function renderProtocol() {
+      const container = document.getElementById('protocol-steps');
+      container.innerHTML = '';
+      const list = labState.stage === 1 ? stage1Steps : stage2Steps;
+      const curIdx = labState.stage === 1 ? labState.stg1Step : labState.stg2Step;
+
+      document.getElementById('guide-panel-title').textContent = labState.stage === 1 ? "Stage 1 Protocol" : "Stage 2 Protocol";
+
+      if (isMobileFocusActive()) {
+        const progress = document.createElement('div');
+        progress.className = 'mobile-step-progress';
+        progress.textContent = curIdx < list.length ? `STEP ${curIdx + 1} OF ${list.length}` : 'ALL STEPS COMPLETED';
+        container.appendChild(progress);
+
+        if (curIdx >= list.length) {
+          const done = document.createElement('div');
+          done.className = 'step-card done active mobile-current-step';
+          done.innerHTML = '<div class="step-top"><span>Stage completed</span><span>✓ DONE</span></div><div class="step-desc">All operations in this stage have been completed.</div>';
+          container.appendChild(done);
+          return;
+        }
+
+        const st = list[curIdx];
+        const card = document.createElement('div');
+        card.className = 'step-card active mobile-current-step';
+        card.innerHTML = `
+          <div class="step-top">
+            <span>${st.label} · ${st.title}</span>
+            <span>● IN PROGRESS</span>
+          </div>
+          <div class="step-desc">${st.text}</div>
+          <button class="step-exec-btn" onclick="executeCurrentStepAction(${curIdx})">▶ Execute ${st.label}</button>
+        `;
+        container.appendChild(card);
+        return;
+      }
+
+      list.forEach((st, idx) => {
+        const card = document.createElement('div');
+        card.className = `step-card ${idx === curIdx ? 'active' : ''} ${idx < curIdx ? 'done' : ''}`;
+        card.innerHTML = `
+          <div class="step-top">
+            <span>${st.label} · ${st.title}</span>
+            <span>${idx < curIdx ? '✓ DONE' : (idx === curIdx ? '● IN PROGRESS' : '○ PENDING')}</span>
+          </div>
+          <div class="step-desc">${st.text}</div>
+          ${idx === curIdx ? `<button class="step-exec-btn" onclick="executeCurrentStepAction(${idx})">▶ Execute ${st.label}</button>` : ''}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function executeCurrentStepAction(idx) {
+      const list = labState.stage === 1 ? stage1Steps : stage2Steps;
+      if (list[idx] && list[idx].fn) list[idx].fn();
+    }
+
+    function advanceStep(idx) {
+      if (labState.stage === 1 && idx === labState.stg1Step) {
+        labState.stg1Step++;
+        renderProtocol();
+        updateVisuals();
+      } else if (labState.stage === 2 && idx === labState.stg2Step) {
+        labState.stg2Step++;
+        renderProtocol();
+        updateVisuals();
+      }
+    }
+
+    function switchStage(targetStage) {
+      labState.stage = targetStage;
+      document.documentElement.setAttribute('data-stage', String(targetStage));
+      document.body.classList.toggle('stage-1', targetStage === 1);
+      document.body.classList.toggle('stage-2', targetStage === 2);
+      document.getElementById('btn-stg-1').classList.toggle('active', targetStage === 1);
+      document.getElementById('btn-stg-2').classList.toggle('active', targetStage === 2);
+
+      const stg1Assembly = document.getElementById('stage1-assembly');
+      const stg2Assembly = document.getElementById('titration-bench-rig');
+      const glasswarePrep = document.getElementById('stage-glassware-prep');
+      const stg1Dash = document.getElementById('stage1-dashboard');
+      const stg2Panel = document.getElementById('stage2-cond-panel');
+      const meterEl = document.getElementById('elico-li120-meter');
+      const hudRowNaOH = document.getElementById('hud-row-naoh');
+      const hudLabel1 = document.getElementById('hud-label-1');
+
+      if (targetStage === 1) {
+        stg1Assembly.style.display = 'block';
+        stg2Assembly.style.display = 'none';
+        glasswarePrep.style.display = 'none';
+        stg1Dash.style.display = 'flex';
+        stg2Panel.style.display = 'none';
+        meterEl.classList.remove('meter-minimized');
+        hudRowNaOH.style.display = 'none';
+        hudLabel1.textContent = 'Active Medium:';
+        document.getElementById('hud-val-1').textContent = labState.activeBuffer;
+        setMeterDisplay(labState.displayValue);
+      } else {
+        stg1Assembly.style.display = 'none';
+        stg2Assembly.style.display = 'block';
+        stg1Dash.style.display = 'none';
+        stg2Panel.style.display = 'flex';
+        hudRowNaOH.style.display = 'flex';
+        hudLabel1.textContent = 'HCl Beaker:';
+        
+        stepSetTemperature();
+        stepSetReadMode();
+        stepSetPhMode();
+        stepSetSlopeKnob();
+        
+        if (labState.currentScheduleIndex >= 0) {
+          const v = titrationSchedule[labState.currentScheduleIndex];
+          setMeterDisplay(computeTheoreticalPH(v).toFixed(2));
+        } else {
+          setMeterDisplay('1.15');
+        }
+      }
+
+      renderProtocol();
+      updateVisuals();
+    }
+
+    function updateVisuals() {
+      if (labState.stage === 1) {
+        document.getElementById('hud-status').textContent = labState.stg1Step >= 10 ? 'Calibrated (Ready for Stage 2)' : (labState.powerOn ? 'In Progress' : 'Uncalibrated');
+        document.getElementById('hud-status').style.color = labState.stg1Step >= 10 ? 'var(--accent-emerald)' : 'var(--text-muted)';
+        return;
+      }
+
+      const isPrep = (!labState.hclTransferred50 || !labState.hclCellImmersed);
+      const meterEl = document.getElementById('elico-li120-meter');
+      const cableGroup = document.getElementById('ph-probe-cable-group');
+      const benchRig = document.getElementById('titration-bench-rig');
+      const prepGroup = document.getElementById('stage-glassware-prep');
+      const microBuretteGroup = document.getElementById('stage-micro-burette');
+
+      if (isPrep) {
+        meterEl.classList.add('meter-minimized');
+        cableGroup.style.opacity = '0.15';
+        benchRig.style.opacity = '0.15';
+        prepGroup.style.display = 'block';
+        prepGroup.setAttribute('opacity', '1');
+        prepGroup.setAttribute('pointer-events', 'auto');
+        if (microBuretteGroup) microBuretteGroup.setAttribute('opacity', '0');
+      } else {
+        meterEl.classList.remove('meter-minimized');
+        cableGroup.style.opacity = '1';
+        benchRig.style.opacity = '1';
+        prepGroup.style.display = 'none';
+        prepGroup.setAttribute('opacity', '0');
+        prepGroup.setAttribute('pointer-events', 'none');
+        if (microBuretteGroup) {
+          microBuretteGroup.setAttribute('opacity', '1');
+          microBuretteGroup.setAttribute('pointer-events', 'auto');
+        }
+      }
+
+      const guidePanel = document.getElementById('guide-panel');
+      const tableSidebar = document.getElementById('table-panel-sidebar');
+      const tableWrap = document.getElementById('cond-table-wrap');
+      const sidebarBody = document.getElementById('table-sidebar-body');
+      const condPanel = document.getElementById('stage2-cond-panel');
+
+      if (labState.currentScheduleIndex >= titrationSchedule.length - 1 && !labState.analysisModeActive) {
+        activateAnalysisWorkspace();
+      } else if (!labState.analysisModeActive) {
+        if (labState.stg2Step >= 6) {
+          guidePanel.style.display = 'none';
+          tableSidebar.style.display = 'flex';
+          if (tableWrap.parentElement !== sidebarBody) sidebarBody.appendChild(tableWrap);
+        } else {
+          tableSidebar.style.display = 'none';
+          guidePanel.style.display = 'flex';
+          if (tableWrap.parentElement !== condPanel) condPanel.appendChild(tableWrap);
+        }
+      }
+
+      const canTitrate = (labState.hclBuretteReady && labState.currentScheduleIndex < titrationSchedule.length - 1 && !labState.isAnimating);
+      const addBtn = document.getElementById('btn-add-naoh');
+      const autoBtn = document.getElementById('btn-autorun');
+      const sideAddBtn = document.getElementById('side-add-btn');
+      const sideAutoBtn = document.getElementById('side-auto-btn');
+
+      if (addBtn) addBtn.disabled = !canTitrate;
+      if (autoBtn) autoBtn.disabled = !canTitrate;
+      if (sideAddBtn) sideAddBtn.disabled = !canTitrate;
+      if (sideAutoBtn) sideAutoBtn.disabled = !canTitrate;
+
+      const currentV = labState.currentScheduleIndex >= 0 ? titrationSchedule[labState.currentScheduleIndex] : 0.0;
+      document.getElementById('hud-val-1').innerText = labState.hclTransferred50 ? `${(50.0 + currentV).toFixed(1)} mL` : '0.0 mL';
+      document.getElementById('hud-naoh-vol').innerText = `${currentV.toFixed(2)} mL`;
+      if (document.getElementById('table-hud-naoh')) {
+        document.getElementById('table-hud-naoh').innerText = `${currentV.toFixed(2)} mL`;
+      }
+    }
+
+    /* ================= STAGE 1 METHODS ================= */
+    function setElectrodeLift(liftY, onComplete) {
+      const arm = document.getElementById('stage1-electrode-arm');
+      arm.style.transition = 'transform 0.65s cubic-bezier(0.25, 1, 0.5, 1)';
+      arm.style.transform = `translateY(${liftY}px)`;
+
+      const targetY = 125 + liftY;
+      const cY1 = 280 + liftY * 0.5;
+      const cY2 = 160 + liftY * 0.8;
+      const d = `M 555 240 C 620 240, 640 ${cY1}, 680 280 S 715 ${cY2}, 725 ${targetY}`;
+      document.getElementById('ph-probe-cable-main').setAttribute('d', d);
+      document.getElementById('ph-probe-cable-sheen').setAttribute('d', d);
+
+      if (onComplete) setTimeout(onComplete, 680);
+    }
+
+    function swapBeakerTo(targetId, onComplete) {
+      ['beaker-distilled', 'beaker-buffer9', 'beaker-buffer4'].forEach(id => {
+        const el = document.getElementById(id);
+        if (id === targetId) {
+          el.style.transform = 'translate(0px, 0px)';
+          el.style.opacity = '1';
+        } else {
+          el.style.transform = 'translate(140px, 0px)';
+          el.style.opacity = '0';
+        }
+      });
+      if (onComplete) setTimeout(onComplete, 750);
+    }
+
+    function stepPowerOn() {
+      if (labState.powerOn) return;
+      playTone('beep');
+      labState.powerOn = true;
+      document.getElementById('chip-pwr').textContent = 'Power: ON';
+      document.getElementById('chip-pwr').classList.add('active');
+      setMeterDisplay('88.88');
+      setTimeout(() => {
+        labState.displayValue = '7.00';
+        setMeterDisplay('7.00');
+        playTone('chime');
+        advanceStep(0);
+      }, 1000);
+    }
+
+    function stepSetTemperature() {
+      playTone('click');
+      document.getElementById('meter-temp-knob').style.transform = 'rotate(-32deg)';
+      labState.temperature = 25;
+      document.getElementById('chip-temp').textContent = 'Temp: 25 °C';
+      document.getElementById('chip-temp').classList.add('active');
+      playTone('beep');
+      if (labState.stage === 1) advanceStep(1);
+    }
+
+    function stepSetReadMode() {
+      playTone('click');
+      labState.stbyRead = 'READ';
+      document.getElementById('rocker-stby').style.transform = 'translateY(12px)';
+      document.getElementById('led-stby').setAttribute('fill', '#450a0a');
+      document.getElementById('led-read').setAttribute('fill', '#ef4444');
+      document.getElementById('chip-mode').textContent = 'Mode: READ';
+      document.getElementById('chip-mode').classList.add('active');
+      if (labState.stage === 1) advanceStep(2);
+    }
+
+    function toggleStbyRead() {
+      if (labState.stbyRead === 'STBY') stepSetReadMode();
+      else {
+        labState.stbyRead = 'STBY';
+        document.getElementById('rocker-stby').style.transform = 'translateY(0px)';
+        document.getElementById('led-stby').setAttribute('fill', '#f59e0b');
+        document.getElementById('led-read').setAttribute('fill', '#450a0a');
+        document.getElementById('chip-mode').textContent = 'Mode: STBY';
+        document.getElementById('chip-mode').classList.remove('active');
+      }
+    }
+
+    function stepSetPhMode() {
+      playTone('click');
+      labState.phMv = 'pH';
+      document.getElementById('rocker-ph').style.transform = 'translateY(0px)';
+      document.getElementById('led-ph').setAttribute('fill', '#ef4444');
+      document.getElementById('led-mv').setAttribute('fill', '#450a0a');
+      document.getElementById('chip-func').textContent = 'Function: pH';
+      document.getElementById('chip-func').classList.add('active');
+      if (labState.stage === 1) advanceStep(3);
+    }
+
+    function togglePhMv() {
+      playTone('click');
+      if (labState.phMv === 'pH') {
+        labState.phMv = 'mV';
+        document.getElementById('rocker-ph').style.transform = 'translateY(12px)';
+        document.getElementById('led-ph').setAttribute('fill', '#450a0a');
+        document.getElementById('led-mv').setAttribute('fill', '#ef4444');
+        document.getElementById('chip-func').textContent = 'Function: mV';
+      } else {
+        stepSetPhMode();
+      }
+    }
+
+    function stepSetSlopeKnob() {
+      playTone('click');
+      document.getElementById('meter-slope-knob').style.transform = 'rotate(0deg)';
+      labState.slopeKnob = 90;
+      document.getElementById('chip-slope').textContent = 'Slope: 90%';
+      document.getElementById('chip-slope').classList.add('active');
+      if (labState.stage === 1) advanceStep(4);
+    }
+
+    function stepImmerseBuffer9() {
+      playTone('click');
+      setElectrodeLift(-75, () => {
+        swapBeakerTo('beaker-buffer9', () => {
+          setElectrodeLift(0, () => {
+            labState.activeBuffer = 'Buffer pH 9.20';
+            document.getElementById('chip-medium').textContent = 'Medium: Buffer pH 9.20';
+            document.getElementById('hud-val-1').textContent = 'Buffer pH 9.20';
+            labState.displayValue = '9.45';
+            setMeterDisplay('9.45');
+            playTone('beep');
+            advanceStep(5);
+          });
+        });
+      });
+    }
+
+    function stepAdjustCalKnob() {
+      if (labState.stg1Step !== 6) return;
+      playTone('click');
+      document.getElementById('meter-cal-knob').style.transform = 'rotate(-38deg)';
+      setTimeout(() => {
+        labState.displayValue = '9.20';
+        setMeterDisplay('9.20');
+        playTone('chime');
+        advanceStep(6);
+      }, 700);
+    }
+
+    function stepImmerseBuffer4() {
+      playTone('click');
+      setElectrodeLift(-75, () => {
+        swapBeakerTo('beaker-buffer4', () => {
+          setElectrodeLift(0, () => {
+            labState.activeBuffer = 'Buffer pH 4.00';
+            document.getElementById('chip-medium').textContent = 'Medium: Buffer pH 4.00';
+            document.getElementById('hud-val-1').textContent = 'Buffer pH 4.00';
+            labState.displayValue = '4.46';
+            setMeterDisplay('4.46');
+            playTone('beep');
+            advanceStep(7);
+          });
+        });
+      });
+    }
+
+    function stepCalculateDifference() {
+      playTone('chime');
+      openModalWindow('modal-calc');
+      advanceStep(8);
+    }
+
+    function stepDualAdjustment() {
+      playTone('click');
+      document.getElementById('meter-slope-knob').style.transform = 'rotate(24deg)';
+      setTimeout(() => {
+        labState.displayValue = '4.23';
+        setMeterDisplay('4.23');
+        playTone('beep');
+        setTimeout(() => {
+          document.getElementById('meter-cal-knob').style.transform = 'rotate(-62deg)';
+          setTimeout(() => {
+            labState.displayValue = '4.00';
+            setMeterDisplay('4.00');
+            playTone('chime');
+            advanceStep(9);
+          }, 600);
+        }, 800);
+      }, 700);
+    }
+
+    function stepProceedToStage2() {
+      playTone('chime');
+      advanceStep(10);
+      switchStage(2);
+    }
+
+    function resetStage1() {
+      labState.stg1Step = 0;
+      labState.powerOn = false;
+      labState.stbyRead = 'STBY';
+      labState.phMv = 'pH';
+      labState.temperature = 0;
+      labState.slopeKnob = 50;
+      labState.activeBuffer = 'Distilled Water';
+      labState.displayValue = '--.--';
+
+      setMeterDisplay('--.--');
+      document.getElementById('chip-pwr').textContent = 'Power: OFF';
+      document.getElementById('chip-pwr').classList.remove('active');
+      document.getElementById('chip-mode').textContent = 'Mode: STBY';
+      document.getElementById('chip-mode').classList.remove('active');
+      document.getElementById('chip-temp').textContent = 'Temp: 0 °C';
+      document.getElementById('chip-temp').classList.remove('active');
+      document.getElementById('chip-slope').textContent = 'Slope: --';
+      document.getElementById('chip-slope').classList.remove('active');
+      document.getElementById('chip-medium').textContent = 'Medium: Rinse Water';
+
+      document.getElementById('meter-temp-knob').style.transform = 'rotate(-120deg)';
+      document.getElementById('meter-cal-knob').style.transform = 'rotate(0deg)';
+      document.getElementById('meter-slope-knob').style.transform = 'rotate(-50deg)';
+      document.getElementById('rocker-stby').style.transform = 'translateY(0px)';
+      document.getElementById('led-stby').setAttribute('fill', '#f59e0b');
+      document.getElementById('led-read').setAttribute('fill', '#450a0a');
+
+      setElectrodeLift(0);
+      swapBeakerTo('beaker-distilled');
+      renderProtocol();
+      updateVisuals();
+    }
+
+    /* ================= STAGE 2 METHODS ================= */
+    function step1MakeUpHCl() {
+      if (labState.isAnimating || labState.hclMadeUp) return;
+      labState.isAnimating = true;
+      playTone('click');
+
+      const wash = document.getElementById('obj-hcl-wash');
+      const jet = document.getElementById('hcl-wash-jet');
+      const flask = document.getElementById('obj-hcl-vol-flask-assembly');
+      const bulbFull = document.getElementById('hcl-prep-full-liquid');
+      const neckLiquid = document.getElementById('hcl-prep-neck-liquid');
+      const neckMeniscus = document.getElementById('hcl-prep-neck-meniscus');
+      const volLabel = document.getElementById('hcl-prep-vol-label');
+      const stopper = document.getElementById('flask-glass-stopper');
+
+      wash.style.transform = 'translate(-31px, -86px) rotate(-18deg)';
+      setTimeout(() => {
+        jet.setAttribute('opacity', '1');
+        playTone('beep');
+        bulbFull.setAttribute('opacity', '0.75');
+        neckLiquid.setAttribute('opacity', '0.75');
+        neckMeniscus.setAttribute('opacity', '0.9');
+
+        let fillProgress = 0;
+        const fillTimer = setInterval(() => {
+          fillProgress += 0.025;
+          const curP = Math.min(fillProgress, 1.0);
+          const curY = 115 - curP * 63;
+          neckLiquid.setAttribute('y', curY);
+          neckLiquid.setAttribute('height', curP * 63);
+          neckMeniscus.setAttribute('cy', curY);
+
+          if (curP >= 1.0) {
+            clearInterval(fillTimer);
+            jet.setAttribute('opacity', '0');
+            wash.style.transform = 'translate(0px, 0px) rotate(0deg)';
+            playTone('glass');
+            volLabel.textContent = 'Filled to 100 mL calibration mark';
+
+            setTimeout(() => {
+              stopper.style.opacity = '1';
+              stopper.style.transform = 'translateY(0px)';
+              playTone('glass');
+              volLabel.textContent = 'Stopper placed. Inverting 3 times...';
+
+              let inverts = 0;
+              function invertStep() {
+                inverts++;
+                flask.style.transform = 'translate(0px, -25px) rotate(180deg)';
+                playTone('glass');
+                setTimeout(() => {
+                  flask.style.transform = 'translate(0px, 0px) rotate(0deg)';
+                  playTone('beep');
+                  if (inverts < 3) {
+                    setTimeout(invertStep, 450);
+                  } else {
+                    volLabel.textContent = '100 mL Mixed & Ready';
+                    playTone('chime');
+                    labState.hclMadeUp = true;
+                    labState.isAnimating = false;
+                    advanceStep(0);
+                  }
+                }, 600);
+              }
+              setTimeout(invertStep, 500);
+            }, 650);
+          }
+        }, 55);
+      }, 950);
+    }
+
+    // Slow filling & 10-second slow dropwise draining
+    function step2Transfer50mLHCl() {
+      if (labState.isAnimating || !labState.hclMadeUp || labState.hclTransferred50) return;
+      labState.isAnimating = true;
+      playTone('click');
+
+      const flask = document.getElementById('obj-hcl-vol-flask-assembly');
+      const stopper = document.getElementById('flask-glass-stopper');
+      const stream = document.getElementById('flask-to-burette-stream');
+      const volLabel = document.getElementById('hcl-prep-vol-label');
+      const neckLiquid = document.getElementById('hcl-prep-neck-liquid');
+      const neckMeniscus = document.getElementById('hcl-prep-neck-meniscus');
+      const bFill = document.getElementById('transfer-burette-fill');
+      const bMeniscus = document.getElementById('transfer-burette-meniscus');
+      const tRotor = document.getElementById('transfer-rotor');
+      const tStream = document.getElementById('transfer-stream');
+      const dripDrop = document.getElementById('transfer-drip-drop');
+      const rLiquid = document.getElementById('transfer-beaker-liquid');
+      const rMeniscus = document.getElementById('transfer-beaker-meniscus');
+
+      stopper.style.opacity = '0';
+      stopper.style.transform = 'translateY(-28px)';
+
+      setTimeout(() => {
+        flask.style.transform = 'translate(165px, -235px) rotate(68deg)';
+        
+        setTimeout(() => {
+          stream.setAttribute('opacity', '1');
+          playTone('beep');
+          volLabel.textContent = 'Filling 50 mL burette slowly (5.5s)...';
+
+          let fillP = 0;
+          const fillTimer = setInterval(() => {
+            fillP += 0.015;
+            const p = Math.min(fillP, 1.0);
+            bFill.setAttribute('y', 260 - p * 232);
+            bFill.setAttribute('height', p * 232);
+            bMeniscus.setAttribute('cy', 260 - p * 232);
+            bMeniscus.setAttribute('opacity', '1');
+
+            const flaskNeckH = Math.max(0, 63 * (1 - p));
+            neckLiquid.setAttribute('height', flaskNeckH);
+            neckMeniscus.setAttribute('cy', 52 + p * 63);
+
+            if (p >= 1.0) {
+              clearInterval(fillTimer);
+              stream.setAttribute('opacity', '0');
+              neckMeniscus.setAttribute('opacity', '0');
+              flask.style.transform = 'translate(0px, 0px) rotate(0deg)';
+              playTone('glass');
+
+              // Draining over 10 seconds into the beaker up to 50 mL mark
+              setTimeout(() => {
+                tRotor.setAttribute('transform', 'rotate(90)');
+                tStream.setAttribute('opacity', '0.75');
+                volLabel.textContent = 'Draining 50 mL slowly into beaker (10s)...';
+                playTone('beep');
+
+                let drainP = 0;
+                let dropCycle = 0;
+
+                const drainTimer = setInterval(() => {
+                  drainP += 0.01;
+                  const dp = Math.min(drainP, 1.0);
+
+                  const curBuretteY = 28 + dp * (238 - 28);
+                  bFill.setAttribute('y', curBuretteY);
+                  bFill.setAttribute('height', Math.max(0, 260 - curBuretteY));
+                  bMeniscus.setAttribute('cy', curBuretteY);
+
+                  // Rises up to 50 mL mark
+                  const bY = 78 - dp * 32;
+                  rLiquid.setAttribute('d', `M 6 78 L 54 78 L 54 ${bY} Q 30 ${bY - 3} 6 ${bY} Z`);
+                  rLiquid.setAttribute('opacity', '0.65');
+                  rMeniscus.setAttribute('cy', bY);
+                  rMeniscus.setAttribute('opacity', '0.8');
+
+                  dropCycle++;
+                  if (dripDrop) {
+                    dripDrop.setAttribute('opacity', '1');
+                    dripDrop.setAttribute('cy', 286 + (dropCycle % 4) * 10);
+                  }
+
+                  if (dp >= 1.0) {
+                    clearInterval(drainTimer);
+                    if (dripDrop) dripDrop.setAttribute('opacity', '0');
+
+                    bFill.setAttribute('y', '238');
+                    bFill.setAttribute('height', '22');
+                    bMeniscus.setAttribute('cy', '238');
+
+                    tRotor.setAttribute('transform', 'rotate(0)');
+                    tStream.setAttribute('opacity', '0');
+                    volLabel.textContent = '50 mL in Beaker (At 50 mL Mark)';
+                    playTone('chime');
+
+                    labState.hclTransferred50 = true;
+                    labState.isAnimating = false;
+                    advanceStep(1);
+                  }
+                }, 100);
+              }, 700);
+            }
+          }, 80);
+        }, 950);
+      }, 500);
+    }
+
+    // Step 3: Immerses electrode with bulb fully submerged in 50 mL volume
+    function step3ImmerseElectrode() {
+      if (labState.isAnimating || !labState.hclTransferred50 || labState.hclCellImmersed) return;
+      labState.isAnimating = true;
+      playTone('click');
+
+      // The 50 mL volume reaches Y=52, fully submerging bulb (Y=69-76)
+      document.getElementById('hcl-beaker-liquid').setAttribute('opacity', '0.65');
+      document.getElementById('hcl-beaker-meniscus').setAttribute('opacity', '0.8');
+      document.getElementById('hcl-beaker-caption').textContent = '100 mL Beaker (50 mL HCl)';
+
+      labState.hclCellImmersed = true;
+      updateVisuals();
+
+      const arm = document.getElementById('movable-electrode-arm');
+      arm.style.transition = 'transform 0.85s cubic-bezier(0.25, 1, 0.5, 1)';
+      arm.style.transform = 'translateY(0px)';
+
+      setTimeout(() => {
+        playTone('glass');
+        labState.isAnimating = false;
+        advanceStep(2);
+      }, 900);
+    }
+
+    function step4SetupMicroBurette() {
+      if (labState.isAnimating || !labState.hclCellImmersed || labState.hclBuretteReady) return;
+      labState.isAnimating = true;
+      playTone('click');
+
+      const mb = document.getElementById('stage-micro-burette');
+      const mbFill = document.getElementById('micro-burette-fill');
+      const mbMeniscus = document.getElementById('micro-burette-meniscus');
+      const naohBeaker = document.getElementById('obj-naoh-beaker');
+      const naohStream = document.getElementById('naoh-pour-stream');
+
+      mb.setAttribute('opacity', '1');
+      mb.setAttribute('pointer-events', 'auto');
+      naohBeaker.setAttribute('opacity', '1');
+
+      setTimeout(() => {
+        naohBeaker.style.transform = 'translate(-48px, -282px) rotate(-55deg)';
+        setTimeout(() => {
+          naohStream.setAttribute('opacity', '1');
+          mbMeniscus.setAttribute('opacity', '1');
+          playTone('beep');
+
+          let fillP = 0;
+          const fillTimer = setInterval(() => {
+            fillP += 0.04;
+            const p = Math.min(fillP, 1.0);
+            const curY = 257 - p * (257 - 32);
+            mbFill.setAttribute('y', curY);
+            mbFill.setAttribute('height', p * 225);
+            mbMeniscus.setAttribute('cy', curY);
+
+            if (p >= 1.0) {
+              clearInterval(fillTimer);
+              naohStream.setAttribute('opacity', '0');
+              naohBeaker.style.transform = 'translate(130px, 280px) rotate(0deg)';
+              playTone('chime');
+
+              labState.hclBuretteReady = true;
+              labState.isAnimating = false;
+              advanceStep(3);
+            }
+          }, 50);
+        }, 800);
+      }, 500);
+    }
+
+    function step5RecordInitialPH() {
+      if (!labState.hclBuretteReady || labState.currentScheduleIndex >= 0) return;
+      playTone('beep');
+      labState.currentScheduleIndex = 0;
+      const initialPH = computeTheoreticalPH(0.0);
+      setMeterDisplay(initialPH.toFixed(2));
+      addObservationRow(1, 0.0, initialPH, '-', '-', '-');
+      playTone('chime');
+      advanceStep(4);
+    }
+
+    function condTitrateStep(callback) {
+      if (!labState.hclBuretteReady || labState.currentScheduleIndex >= titrationSchedule.length - 1 || labState.isAnimating) return;
+      labState.isAnimating = true;
+      updateVisuals();
+
+      const nextIndex = labState.currentScheduleIndex + 1;
+      const prevV = titrationSchedule[labState.currentScheduleIndex];
+      const curV = titrationSchedule[nextIndex];
+      const deltaV = parseFloat((curV - prevV).toFixed(2));
+
+      const drop = document.getElementById('micro-naoh-drop');
+      const vortex = document.getElementById('hcl-vortex');
+      const rotor = document.getElementById('micro-rotor-bar');
+      const fillEl = document.getElementById('micro-burette-fill');
+      const meniscusEl = document.getElementById('micro-burette-meniscus');
+
+      rotor.setAttribute('transform', 'rotate(90)');
+      playTone('click');
+
+      drop.setAttribute('opacity', '1');
+      drop.setAttribute('cy', '278');
+
+      let dy = 278;
+      const dropTimer = setInterval(() => {
+        dy += 4;
+        drop.setAttribute('cy', dy);
+
+        if (dy >= 306) {
+          clearInterval(dropTimer);
+          drop.setAttribute('opacity', '0');
+          rotor.setAttribute('transform', 'rotate(0)');
+          playTone('beep');
+
+          vortex.setAttribute('opacity', '0.75');
+          setTimeout(() => vortex.setAttribute('opacity', '0'), 250);
+
+          const newY = 32 + (curV / 10.0) * 190;
+          fillEl.setAttribute('y', newY);
+          fillEl.setAttribute('height', Math.max(0, 257 - newY));
+          meniscusEl.setAttribute('cy', newY);
+
+          const curPH = computeTheoreticalPH(curV);
+          const prevPH = labState.observations[labState.observations.length - 1].ph;
+          const deltaPH = parseFloat(Math.abs(curPH - prevPH).toFixed(2));
+          const deltaQuotient = parseFloat((deltaPH / deltaV).toFixed(2));
+
+          labState.currentScheduleIndex = nextIndex;
+          setMeterDisplay(curPH.toFixed(2));
+          addObservationRow(nextIndex + 1, curV, curPH, deltaV.toFixed(2), deltaPH.toFixed(2), deltaQuotient.toFixed(2));
+
+          if (curV === 1.0) advanceStep(5);
+
+          if (nextIndex >= titrationSchedule.length - 1) {
+            advanceStep(6);
+            playTone('chime');
+            activateAnalysisWorkspace();
+          }
+
+          labState.isAnimating = false;
+          updateVisuals();
+          if (callback) callback();
+        }
+      }, 20);
+    }
+
+    function condAutoRunTitration() {
+      if (!labState.hclBuretteReady || labState.currentScheduleIndex >= titrationSchedule.length - 1 || labState.isAnimating) return;
+
+      function nextPortion() {
+        if (labState.currentScheduleIndex < titrationSchedule.length - 1) {
+          condTitrateStep(() => {
+            setTimeout(nextPortion, 220);
+          });
+        }
+      }
+      nextPortion();
+    }
+
+    function addObservationRow(sNo, v, ph, dV, dPH, dPH_dV) {
+      labState.observations.push({ sNo, v, ph, dV, dPH, dPH_dV });
+
+      const tbody = document.getElementById('cond-table-body');
+      const tr = document.createElement('tr');
+      tr.id = `obs-row-${sNo}`;
+      tr.innerHTML = `
+        <td style="text-align:center; color:#94a3b8;">${sNo}</td>
+        <td>${v.toFixed(1)}</td>
+        <td style="color:#f8fafc; font-weight:700;">${ph.toFixed(2)}</td>
+        <td>${dV}</td>
+        <td>${dPH}</td>
+        <td style="color:${parseFloat(dPH_dV) > 20 ? '#f43f5e' : '#38bdf8'}; font-weight:700;">${dPH_dV}</td>
+      `;
+      tbody.appendChild(tr);
+
+      const tableWrap = document.getElementById('cond-table-wrap');
+      if (tableWrap) tableWrap.scrollTop = tableWrap.scrollHeight;
+
+      document.getElementById('cond-graph-placeholder').style.display = 'none';
+      const ptsGroup = document.getElementById('cond-graph-points');
+      const pathEl = document.getElementById('cond-graph-curve');
+
+      let pathD = '';
+      ptsGroup.innerHTML = '';
+
+      labState.observations.forEach((pt, idx) => {
+        const x = 38 + (pt.v / 10.0) * 366;
+        const y = 98 - (pt.ph / 14.0) * 86;
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', x);
+        circle.setAttribute('cy', y);
+        circle.setAttribute('r', '2.2');
+        circle.setAttribute('fill', Math.abs(pt.v - labState.Ve_true) < 0.01 ? '#f43f5e' : '#38bdf8');
+        ptsGroup.appendChild(circle);
+
+        pathD += (idx === 0 ? `M ${x} ${y} ` : `L ${x} ${y} `);
+      });
+      pathEl.setAttribute('d', pathD);
+    }
+
+    function activateAnalysisWorkspace() {
+      labState.analysisModeActive = true;
+      document.getElementById('lab-workspace').classList.add('analysis-active');
+      document.getElementById('workbench-stage').style.display = 'none';
+      document.getElementById('guide-panel').style.display = 'none';
+      document.getElementById('table-panel-sidebar').style.display = 'none';
+
+      const analysisWorkspace = document.getElementById('analysis-workspace');
+      analysisWorkspace.style.display = 'grid';
+
+      const tableWrap = document.getElementById('cond-table-wrap');
+      document.getElementById('analysis-table-container').appendChild(tableWrap);
+
+      const viewToggleBtn = document.getElementById('btn-view-toggle');
+      viewToggleBtn.style.display = 'inline-flex';
+      viewToggleBtn.innerText = '🔬 View Apparatus';
+      viewToggleBtn.classList.add('highlight');
+
+      playTone('chime');
+    }
+
+    function toggleAnalysisApparatusView() {
+      const analysisWorkspace = document.getElementById('analysis-workspace');
+      const workbenchStage = document.getElementById('workbench-stage');
+      const tableSidebar = document.getElementById('table-panel-sidebar');
+      const viewToggleBtn = document.getElementById('btn-view-toggle');
+      const tableWrap = document.getElementById('cond-table-wrap');
+
+      if (analysisWorkspace.style.display === 'grid') {
+        analysisWorkspace.style.display = 'none';
+        workbenchStage.style.display = 'flex';
+        tableSidebar.style.display = 'flex';
+        document.getElementById('table-sidebar-body').appendChild(tableWrap);
+        document.getElementById('lab-workspace').classList.remove('analysis-active');
+        viewToggleBtn.innerText = '📊 View Graph Sheet';
+      } else {
+        activateAnalysisWorkspace();
+      }
+    }
+
+    // SLOWED: 4× Slower Data Plotting (280 ms interval per point instead of 70 ms)
+    function actionPlotDifferentialData() {
+      if (labState.isAnimating) return;
+      labState.isAnimating = true;
+      playTone('click');
+
+      const btnPlot = document.getElementById('btn-plot-diff');
+      const btnPeak = document.getElementById('btn-draw-peak');
+      btnPlot.classList.add('active');
+      btnPeak.classList.remove('active');
+
+      const pointsLayer = document.getElementById('sheet-plotted-points');
+      const placeholder = document.getElementById('sheet-placeholder-text');
+      const infoBox = document.getElementById('analysis-info-box');
+
+      placeholder.style.display = 'none';
+      pointsLayer.innerHTML = '';
+      document.getElementById('sheet-differential-curve').setAttribute('opacity', '0');
+      document.getElementById('sheet-drop-line').setAttribute('opacity', '0');
+      document.getElementById('sheet-peak-dot').setAttribute('opacity', '0');
+      document.getElementById('sheet-peak-label').setAttribute('opacity', '0');
+
+      infoBox.innerHTML = 'Plotting discrete differential data points (ΔpH/ΔV vs V) sequentially at deliberate speed...';
+
+      let currentIndex = 1;
+      const timer = setInterval(() => {
+        if (currentIndex < labState.observations.length) {
+          const pt = labState.observations[currentIndex];
+          const valY = parseFloat(pt.dPH_dV);
+
+          const x = 80 + (pt.v / 10.0) * 600;
+          const y = 380 - (valY / 50.0) * 340;
+
+          document.querySelectorAll('.cond-table tr').forEach(r => r.classList.remove('row-highlight'));
+          const row = document.getElementById(`obs-row-${pt.sNo}`);
+          if (row) {
+            row.classList.add('row-highlight');
+            row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          }
+
+          const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('cx', x);
+          circle.setAttribute('cy', y);
+          circle.setAttribute('r', '3.8');
+          circle.setAttribute('fill', Math.abs(pt.v - labState.Ve_true) < 0.01 ? '#f43f5e' : '#38bdf8');
+          circle.setAttribute('stroke', '#ffffff');
+          circle.setAttribute('stroke-width', '1');
+          g.appendChild(circle);
+          pointsLayer.appendChild(g);
+
+          playTone('beep');
+          currentIndex++;
+        } else {
+          clearInterval(timer);
+          labState.isAnimating = false;
+          labState.dataPlottedOnSheet = true;
+          playTone('chime');
+
+          document.querySelectorAll('.cond-table tr').forEach(r => r.classList.remove('row-highlight'));
+          btnPeak.disabled = false;
+          infoBox.innerHTML = 'All 29 differential points plotted! Now click <b>"Find Equivalence Point"</b> to trace the curve and identify the peak.';
+        }
+      }, 280); // 4x slower than 70ms
+    }
+
+    // SLOWED: 4× Slower Smooth Progressive Curve Drawing
+    function actionLocatePeak() {
+      if (!labState.dataPlottedOnSheet || labState.isAnimating) return;
+      labState.isAnimating = true;
+      playTone('click');
+
+      const btnPeak = document.getElementById('btn-draw-peak');
+      btnPeak.classList.add('active');
+
+      const curve = document.getElementById('sheet-differential-curve');
+      const dropLine = document.getElementById('sheet-drop-line');
+      const peakDot = document.getElementById('sheet-peak-dot');
+      const peakLabel = document.getElementById('sheet-peak-label');
+      const infoBox = document.getElementById('analysis-info-box');
+
+      infoBox.innerHTML = 'Tracing smooth bell-shaped derivative curve through all plotted points...';
+
+      // Progressive animated line drawing across 29 points (over 2.8 seconds)
+      let segmentIdx = 1;
+      let pathD = '';
+      curve.setAttribute('opacity', '1');
+
+      const drawTimer = setInterval(() => {
+        if (segmentIdx < labState.observations.length) {
+          const pt = labState.observations[segmentIdx];
+          const valY = parseFloat(pt.dPH_dV);
+          const x = 80 + (pt.v / 10.0) * 600;
+          const y = 380 - (valY / 50.0) * 340;
+
+          pathD += (segmentIdx === 1 ? `M ${x} ${y} ` : `L ${x} ${y} `);
+          curve.setAttribute('d', pathD);
+          segmentIdx++;
+        } else {
+          clearInterval(drawTimer);
+
+          // Reveal sharp peak & perpendicular drop line
+          const peakX = 80 + (3.50 / 10.0) * 600;
+          const peakY = 380 - (42.70 / 50.0) * 340;
+
+          setTimeout(() => {
+            peakDot.setAttribute('cx', peakX);
+            peakDot.setAttribute('cy', peakY);
+            peakDot.setAttribute('opacity', '1');
+            playTone('chime');
+
+            dropLine.setAttribute('x1', peakX);
+            dropLine.setAttribute('y1', peakY);
+            dropLine.setAttribute('x2', peakX);
+            dropLine.setAttribute('y2', 380);
+            dropLine.setAttribute('opacity', '1');
+
+            peakLabel.setAttribute('x', peakX + 12);
+            peakLabel.setAttribute('y', peakY - 12);
+            peakLabel.textContent = `Equivalence Point Ve = 3.50 mL NaOH (Peak ΔpH/ΔV = 42.70)`;
+            peakLabel.setAttribute('opacity', '1');
+
+            document.getElementById('banner-ve-val').textContent = '3.50 mL NaOH';
+            document.getElementById('preview-endpoint').textContent = 'Equivalence Point (Ve): 3.50 mL NaOH';
+
+            document.getElementById('v3-val').value = '3.50';
+            document.getElementById('calc-HCl').value = '0.0700';
+            document.getElementById('calc-strength-HCl').value = (0.0700 * 36.5).toFixed(4);
+
+            infoBox.innerHTML = '✓ Differential curve shows sharp maximum at <b>V_e = 3.50 mL NaOH</b>. Ground-truth values recorded into Logbook.';
+            advanceStep(7);
+            labState.isAnimating = false;
+          }, 600);
+        }
+      }, 95); // 29 * 95ms ≈ 2750ms (~4x slower)
+    }
+
+    function resetStage2() {
+      labState.stg2Step = 0;
+      labState.currentScheduleIndex = -1;
+      labState.hclMadeUp = false;
+      labState.hclTransferred50 = false;
+      labState.hclCellImmersed = false;
+      labState.hclBuretteReady = false;
+      labState.observations = [];
+      labState.analysisModeActive = false;
+      labState.dataPlottedOnSheet = false;
+      labState.isAnimating = false;
+
+      setMeterDisplay('1.15');
+      document.getElementById('ph-meter-reading').textContent = '1.15';
+      document.getElementById('dashboard-ph').textContent = '1.15';
+      document.getElementById('hud-ph-display').textContent = '1.15';
+      document.getElementById('cond-table-body').innerHTML = '';
+      document.getElementById('cond-graph-points').innerHTML = '';
+      document.getElementById('cond-graph-curve').setAttribute('d', '');
+      document.getElementById('cond-graph-placeholder').style.display = 'block';
+      document.getElementById('preview-endpoint').textContent = 'Equivalence Point: Pending';
+
+      document.getElementById('sheet-plotted-points').innerHTML = '';
+      document.getElementById('sheet-differential-curve').setAttribute('opacity', '0');
+      document.getElementById('sheet-drop-line').setAttribute('opacity', '0');
+      document.getElementById('sheet-peak-dot').setAttribute('opacity', '0');
+      document.getElementById('sheet-peak-label').setAttribute('opacity', '0');
+      document.getElementById('sheet-placeholder-text').style.display = 'block';
+      document.getElementById('banner-ve-val').textContent = 'Pending Extrapolation';
+      document.getElementById('btn-draw-peak').disabled = true;
+      document.getElementById('btn-view-toggle').style.display = 'none';
+
+      document.getElementById('movable-electrode-arm').style.transform = 'translateY(-80px)';
+      document.getElementById('hcl-prep-full-liquid').setAttribute('opacity', '0');
+      document.getElementById('hcl-prep-neck-liquid').setAttribute('height', '0');
+      document.getElementById('flask-glass-stopper').style.opacity = '0';
+      document.getElementById('transfer-burette-fill').setAttribute('height', '0');
+      document.getElementById('transfer-beaker-liquid').setAttribute('opacity', '0');
+      document.getElementById('micro-burette-fill').setAttribute('height', '0');
+
+      document.getElementById('lab-workspace').classList.remove('analysis-active');
+      document.getElementById('analysis-workspace').style.display = 'none';
+      document.getElementById('workbench-stage').style.display = 'flex';
+      document.getElementById('stage2-cond-panel').appendChild(document.getElementById('cond-table-wrap'));
+
+      renderProtocol();
+      updateVisuals();
+    }
+
+    /* ================= LOGBOOK CALCULATIONS & VERIFICATION ================= */
+    function openModalWindow(id) { document.getElementById(id).classList.add('open'); }
+    function closeModalWindow(id) { document.getElementById(id).classList.remove('open'); }
+
+    function populateSimulatedData() {
+      document.getElementById('v3-val').value = '3.50';
+      document.getElementById('calc-HCl').value = '0.0700';
+      document.getElementById('calc-strength-HCl').value = '2.5550';
+      verifyCalculations();
+    }
+
+    function verifyCalculations() {
+      const banner = document.getElementById('verify-banner');
+      banner.style.display = 'block';
+      const ve = parseFloat(document.getElementById('v3-val').value);
+      const nHCl = parseFloat(document.getElementById('calc-HCl').value);
+
+      if (Math.abs(ve - 3.50) < 0.15 && Math.abs(nHCl - 0.0700) < 0.005) {
+        banner.style.background = 'rgba(16, 185, 129, 0.2)';
+        banner.style.border = '1px solid #10b981';
+        banner.style.color = '#86efac';
+        banner.innerHTML = '<strong>✓ Verification Successful:</strong> Values match experimental data: Equivalence volume V_e = 3.50 mL, N(HCl) = 0.0700 N, and Strength = 2.5550 g/L.';
+        playTone('chime');
+      } else {
+        banner.style.background = 'rgba(244, 63, 94, 0.2)';
+        banner.style.border = '1px solid #f43f5e';
+        banner.style.color = '#fca5a5';
+        banner.innerHTML = '<strong>Notice:</strong> Please check your calculation: N(HCl) = (1.0000 N × 3.50 mL) / 50.0 mL = 0.0700 N, Strength = 0.0700 × 36.5 = 2.5550 g/L.';
+      }
+    }
+
+/* ================= LAYOUT MODE (AUTO / DESKTOP / MOBILE) & FULLSCREEN ================= */
+    let layoutMode = 'auto';
+
+    function setLayoutMode(mode) {
+      layoutMode = mode;
+      document.documentElement.setAttribute('data-layout-mode', mode);
+      document.body.classList.toggle('layout-desktop', mode === 'desktop');
+      document.body.classList.toggle('layout-mobile', mode === 'mobile');
+      document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+      renderProtocol();
+      window.dispatchEvent(new Event('resize'));
+    }
+
+    async function toggleFullscreen() {
+      const target = document.documentElement;
+      try {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+          if (target.requestFullscreen) await target.requestFullscreen();
+          else if (target.webkitRequestFullscreen) target.webkitRequestFullscreen();
+        } else {
+          if (document.exitFullscreen) await document.exitFullscreen();
+          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        }
+      } catch (e) {
+        alert('Full-screen mode is not available in this browser. Try Chrome.');
+      }
+    }
+
+    function updateFullscreenButton() {
+      const active = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      const b = document.getElementById('fullscreenBtn');
+      if (b) b.textContent = active ? '⤢ Exit full screen' : '⛶ Full screen';
+    }
+
+    document.addEventListener('fullscreenchange', updateFullscreenButton);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+
+    const mobileMq = window.matchMedia('(max-width: 700px)');
+    if (mobileMq && typeof mobileMq.addEventListener === 'function') {
+      mobileMq.addEventListener('change', () => {
+        if (layoutMode === 'auto') renderProtocol();
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      setLayoutMode('auto');
+      switchStage(1);
+    });
+  </script>
+</body>
+</html>

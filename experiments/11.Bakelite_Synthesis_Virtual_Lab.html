@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="en" data-layout-mode="auto">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Engineering Chemistry Virtual Laboratory — Preparation of Phenol-Formaldehyde Resin (Bakelite)</title>
+  <style>
+    :root {
+      --bg-space: #0b1120;
+      --panel-bg: rgba(15, 23, 42, 0.96);
+      --panel-border: rgba(255, 255, 255, 0.12);
+      --accent-cyan: #38bdf8;
+      --accent-blue: #0284c7;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-pink: #f472b6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      max-height: 100dvh;
+      background-color: var(--bg-space);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* ================= OUTER TOPBAR ================= */
+    .topbar {
+      flex: 0 0 auto;
+      min-height: 60px;
+      background: #0f172a;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 14px;
+      position: relative;
+      z-index: 40;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 1.25;
+      flex: 0 0 auto;
+    }
+
+    .brand small {
+      display: block;
+      color: #38bdf8;
+      font-weight: 500;
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .stage-pill {
+      background: rgba(2, 132, 199, 0.22);
+      border: 1px solid #38bdf8;
+      color: #bae6fd;
+      padding: 6px 10px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .mode-selector {
+      display: flex;
+      gap: 3px;
+      padding: 3px;
+      border: 1px solid #334155;
+      border-radius: 9px;
+      background: #111c30;
+    }
+
+    .mode-btn, .fullscreen-btn {
+      border: 1px solid #475569;
+      background: #1e293b;
+      color: #cbd5e1;
+      padding: 6px 9px;
+      border-radius: 7px;
+      font-weight: 700;
+      font-size: 10.5px;
+      cursor: pointer;
+      min-height: 32px;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .mode-btn.active {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #fff;
+    }
+
+    .fullscreen-btn {
+      background: #075985;
+      border-color: #38bdf8;
+      color: #fff;
+    }
+
+    /* ================= WORKSPACE ================= */
+    .lab-workspace {
+      flex: 1 1 auto;
+      min-height: 0;
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    main.workbench-stage {
+      position: relative;
+      height: 100%;
+      min-height: 0;
+      background: #090e17;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .svg-viewport-wrapper {
+      flex: 1 1 auto;
+      min-height: 0;
+      width: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at 48% 45%, #182b3b 0%, #0a1421 58%, #070d16 100%);
+    }
+
+    #apparatus-svg {
+      width: 100%;
+      height: 100%;
+      max-height: 100%;
+      display: block;
+    }
+
+    .dynamic-apparatus {
+      cursor: pointer;
+      transition: transform 0.85s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.35s ease;
+    }
+
+    .dynamic-apparatus:hover {
+      filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.9));
+    }
+
+    .workbench-controls {
+      height: 42px;
+      min-height: 42px;
+      background: rgba(15, 23, 42, 0.96);
+      border-top: 1px solid var(--panel-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 0 10px;
+      z-index: 30;
+    }
+
+    .btn-ctrl {
+      background: #1e293b;
+      color: var(--text-main);
+      border: 1px solid #334155;
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+
+    .btn-ctrl:hover:not(:disabled) {
+      background: #334155;
+      border-color: var(--accent-cyan);
+    }
+
+    .btn-ctrl:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-ctrl.active {
+      background: var(--accent-blue);
+      border-color: var(--accent-cyan);
+      color: #fff;
+    }
+
+    /* ================= RIGHT PROTOCOL SIDEBAR ================= */
+    aside.guide-panel {
+      background: var(--panel-bg);
+      border-left: 1px solid var(--panel-border);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      max-height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      z-index: 20;
+    }
+
+    .panel-head {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--panel-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .panel-head h2 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--accent-cyan);
+      font-weight: 700;
+    }
+
+    .side-tools {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 9px;
+      border-bottom: 1px solid var(--panel-border);
+      background: rgba(15, 23, 42, 0.72);
+      flex-shrink: 0;
+    }
+
+    .btn-nav {
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #e2e8f0;
+      padding: 5px 8px;
+      border-radius: 5px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-nav:hover {
+      border-color: var(--accent-cyan);
+      background: #334155;
+    }
+
+    .btn-nav.primary {
+      background: #075985;
+      border-color: #0ea5e9;
+      color: #fff;
+    }
+
+    .protocol-scroll-box {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .step-card {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 6px 9px;
+      transition: all 0.15s;
+    }
+
+    .step-card.active {
+      border-color: var(--accent-cyan);
+      background: rgba(2, 132, 199, 0.16);
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+    }
+
+    .step-card.done {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    .step-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--accent-cyan);
+      margin-bottom: 2px;
+    }
+
+    .step-card.done .step-top {
+      color: var(--accent-emerald);
+    }
+
+    .step-desc {
+      font-size: 0.72rem;
+      color: #f1f5f9;
+      line-height: 1.35;
+    }
+
+    .step-exec-btn {
+      margin-top: 5px;
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #fff;
+      padding: 4px 6px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .step-exec-btn:hover {
+      background: var(--accent-blue);
+      border-color: var(--accent-cyan);
+    }
+
+    .telemetry-card {
+      margin: 6px 10px;
+      background: #090e1a;
+      border: 1px solid var(--panel-border);
+      border-radius: 6px;
+      padding: 6px 8px;
+      flex-shrink: 0;
+    }
+
+    .telemetry-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2.5px 0;
+      font-size: 0.68rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .telemetry-row:last-child {
+      border-bottom: none;
+    }
+
+    .telemetry-label {
+      color: var(--text-muted);
+    }
+
+    .telemetry-val {
+      font-family: monospace;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .swatch-circle {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      display: inline-block;
+      margin-right: 3px;
+      vertical-align: middle;
+    }
+
+    /* ================= MODALS ================= */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      place-items: center;
+      padding: 16px;
+    }
+
+    .modal-backdrop.open {
+      display: grid;
+    }
+
+    .modal-window {
+      background: #0f172a;
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      width: 100%;
+      max-width: 820px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-head {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--panel-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(30, 41, 59, 0.4);
+    }
+
+    .modal-head h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .btn-close-modal {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 14px 18px;
+      overflow-y: auto;
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      line-height: 1.55;
+    }
+
+    .chem-eq-card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 5px;
+      padding: 7px 11px;
+      margin: 6px 0;
+      font-family: monospace;
+      color: #e0f2fe;
+    }
+
+    .obs-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 0.75rem;
+    }
+
+    .obs-table th, .obs-table td {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 6px 8px;
+      text-align: center;
+    }
+
+    .obs-table th {
+      background: rgba(30, 41, 59, 0.85);
+      color: var(--accent-cyan);
+    }
+
+    .obs-table input {
+      width: 92px;
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #fff;
+      padding: 3px 5px;
+      border-radius: 3px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    /* ================= MOBILE ONE-STEP FOCUS & RESPONSIVE ================= */
+    .mobile-step-progress {
+      color: #38bdf8;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      padding: 3px 2px;
+    }
+
+    .mobile-current-step {
+      padding: 12px 13px !important;
+      border-width: 1px !important;
+    }
+
+    .mobile-current-step .step-desc {
+      font-size: 0.9rem !important;
+      line-height: 1.45 !important;
+    }
+
+    .mobile-current-step .step-exec-btn {
+      min-height: 42px !important;
+      font-size: 0.82rem !important;
+      margin-top: 8px !important;
+    }
+
+    @media (max-width: 900px) {
+      .topbar {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 7px;
+        padding: 7px 10px;
+      }
+      .header-actions {
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (max-width: 700px) {
+      html[data-layout-mode="auto"],
+      html[data-layout-mode="mobile"] {
+        height: auto !important;
+        min-height: 100% !important;
+        max-height: none !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+      }
+      html[data-layout-mode="auto"] body,
+      html[data-layout-mode="mobile"] body {
+        height: auto !important;
+        min-height: 100% !important;
+        max-height: none !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+      }
+      html[data-layout-mode="auto"] .lab-workspace,
+      html[data-layout-mode="mobile"] .lab-workspace {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: 100% !important;
+        max-height: none !important;
+        overflow: visible !important;
+      }
+      html[data-layout-mode="auto"] main.workbench-stage,
+      html[data-layout-mode="mobile"] main.workbench-stage {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        flex: 0 0 auto !important;
+      }
+      html[data-layout-mode="auto"] .svg-viewport-wrapper,
+      html[data-layout-mode="mobile"] .svg-viewport-wrapper {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 35 !important;
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        height: 42dvh !important;
+        min-height: 240px !important;
+        max-height: 360px !important;
+        padding: 4px 6px !important;
+        overflow: hidden !important;
+        background: #090e17 !important;
+        border-bottom: 1px solid rgba(56, 189, 248, 0.45) !important;
+      }
+      html[data-layout-mode="auto"] .workbench-controls,
+      html[data-layout-mode="mobile"] .workbench-controls {
+        height: auto !important;
+        flex-wrap: wrap !important;
+        padding: 8px 10px !important;
+        gap: 6px !important;
+      }
+      html[data-layout-mode="auto"] aside.guide-panel,
+      html[data-layout-mode="mobile"] aside.guide-panel {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        border-left: none !important;
+        border-top: 1px solid var(--panel-border) !important;
+      }
+      html[data-layout-mode="auto"] .protocol-scroll-box,
+      html[data-layout-mode="mobile"] .protocol-scroll-box {
+        max-height: none !important;
+        overflow: visible !important;
+      }
+      html[data-layout-mode="auto"] button,
+      html[data-layout-mode="mobile"] button {
+        min-height: 38px;
+      }
+    }
+
+    html[data-layout-mode="mobile"] {
+      height: auto !important;
+      min-height: 100% !important;
+      max-height: none !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+    }
+    html[data-layout-mode="mobile"] body {
+      height: auto !important;
+      min-height: 100% !important;
+      max-height: none !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+    }
+    html[data-layout-mode="mobile"] .lab-workspace {
+      display: flex !important;
+      flex-direction: column !important;
+      height: auto !important;
+      min-height: 100% !important;
+      max-height: none !important;
+      overflow: visible !important;
+    }
+    html[data-layout-mode="mobile"] main.workbench-stage {
+      display: flex !important;
+      flex-direction: column !important;
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      overflow: visible !important;
+    }
+    html[data-layout-mode="mobile"] .svg-viewport-wrapper {
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 35 !important;
+      flex: 0 0 auto !important;
+      width: 100% !important;
+      height: 42dvh !important;
+      min-height: 240px !important;
+      max-height: 360px !important;
+      padding: 4px 6px !important;
+      overflow: hidden !important;
+      background: #090e17 !important;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.45) !important;
+    }
+    html[data-layout-mode="mobile"] .workbench-controls {
+      height: auto !important;
+      flex-wrap: wrap !important;
+      padding: 8px 10px !important;
+      gap: 6px !important;
+    }
+    html[data-layout-mode="mobile"] aside.guide-panel {
+      width: 100% !important;
+      max-width: 100% !important;
+      height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      border-left: none !important;
+      border-top: 1px solid var(--panel-border) !important;
+    }
+    html[data-layout-mode="mobile"] .protocol-scroll-box {
+      max-height: none !important;
+      overflow: visible !important;
+    }
+
+    html[data-layout-mode="desktop"] .topbar {
+      align-items: center !important;
+      flex-direction: row !important;
+    }
+    html[data-layout-mode="desktop"] body {
+      height: 100dvh !important;
+      max-height: 100dvh !important;
+      overflow: hidden !important;
+    }
+    html[data-layout-mode="desktop"] .lab-workspace {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) 320px !important;
+      height: calc(100dvh - 60px) !important;
+      max-height: calc(100dvh - 60px) !important;
+      overflow: hidden !important;
+    }
+    html[data-layout-mode="desktop"] main.workbench-stage {
+      display: flex !important;
+      flex-direction: column !important;
+      height: 100% !important;
+      min-height: 0 !important;
+      max-height: 100% !important;
+      overflow: hidden !important;
+    }
+    html[data-layout-mode="desktop"] .svg-viewport-wrapper {
+      position: relative !important;
+      top: auto !important;
+      height: auto !important;
+      max-height: none !important;
+      min-height: 0 !important;
+      flex: 1 1 auto !important;
+    }
+    html[data-layout-mode="desktop"] aside.guide-panel {
+      display: flex !important;
+      height: 100% !important;
+      max-height: 100% !important;
+      overflow: hidden !important;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      Engineering Chemistry Virtual Laboratory
+      <small>Preparation of Phenol-Formaldehyde Resin (Bakelite) · Acid-Catalyzed Condensation</small>
+    </div>
+    <div class="header-actions">
+      <span class="stage-pill">Thermosetting Polymer Synthesis</span>
+      <div class="mode-selector" role="group" aria-label="Display layout">
+        <button class="mode-btn active" data-mode="auto" onclick="setLayoutMode('auto')">Auto</button>
+        <button class="mode-btn" data-mode="desktop" onclick="setLayoutMode('desktop')">Desktop</button>
+        <button class="mode-btn" data-mode="mobile" onclick="setLayoutMode('mobile')">Mobile</button>
+      </div>
+      <button class="fullscreen-btn" id="fullscreenBtn" type="button" onclick="toggleFullscreen()">⛶ Full screen</button>
+    </div>
+  </header>
+
+  <div class="lab-workspace">
+    <!-- ================= MAIN WORKBENCH STAGE ================= -->
+    <main class="workbench-stage">
+      <div class="svg-viewport-wrapper">
+        <svg id="apparatus-svg" viewBox="0 0 960 450" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="glass-sheen" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.62"/>
+              <stop offset="25%" stop-color="#ffffff" stop-opacity="0.14"/>
+              <stop offset="70%" stop-color="#38bdf8" stop-opacity="0.09"/>
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0.52"/>
+            </linearGradient>
+
+            <linearGradient id="metal-steel" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="25%" stop-color="#cbd5e1"/>
+              <stop offset="50%" stop-color="#f8fafc"/>
+              <stop offset="75%" stop-color="#94a3b8"/>
+              <stop offset="100%" stop-color="#475569"/>
+            </linearGradient>
+
+            <linearGradient id="balance-body" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#f1f5f9"/>
+              <stop offset="50%" stop-color="#e2e8f0"/>
+              <stop offset="100%" stop-color="#94a3b8"/>
+            </linearGradient>
+
+            <linearGradient id="pan-steel" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#94a3b8"/>
+              <stop offset="35%" stop-color="#f8fafc"/>
+              <stop offset="65%" stop-color="#cbd5e1"/>
+              <stop offset="100%" stop-color="#64748b"/>
+            </linearGradient>
+
+            <linearGradient id="draft-glass" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35"/>
+              <stop offset="30%" stop-color="#38bdf8" stop-opacity="0.05"/>
+              <stop offset="80%" stop-color="#ffffff" stop-opacity="0.15"/>
+              <stop offset="100%" stop-color="#0284c7" stop-opacity="0.1"/>
+            </linearGradient>
+
+            <linearGradient id="poly-bottle" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#f1f5f9" stop-opacity="0.9"/>
+              <stop offset="30%" stop-color="#ffffff" stop-opacity="0.95"/>
+              <stop offset="70%" stop-color="#cbd5e1" stop-opacity="0.75"/>
+              <stop offset="100%" stop-color="#94a3b8" stop-opacity="0.9"/>
+            </linearGradient>
+
+            <linearGradient id="workbench-table" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#20252b"/>
+              <stop offset="8%" stop-color="#12161b"/>
+              <stop offset="100%" stop-color="#050608"/>
+            </linearGradient>
+
+            <linearGradient id="bakelite-pink-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#f9a8d4"/>
+              <stop offset="50%" stop-color="#f472b6"/>
+              <stop offset="100%" stop-color="#db2777"/>
+            </linearGradient>
+          </defs>
+
+          <!-- ================= REALISTIC LABORATORY BACKGROUND ================= -->
+          <g id="lab-workbench-full-background">
+            <rect x="0" y="0" width="960" height="260" fill="#111827"/>
+            <rect x="0" y="0" width="960" height="22" fill="#1f2937"/>
+            <path d="M0 22 H960" stroke="#334155" stroke-width="2"/>
+            <rect x="24" y="28" width="912" height="210" rx="3" fill="#263445" stroke="#64748b" stroke-width="2"/>
+            <rect x="34" y="38" width="892" height="190" fill="#1b2838" stroke="#3b4b60" stroke-width="1.5"/>
+            <rect x="54" y="112" width="852" height="7" rx="2" fill="#475569" stroke="#64748b" stroke-width="1"/>
+            <!-- Background Reagent Bottles on Shelf -->
+            <g opacity="0.75" stroke-width="1.1">
+              <g transform="translate(80, 76)">
+                <rect x="0" y="8" width="24" height="28" rx="4" fill="#b7dce8" fill-opacity=".65" stroke="#779ba8"/>
+                <rect x="7" y="1" width="10" height="8" rx="1" fill="#647780"/>
+              </g>
+              <g transform="translate(120, 72)">
+                <rect x="0" y="12" width="26" height="31" rx="4" fill="#d8c29a" fill-opacity=".85" stroke="#a38b62"/>
+                <rect x="8" y="3" width="10" height="10" rx="1" fill="#647780"/>
+              </g>
+              <g transform="translate(810, 75)">
+                <rect x="0" y="8" width="24" height="30" rx="4" fill="#b7dce8" fill-opacity=".75" stroke="#779ba8"/>
+                <rect x="7" y="1" width="10" height="8" rx="1" fill="#647780"/>
+              </g>
+              <g transform="translate(850, 72)">
+                <rect x="0" y="11" width="26" height="31" rx="4" fill="#d7c19b" stroke="#a38b62"/>
+                <rect x="7" y="2" width="11" height="10" rx="1" fill="#647780"/>
+              </g>
+            </g>
+            <rect x="0" y="238" width="960" height="44" fill="#263445" stroke="#475569" stroke-width="1.5"/>
+            <rect x="0" y="280" width="960" height="170" fill="#111418"/>
+            <rect x="0" y="280" width="960" height="12" fill="#242a30"/>
+            <line x1="0" y1="280" x2="960" y2="280" stroke="#4b535b" stroke-width="2"/>
+            <rect x="0" y="293" width="960" height="157" fill="url(#workbench-table)"/>
+          </g>
+
+          <!-- ================= BENCH APPARATUS FOR BAKELITE SYNTHESIS ================= -->
+
+          <!-- 1. Phenol Reagent Jar (x=36, y=292) -->
+          <g class="dynamic-apparatus" id="obj-phenol-jar" transform="translate(36, 292)" onclick="executeAddPhenol()">
+            <rect x="2" y="14" width="52" height="80" rx="4" fill="#451a03" stroke="#92400e" stroke-width="1.4"/>
+            <rect x="14" y="4" width="28" height="10" rx="1.5" fill="#475569"/>
+            <rect x="6" y="30" width="44" height="36" rx="2" fill="#fef3c7"/>
+            <text x="28" y="45" font-size="7.2" fill="#78350f" font-weight="bold" text-anchor="middle">Phenol</text>
+            <text x="28" y="56" font-size="5.4" fill="#92400e" font-weight="bold" text-anchor="middle">C₆H₅OH (2.0 g)</text>
+            <text x="28" y="106" font-size="6.8" fill="#cbd5e1" text-anchor="middle">Phenol Bottle</text>
+          </g>
+
+          <!-- 2. Spatula (x=112, y=276) -->
+          <g class="dynamic-apparatus" id="obj-spatula" transform="translate(112, 276)" onclick="executeAddPhenol()">
+            <rect x="30" y="2" width="36" height="4.5" rx="1.5" fill="url(#metal-steel)" stroke="#334155" stroke-width="0.8"/>
+            <polygon points="30,3 16,3.5 16,5 30,5.5" fill="url(#metal-steel)" stroke="#475569" stroke-width="0.5"/>
+            <path d="M 16 4.2 C 10 0 2 0 -4 4.2 C 2 8.4 10 8.4 16 4.2 Z" fill="url(#metal-steel)" stroke="#334155" stroke-width="0.9"/>
+            <ellipse id="spatula-phenol" cx="5" cy="4" rx="5.5" ry="2" fill="#fdf2f8" opacity="0"/>
+          </g>
+
+          <!-- 3. Analytical Balance (Center x=210) -->
+          <g id="obj-balance">
+            <ellipse cx="145" cy="386" rx="8" ry="3" fill="#0f172a"/>
+            <ellipse cx="275" cy="386" rx="8" ry="3" fill="#0f172a"/>
+            <path d="M 135 340 L 285 340 L 288 385 L 132 385 Z" fill="url(#balance-body)" stroke="#475569" stroke-width="1.5"/>
+            <rect x="158" y="348" width="104" height="28" rx="3" fill="#020617" stroke="#334155" stroke-width="1.2"/>
+            <text x="210" y="367" font-size="11.5" fill="#38bdf8" font-family="'Courier New', Courier, monospace" font-weight="bold" text-anchor="middle" id="balance-readout">0.0000 g</text>
+            <rect x="145" y="255" width="130" height="85" fill="url(#draft-glass)" stroke="#94a3b8" stroke-width="1.1"/>
+            <rect x="143" y="253" width="134" height="4" fill="#cbd5e1" stroke="#64748b" stroke-width="0.8"/>
+            <rect x="207" y="325" width="6" height="15" fill="#64748b"/>
+            <ellipse cx="210" cy="324" rx="36" ry="6" fill="url(#pan-steel)" stroke="#475569" stroke-width="1"/>
+            <text x="210" y="397" font-size="7" fill="#cbd5e1" text-anchor="middle" font-weight="bold">Analytical Balance</text>
+          </g>
+
+          <!-- 4. Glacial Acetic Acid (5 mL) Measuring Cylinder (x=312, y=296) -->
+          <g class="dynamic-apparatus" id="obj-acetic-cyl" transform="translate(312, 296)" onclick="executeAddGlacialAcetic()">
+            <rect x="8" y="8" width="22" height="72" rx="2" fill="url(#glass-sheen)" stroke="#cbd5e1" stroke-width="1.2"/>
+            <ellipse cx="19" cy="8" rx="11" ry="2.8" fill="none" stroke="#cbd5e1" stroke-width="1.2"/>
+            <rect id="acetic-cyl-liq" x="9.5" y="22" width="19" height="57" fill="#bae6fd" opacity="0.5"/>
+            <ellipse id="acetic-cyl-men" cx="19" cy="22" rx="9.5" ry="2" fill="#7dd3fc" opacity="0.75"/>
+            <line x1="8" y1="22" x2="15" y2="22" stroke="#ef4444" stroke-width="1.1"/>
+            <text x="19" y="50" font-size="5.5" fill="#f8fafc" font-weight="bold" text-anchor="middle">5.0 mL</text>
+            <text x="19" y="59" font-size="4.8" fill="#bae6fd" text-anchor="middle">AcOH</text>
+            <rect x="4" y="80" width="30" height="5" rx="1.5" fill="#94a3b8"/>
+            <text x="19" y="96" font-size="6.2" fill="#cbd5e1" text-anchor="middle">Glacial AcOH</text>
+          </g>
+
+          <!-- 5. 40% Formalin (2.5 mL) Measuring Cylinder (x=362, y=296) -->
+          <g class="dynamic-apparatus" id="obj-formalin-cyl" transform="translate(362, 296)" onclick="executeAddFormalin()">
+            <rect x="8" y="8" width="22" height="72" rx="2" fill="url(#glass-sheen)" stroke="#cbd5e1" stroke-width="1.2"/>
+            <ellipse cx="19" cy="8" rx="11" ry="2.8" fill="none" stroke="#cbd5e1" stroke-width="1.2"/>
+            <rect id="formalin-cyl-liq" x="9.5" y="42" width="19" height="37" fill="#a7f3d0" opacity="0.5"/>
+            <ellipse id="formalin-cyl-men" cx="19" cy="42" rx="9.5" ry="2" fill="#6ee7b7" opacity="0.75"/>
+            <line x1="8" y1="42" x2="15" y2="42" stroke="#ef4444" stroke-width="1.1"/>
+            <text x="19" y="59" font-size="5.5" fill="#f8fafc" font-weight="bold" text-anchor="middle">2.5 mL</text>
+            <text x="19" y="68" font-size="4.8" fill="#a7f3d0" text-anchor="middle">HCHO</text>
+            <rect x="4" y="80" width="30" height="5" rx="1.5" fill="#94a3b8"/>
+            <text x="19" y="96" font-size="6.2" fill="#cbd5e1" text-anchor="middle">40% Formalin</text>
+          </g>
+
+          <!-- 6. 250 mL Outer Water Bath Beaker (Center x=485, y=276) -->
+          <g class="dynamic-apparatus" id="obj-waterbath-250" transform="translate(432, 276)" onclick="executePlaceInWaterBath()">
+            <!-- Outer 250 mL Glass Beaker -->
+            <rect x="0" y="10" width="106" height="98" rx="4" fill="url(#glass-sheen)" stroke="#94a3b8" stroke-width="1.5"/>
+            <ellipse cx="53" cy="10" rx="53" ry="5.5" fill="none" stroke="#cbd5e1" stroke-width="1.4"/>
+            <!-- Cooling Water in 250 mL Beaker -->
+            <path id="bath-water-fill" d="M 2 62 L 104 62 L 104 104 C 104 106 102 107 99 107 L 7 107 C 4 107 2 106 2 104 Z" fill="#38bdf8" opacity="0.28"/>
+            <ellipse id="bath-water-men" cx="53" cy="62" rx="50" ry="4.5" fill="#7dd3fc" opacity="0.45"/>
+            <line x1="8" y1="62" x2="22" y2="62" stroke="#bae6fd" stroke-width="0.9"/>
+            <text x="53" y="121" font-size="7" fill="#cbd5e1" text-anchor="middle" font-weight="bold">250 mL Beaker (Water Bath)</text>
+          </g>
+
+          <!-- 7. 100 mL Reaction Beaker (Starts at x=180, y=252 on balance pan, then moves into 250 mL bath at x=455, y=288) -->
+          <g class="dynamic-apparatus" id="obj-reaction-beaker" transform="translate(180, 252)">
+            <!-- Beaker Glass Body -->
+            <rect x="0" y="8" width="60" height="64" rx="3" fill="url(#glass-sheen)" stroke="#cbd5e1" stroke-width="1.4"/>
+            <ellipse cx="30" cy="8" rx="30" ry="3.8" fill="none" stroke="#cbd5e1" stroke-width="1.4"/>
+
+            <!-- Liquid Mixture inside 100 mL Beaker -->
+            <path id="rxn-liquid" d="M 2 44 L 58 44 L 58 68 C 58 70 56 71 54 71 L 6 71 C 4 71 2 70 2 68 Z" fill="#bae6fd" opacity="0"/>
+            <ellipse id="rxn-meniscus" cx="30" cy="44" rx="28" ry="3" fill="#e0f2fe" opacity="0"/>
+
+            <!-- Phenol Crystals Layer (before dissolution) -->
+            <path id="phenol-crystals-layer" d="M 10 70 Q 30 62 50 70 Z" fill="#fdf2f8" opacity="0"/>
+
+            <!-- White Polymer Turbidity Cloud (during HCl addition) -->
+            <ellipse id="white-polymer-cloud" cx="30" cy="54" rx="23" ry="12" fill="#ffffff" opacity="0"/>
+
+            <!-- Solid Pink Bakelite Resin Mass (at polymerization endpoint) -->
+            <path id="pink-bakelite-mass" d="M 8 68 Q 16 48 30 50 Q 44 48 52 68 Q 30 72 8 68 Z" fill="url(#bakelite-pink-grad)" stroke="#be185d" stroke-width="0.9" opacity="0"/>
+
+            <text x="30" y="84" font-size="6.4" fill="#f8fafc" text-anchor="middle" font-weight="bold">100 mL Beaker</text>
+          </g>
+
+          <!-- 8. Concentrated HCl Bottle & Dropper (x=568, y=296) -->
+          <g class="dynamic-apparatus" id="obj-hcl-bottle" transform="translate(568, 296)" onclick="executeAddConcHCl()">
+            <rect x="6" y="18" width="42" height="62" rx="3" fill="#7f1d1d" stroke="#ef4444" stroke-width="1.3"/>
+            <rect x="18" y="6" width="18" height="12" rx="1.5" fill="#475569"/>
+            <rect x="9" y="32" width="36" height="32" rx="2" fill="#fee2e2"/>
+            <text x="27" y="45" font-size="6.6" fill="#991b1b" font-weight="bold" text-anchor="middle">Conc. HCl</text>
+            <text x="27" y="55" font-size="5.2" fill="#b91c1c" font-weight="bold" text-anchor="middle">Catalyst (8 mL)</text>
+            <text x="27" y="94" font-size="6.6" fill="#cbd5e1" text-anchor="middle">Conc. HCl</text>
+          </g>
+
+          <!-- Animated HCl Dropper & Acid Drop -->
+          <g id="obj-hcl-dropper" transform="translate(595, 250)" opacity="0">
+            <ellipse cx="0" cy="0" rx="6" ry="8" fill="#ef4444"/>
+            <rect x="-2" y="7" width="4" height="34" fill="url(#glass-sheen)" stroke="#cbd5e1" stroke-width="0.8"/>
+            <polygon points="-2,41 2,41 0,47" fill="#cbd5e1"/>
+            <circle id="hcl-drop-node" cx="0" cy="52" r="2.6" fill="#fca5a5" opacity="0"/>
+          </g>
+
+          <!-- 9. Glass Stirring Rod (x=638, y=254) -->
+          <g class="dynamic-apparatus" id="obj-glass-rod" transform="translate(638, 254)" onclick="executeStirPolymerization()">
+            <rect x="0" y="0" width="5" height="122" rx="2.5" fill="url(#glass-sheen)" stroke="#cbd5e1" stroke-width="1"/>
+            <line x1="1.5" y1="4" x2="1.5" y2="118" stroke="#ffffff" stroke-width="0.9" opacity="0.75"/>
+            <text x="2.5" y="135" font-size="6.4" fill="#cbd5e1" text-anchor="middle">Glass Rod</text>
+          </g>
+
+          <!-- 10. Distilled Water Wash Bottle (x=682, y=296) -->
+          <g class="dynamic-apparatus" id="obj-wash-bottle" transform="translate(682, 296)" onclick="executeWashResin()">
+            <rect x="10" y="22" width="44" height="66" rx="8" fill="url(#poly-bottle)" stroke="#94a3b8" stroke-width="1.2"/>
+            <path d="M 12 40 Q 32 42 52 40 L 52 82 Q 52 86 46 86 L 18 86 Q 12 86 12 82 Z" fill="#bae6fd" opacity="0.45"/>
+            <rect x="23" y="12" width="18" height="10" rx="1.5" fill="#0284c7"/>
+            <path d="M 32 12 L 32 -4 Q 32 -14 20 -14 L -6 -14 Q -18 -14 -22 -2" fill="none" stroke="#0284c7" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 32 12 L 32 -4 Q 32 -14 20 -14 L -6 -14 Q -18 -14 -22 -2" fill="none" stroke="#38bdf8" stroke-width="1.3" stroke-linecap="round"/>
+            <text x="32" y="60" font-size="6.6" fill="#0284c7" font-weight="bold" text-anchor="middle">Wash Bottle</text>
+            <text x="32" y="70" font-size="5.2" fill="#475569" text-anchor="middle">Distilled H₂O</text>
+          </g>
+
+          <!-- 11. Filtration Assembly: Filter Funnel + Filter Paper + Receiving Beaker (x=766, y=274) -->
+          <g class="dynamic-apparatus" id="obj-filter-rig" transform="translate(766, 274)" onclick="executeFilterResin()">
+            <!-- Receiving Beaker -->
+            <rect x="8" y="54" width="48" height="56" rx="3" fill="url(#glass-sheen)" stroke="#94a3b8" stroke-width="1.2"/>
+            <path id="filtrate-liquid" d="M 10 86 L 54 86 L 54 107 L 10 107 Z" fill="#bae6fd" opacity="0"/>
+            <!-- Glass Funnel -->
+            <path d="M 4 12 L 60 12 L 36 48 L 36 74 L 28 74 L 28 48 Z" fill="url(#glass-sheen)" stroke="#cbd5e1" stroke-width="1.3"/>
+            <!-- Folded White Filter Paper Cone -->
+            <polygon points="8,14 56,14 32,46" fill="#f8fafc" opacity="0.85" stroke="#cbd5e1" stroke-width="0.8"/>
+            <!-- Filtered Pink Bakelite Cake on Filter Paper -->
+            <ellipse id="filtered-pink-cake" cx="32" cy="24" rx="14" ry="5" fill="url(#bakelite-pink-grad)" stroke="#be185d" stroke-width="0.8" opacity="0"/>
+            <text x="32" y="122" font-size="6.4" fill="#cbd5e1" text-anchor="middle">Filter Funnel</text>
+          </g>
+
+          <!-- 12. Watch Glass for Dried Bakelite Product (x=850, y=350) -->
+          <g class="dynamic-apparatus" id="obj-watch-glass" transform="translate(850, 350)" onclick="executeDryAndWeigh()">
+            <path d="M 4 22 Q 44 36 84 22" fill="rgba(224,242,254,0.22)" stroke="#cbd5e1" stroke-width="1.6"/>
+            <path d="M 8 23 Q 44 33 80 23" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.6"/>
+            <!-- Dried Pink Bakelite Resin Heap on Watch Glass -->
+            <path id="watchglass-bakelite" d="M 22 25 Q 34 11 44 12 Q 54 11 66 25 Q 44 30 22 25 Z" fill="url(#bakelite-pink-grad)" stroke="#be185d" stroke-width="0.9" opacity="0"/>
+            <text x="44" y="42" font-size="6.6" fill="#cbd5e1" text-anchor="middle" font-weight="bold">Watch Glass</text>
+          </g>
+
+          <!-- Pouring Streams Overlay -->
+          <path id="liquid-pour-stream" d="M 465 235 L 485 295" fill="none" stroke="#bae6fd" stroke-width="2.6" stroke-linecap="round" opacity="0"/>
+          <path id="wash-jet-stream" d="M 518 242 L 490 295" fill="none" stroke="#7dd3fc" stroke-width="2.4" stroke-dasharray="4 2" opacity="0"/>
+        </svg>
+      </div>
+
+      <!-- Bottom Quick Action Controls -->
+      <div class="workbench-controls">
+        <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">QUICK CONTROLS:</span>
+        <button class="btn-ctrl" id="btn-quick-next" onclick="performNextStep()">▶ Next Synthesis Step</button>
+        <button class="btn-ctrl" id="btn-quick-hcl" onclick="executeAddConcHCl()" disabled>🧪 Add Conc. HCl</button>
+        <button class="btn-ctrl" id="btn-quick-stir" onclick="executeStirPolymerization()" disabled>🥢 Stir Vigourously</button>
+        <button class="btn-ctrl" style="color:var(--accent-rose)" onclick="resetSynthesis()">↺ Reset Lab</button>
+      </div>
+    </main>
+
+    <!-- ================= RIGHT GUIDED PROTOCOL SIDEBAR ================= -->
+    <aside class="guide-panel">
+      <div class="panel-head">
+        <h2>Bakelite Synthesis Protocol</h2>
+        <span style="font-size:0.65rem; color:var(--accent-emerald); font-weight:700;">GUIDED</span>
+      </div>
+
+      <div class="side-tools">
+        <button class="btn-nav" id="sound-toggle-btn" onclick="toggleAudioEngine()">🔊 Sound: ON</button>
+        <button class="btn-nav" onclick="openModalWindow('modal-theory')">📖 Theory</button>
+        <button class="btn-nav primary" onclick="openModalWindow('modal-calc')">📊 Logbook</button>
+      </div>
+
+      <div class="protocol-scroll-box" id="protocol-steps"></div>
+
+      <div class="telemetry-card">
+        <div class="telemetry-row">
+          <span class="telemetry-label">Reaction Mixture:</span>
+          <span class="telemetry-val" id="hud-mixture-vol">0.0 mL</span>
+        </div>
+        <div class="telemetry-row">
+          <span class="telemetry-label">Conc. HCl Added:</span>
+          <span class="telemetry-val" id="hud-hcl-vol" style="color:var(--accent-cyan)">0.0 mL / 8.0 mL</span>
+        </div>
+        <div class="telemetry-row">
+          <span class="telemetry-label">Appearance:</span>
+          <span class="telemetry-val">
+            <span class="swatch-circle" id="hud-swatch-dot" style="background:#e2e8f0;"></span>
+            <span id="hud-appearance">Empty Beaker</span>
+          </span>
+        </div>
+        <div class="telemetry-row">
+          <span class="telemetry-label">Resin Yield (W₂ − W₁):</span>
+          <span class="telemetry-val" id="hud-yield-val" style="color:var(--accent-pink)">Pending</span>
+        </div>
+      </div>
+
+      <div style="padding: 0 12px 10px;">
+        <button class="btn-nav primary" style="width:100%; justify-content:center; padding:7px;" onclick="logBakeliteYield()">
+          📝 Record Yield into Logbook
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ================= THEORY MODAL ================= -->
+  <div class="modal-backdrop" id="modal-theory">
+    <div class="modal-window">
+      <div class="modal-head">
+        <h3>Principle &amp; Reaction Mechanism: Preparation of Phenol-Formaldehyde Resin (Bakelite)</h3>
+        <button class="btn-close-modal" onclick="closeModalWindow('modal-theory')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h4 style="color:var(--accent-cyan);">Principle</h4>
+        <p>Phenolic resins (phenoplasts) are condensation polymerization products of phenol with formaldehyde. Polymers that change irreversibly on heating into hard, rigid, and infusible 3-dimensional cross-linked networks are called <strong>thermosetting polymers</strong>.</p>
+
+        <h4 style="color:var(--accent-cyan); margin-top:10px;">Three-Stage Formation of Bakelite</h4>
+        <div class="chem-eq-card">
+          <strong>Step 1 — Formation of Methylol Phenol Derivatives:</strong><br>
+          C₆H₅OH + HCHO → o-HO·C₆H₄·CH₂OH + p-HO·C₆H₄·CH₂OH<br><br>
+          <strong>Step 2 — Formation of Linear Novolac Resin (Acid-Catalyzed):</strong><br>
+          n (HO·C₆H₄·CH₂OH) → —[C₆H₃(OH)—CH₂]ₙ— + (n − 1) H₂O<br><br>
+          <strong>Step 3 — Cross-Linking to 3D Thermosetting Bakelite:</strong><br>
+          Further condensation forms extensive —CH₂— methylene bridges between phenolic rings, yielding a hard, pink, insoluble 3D network polymer.
+        </div>
+
+        <h4 style="color:var(--accent-cyan); margin-top:10px;">3D Cross-Linked Structure of Bakelite</h4>
+        <svg viewBox="0 0 640 165" style="width:100%; max-height:155px; background:#081322; border:1px solid rgba(56,189,248,0.3); border-radius:6px; margin-top:4px;">
+          <g stroke="#94a3b8" stroke-width="1.4" fill="none" font-family="monospace" font-size="10">
+            <!-- Top Row Phenolic Rings -->
+            <polygon points="120,32 138,42 138,62 120,72 102,62 102,42" stroke="#38bdf8"/>
+            <circle cx="120" cy="52" r="9" stroke="#38bdf8"/>
+            <line x1="120" y1="32" x2="120" y2="20"/>
+            <text x="120" y="16" fill="#f8fafc" stroke="none" text-anchor="middle">OH</text>
+
+            <line x1="138" y1="52" x2="182" y2="52"/>
+            <text x="160" y="48" fill="#fbbf24" stroke="none" text-anchor="middle">CH₂</text>
+
+            <polygon points="200,32 218,42 218,62 200,72 182,62 182,42" stroke="#38bdf8"/>
+            <circle cx="200" cy="52" r="9" stroke="#38bdf8"/>
+            <line x1="200" y1="32" x2="200" y2="20"/>
+            <text x="200" y="16" fill="#f8fafc" stroke="none" text-anchor="middle">OH</text>
+
+            <line x1="218" y1="52" x2="262" y2="52"/>
+            <text x="240" y="48" fill="#fbbf24" stroke="none" text-anchor="middle">CH₂</text>
+
+            <polygon points="280,32 298,42 298,62 280,72 262,62 262,42" stroke="#38bdf8"/>
+            <circle cx="280" cy="52" r="9" stroke="#38bdf8"/>
+            <line x1="280" y1="32" x2="280" y2="20"/>
+            <text x="280" y="16" fill="#f8fafc" stroke="none" text-anchor="middle">OH</text>
+
+            <!-- Vertical Cross-Links -->
+            <line x1="120" y1="72" x2="120" y2="104"/>
+            <text x="134" y="92" fill="#f472b6" stroke="none">CH₂</text>
+            <line x1="200" y1="72" x2="200" y2="104"/>
+            <text x="214" y="92" fill="#f472b6" stroke="none">CH₂</text>
+            <line x1="280" y1="72" x2="280" y2="104"/>
+            <text x="294" y="92" fill="#f472b6" stroke="none">CH₂</text>
+
+            <!-- Bottom Row Phenolic Rings -->
+            <polygon points="120,104 138,114 138,134 120,144 102,134 102,114" stroke="#38bdf8"/>
+            <circle cx="120" cy="124" r="9" stroke="#38bdf8"/>
+            <line x1="120" y1="144" x2="120" y2="154"/>
+            <text x="120" y="162" fill="#f8fafc" stroke="none" text-anchor="middle">OH</text>
+
+            <line x1="138" y1="124" x2="182" y2="124"/>
+            <text x="160" y="120" fill="#fbbf24" stroke="none" text-anchor="middle">CH₂</text>
+
+            <polygon points="200,104 218,114 218,134 200,144 182,134 182,114" stroke="#38bdf8"/>
+            <circle cx="200" cy="124" r="9" stroke="#38bdf8"/>
+            <line x1="200" y1="144" x2="200" y2="154"/>
+            <text x="200" y="162" fill="#f8fafc" stroke="none" text-anchor="middle">OH</text>
+
+            <line x1="218" y1="124" x2="262" y2="124"/>
+            <text x="240" y="120" fill="#fbbf24" stroke="none" text-anchor="middle">CH₂</text>
+
+            <polygon points="280,104 298,114 298,134 280,144 262,134 262,114" stroke="#38bdf8"/>
+            <circle cx="280" cy="124" r="9" stroke="#38bdf8"/>
+            <line x1="280" y1="144" x2="280" y2="154"/>
+            <text x="280" y="162" fill="#f8fafc" stroke="none" text-anchor="middle">OH</text>
+
+            <!-- Polymer Continuation -->
+            <text x="72" y="55" fill="#94a3b8" stroke="none">~H₂C—</text>
+            <text x="302" y="55" fill="#94a3b8" stroke="none">—CH₂~</text>
+            <text x="72" y="127" fill="#94a3b8" stroke="none">~H₂C—</text>
+            <text x="302" y="127" fill="#94a3b8" stroke="none">—CH₂~</text>
+
+            <text x="495" y="65" fill="#f472b6" stroke="none" font-size="12" font-weight="bold" text-anchor="middle">BAKELITE RESIN</text>
+            <text x="495" y="84" fill="#cbd5e1" stroke="none" font-size="9.5" text-anchor="middle">3D Methylene Cross-Linked</text>
+            <text x="495" y="99" fill="#cbd5e1" stroke="none" font-size="9.5" text-anchor="middle">Thermosetting Network</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= LOGBOOK & OBSERVATION MODAL ================= -->
+  <div class="modal-backdrop" id="modal-calc">
+    <div class="modal-window">
+      <div class="modal-head">
+        <h3>Observation Notebook &amp; Yield of Phenol-Formaldehyde Resin (Bakelite)</h3>
+        <button class="btn-close-modal" onclick="closeModalWindow('modal-calc')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h4 style="color:var(--accent-cyan);">Reagents Used</h4>
+        <table class="obs-table">
+          <thead>
+            <tr>
+              <th>Phenol Taken</th>
+              <th>40% Formalin</th>
+              <th>Glacial Acetic Acid</th>
+              <th>Conc. HCl Added</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2.000 g</td>
+              <td>2.5 mL</td>
+              <td>5.0 mL</td>
+              <td>8.0 mL (dropwise)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4 style="color:var(--accent-cyan); margin-top:14px;">Gravimetric Observation &amp; Yield Calculation</h4>
+        <table class="obs-table">
+          <thead>
+            <tr>
+              <th>Observation Parameter</th>
+              <th>Measured Value</th>
+              <th>Unit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Weight of empty watch glass (W₁)</td>
+              <td><input type="number" step="0.0001" id="obs-w1" value="24.5000"></td>
+              <td>g</td>
+            </tr>
+            <tr>
+              <td>Weight of watch glass + dried Bakelite polymer formed (W₂)</td>
+              <td><input type="number" step="0.0001" id="obs-w2" placeholder="26.7500"></td>
+              <td>g</td>
+            </tr>
+            <tr>
+              <td><strong>Weight of polymer formed (Yield = W₂ − W₁)</strong></td>
+              <td><input type="number" step="0.0001" id="obs-yield" placeholder="2.2500"></td>
+              <td>g</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="display:flex; justify-content:space-between; margin-top:12px;">
+          <button class="btn-nav primary" onclick="verifyYieldCalculation()">🔍 Verify Yield Calculation</button>
+          <button class="btn-nav" onclick="populateSimulatedYield()">⚡ Fill Simulation Ground-Truth</button>
+        </div>
+
+        <div id="verify-banner" style="margin-top:10px; padding:8px 12px; border-radius:6px; display:none; font-size:0.8rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const labState = {
+      audio: true,
+      isAnimating: false,
+      stepIndex: 0,
+
+      aceticAdded: false,
+      formalinAdded: false,
+      phenolAdded: false,
+      inWaterBath: false,
+      hclVolume: 0.0,
+      polymerized: false,
+      washed: false,
+      filtered: false,
+      driedWeighed: false,
+
+      W1_empty: 24.5000,
+      yield_true: 2.2500
+    };
+
+    const synthesisSteps = [
+      {
+        label: "Step 1",
+        text: "Place 5.0 mL of glacial acetic acid into a clean 100 mL beaker.",
+        fn: executeAddGlacialAcetic
+      },
+      {
+        label: "Step 2",
+        text: "Add 2.5 mL of 40% aqueous formaldehyde solution (formalin) to the 100 mL beaker.",
+        fn: executeAddFormalin
+      },
+      {
+        label: "Step 3",
+        text: "Weigh 2.000 g of phenol safely on the analytical balance and add it into the beaker.",
+        fn: executeAddPhenol
+      },
+      {
+        label: "Step 4",
+        text: "Place the 100 mL reaction beaker inside the 250 mL beaker containing water (cooling water bath).",
+        fn: executePlaceInWaterBath
+      },
+      {
+        label: "Step 5",
+        text: "Add 8.0 mL of Concentrated HCl dropwise into the reaction mixture while stirring with a glass rod (white turbidity forms and dissolves initially).",
+        fn: executeAddConcHCl
+      },
+      {
+        label: "Step 6",
+        text: "Continue vigorous stirring with the glass rod until the polymerization point is reached and the insoluble pink Bakelite plastic mass forms.",
+        fn: executeStirPolymerization
+      },
+      {
+        label: "Step 7",
+        text: "Wash the pink Bakelite residue several times with distilled water from the wash bottle to make it free from acid.",
+        fn: executeWashResin
+      },
+      {
+        label: "Step 8",
+        text: "Filter the pink polymer through filter paper, dry it, and weigh on a watch glass to record the yield (W₂ − W₁).",
+        fn: executeFilterAndWeigh
+      }
+    ];
+
+    /* ================= WEB AUDIO SOUND ENGINE ================= */
+    let audioCtx = null;
+    function playTone(type) {
+      if (!labState.audio) return;
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
+
+      if (type === 'drop') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.setValueAtTime(1180, now);
+        osc.frequency.exponentialRampToValueAtTime(310, now + 0.08);
+        gain.gain.setValueAtTime(0.14, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      } else if (type === 'glass_clink') {
+        [1850, 2550].forEach((freq, i) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + i * 0.025);
+          gain.gain.setValueAtTime(0.15, now + i * 0.025);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.025 + 0.22);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + i * 0.025);
+          osc.stop(now + i * 0.025 + 0.25);
+        });
+      } else if (type === 'pour') {
+        const bufferSize = audioCtx.sampleRate * 0.7;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(740, now);
+        filter.Q.setValueAtTime(2.0, now);
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.22, now);
+        gain.gain.linearRampToValueAtTime(0.001, now + 0.7);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        noise.start(now);
+      } else if (type === 'chime') {
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, now + idx * 0.09);
+          gain.gain.setValueAtTime(0.1, now + idx * 0.09);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.6);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + idx * 0.09);
+          osc.stop(now + idx * 0.09 + 0.65);
+        });
+      }
+    }
+
+    function toggleAudioEngine() {
+      labState.audio = !labState.audio;
+      document.getElementById('sound-toggle-btn').innerText = labState.audio ? '🔊 Sound: ON' : '🔇 Sound: OFF';
+    }
+
+    /* ================= VISUAL & HUD UPDATES ================= */
+    function updateVisuals() {
+      const rxnLiq = document.getElementById('rxn-liquid');
+      const rxnMen = document.getElementById('rxn-meniscus');
+      const crystals = document.getElementById('phenol-crystals-layer');
+      const cloud = document.getElementById('white-polymer-cloud');
+      const pinkMass = document.getElementById('pink-bakelite-mass');
+
+      const totalVol = (labState.aceticAdded ? 5.0 : 0) +
+                       (labState.formalinAdded ? 2.5 : 0) +
+                       (labState.phenolAdded ? 1.8 : 0) +
+                       labState.hclVolume;
+
+      if (totalVol > 0 && !labState.filtered) {
+        const topY = Math.max(24, 66 - (totalVol / 18.0) * 34);
+        rxnLiq.setAttribute('d', `M 2 ${topY} L 58 ${topY} L 58 68 C 58 70 56 71 54 71 L 6 71 C 4 71 2 70 2 68 Z`);
+        rxnMen.setAttribute('cy', topY);
+
+        if (labState.polymerized) {
+          rxnLiq.setAttribute('fill', '#fbcfe8');
+          rxnLiq.setAttribute('opacity', '0.45');
+          rxnMen.setAttribute('fill', '#f9a8d4');
+          rxnMen.setAttribute('opacity', '0.6');
+          cloud.setAttribute('opacity', '0');
+          pinkMass.setAttribute('opacity', '0.95');
+        } else if (labState.hclVolume > 0) {
+          rxnLiq.setAttribute('fill', '#e0f2fe');
+          rxnLiq.setAttribute('opacity', '0.55');
+          rxnMen.setAttribute('fill', '#bae6fd');
+          rxnMen.setAttribute('opacity', '0.75');
+          cloud.setAttribute('opacity', Math.min(0.85, 0.25 + (labState.hclVolume / 8.0) * 0.6));
+          pinkMass.setAttribute('opacity', '0');
+        } else {
+          rxnLiq.setAttribute('fill', '#bae6fd');
+          rxnLiq.setAttribute('opacity', '0.48');
+          rxnMen.setAttribute('fill', '#7dd3fc');
+          rxnMen.setAttribute('opacity', '0.7');
+          cloud.setAttribute('opacity', '0');
+          pinkMass.setAttribute('opacity', '0');
+        }
+      } else {
+        rxnLiq.setAttribute('opacity', '0');
+        rxnMen.setAttribute('opacity', '0');
+        cloud.setAttribute('opacity', '0');
+        if (labState.filtered) pinkMass.setAttribute('opacity', '0');
+      }
+
+      crystals.setAttribute('opacity', (labState.phenolAdded && !labState.inWaterBath && !labState.polymerized) ? '0.85' : '0');
+
+      // Update Quick Buttons
+      document.getElementById('btn-quick-next').disabled = (labState.stepIndex >= synthesisSteps.length || labState.isAnimating);
+      document.getElementById('btn-quick-hcl').disabled = (!labState.inWaterBath || labState.hclVolume >= 8.0 || labState.isAnimating);
+      document.getElementById('btn-quick-stir').disabled = (labState.hclVolume < 8.0 || labState.polymerized || labState.isAnimating);
+
+      // Update Telemetry Card
+      document.getElementById('hud-mixture-vol').innerText = `${totalVol.toFixed(1)} mL`;
+      document.getElementById('hud-hcl-vol').innerText = `${labState.hclVolume.toFixed(1)} mL / 8.0 mL`;
+
+      const swatch = document.getElementById('hud-swatch-dot');
+      const appTxt = document.getElementById('hud-appearance');
+      if (labState.driedWeighed) {
+        swatch.style.backgroundColor = '#f472b6';
+        appTxt.innerText = 'Dry Pink Bakelite Resin';
+      } else if (labState.filtered) {
+        swatch.style.backgroundColor = '#f472b6';
+        appTxt.innerText = 'Filtered Pink Residue';
+      } else if (labState.washed) {
+        swatch.style.backgroundColor = '#f472b6';
+        appTxt.innerText = 'Acid-Free Pink Resin';
+      } else if (labState.polymerized) {
+        swatch.style.backgroundColor = '#f472b6';
+        appTxt.innerText = 'Insoluble Pink Plastic Mass';
+      } else if (labState.hclVolume > 0) {
+        swatch.style.backgroundColor = '#f8fafc';
+        appTxt.innerText = 'White Polymer Turbidity';
+      } else if (labState.phenolAdded) {
+        swatch.style.backgroundColor = '#fde68a';
+        appTxt.innerText = 'Phenol + Formalin + AcOH';
+      } else if (labState.formalinAdded) {
+        swatch.style.backgroundColor = '#a7f3d0';
+        appTxt.innerText = 'AcOH + 40% Formalin';
+      } else if (labState.aceticAdded) {
+        swatch.style.backgroundColor = '#bae6fd';
+        appTxt.innerText = '5.0 mL Glacial Acetic Acid';
+      } else {
+        swatch.style.backgroundColor = '#e2e8f0';
+        appTxt.innerText = 'Empty Beaker';
+      }
+
+      document.getElementById('hud-yield-val').innerText = labState.driedWeighed
+        ? `${labState.yield_true.toFixed(4)} g`
+        : 'Pending';
+    }
+
+    function advanceStep(idx) {
+      if (labState.stepIndex === idx) {
+        labState.stepIndex++;
+        renderProtocolSteps();
+        updateVisuals();
+      }
+    }
+
+    function performNextStep() {
+      if (labState.stepIndex < synthesisSteps.length && !labState.isAnimating) {
+        synthesisSteps[labState.stepIndex].fn();
+      }
+    }
+
+    /* ================= 8-STEP KINEMATIC SYNTHESIS ACTIONS ================= */
+    // Step 1: Add 5.0 mL Glacial Acetic Acid to 100 mL Beaker
+    function executeAddGlacialAcetic() {
+      if (labState.isAnimating || labState.aceticAdded) return;
+      labState.isAnimating = true;
+      playTone('glass_clink');
+
+      const cyl = document.getElementById('obj-acetic-cyl');
+      const stream = document.getElementById('liquid-pour-stream');
+      cyl.setAttribute('transform', 'translate(238, 185) rotate(-65 19 40)');
+
+      setTimeout(() => {
+        stream.setAttribute('d', 'M 225 205 L 210 265');
+        stream.setAttribute('stroke', '#bae6fd');
+        stream.setAttribute('opacity', '1');
+        playTone('pour');
+        document.getElementById('acetic-cyl-liq').setAttribute('opacity', '0.1');
+        document.getElementById('acetic-cyl-men').setAttribute('opacity', '0');
+        labState.aceticAdded = true;
+        updateVisuals();
+      }, 750);
+
+      setTimeout(() => {
+        stream.setAttribute('opacity', '0');
+        cyl.setAttribute('transform', 'translate(312, 296)');
+        playTone('chime');
+        labState.isAnimating = false;
+        advanceStep(0);
+      }, 1700);
+    }
+
+    // Step 2: Add 2.5 mL 40% Formalin to 100 mL Beaker
+    function executeAddFormalin() {
+      if (labState.isAnimating || !labState.aceticAdded || labState.formalinAdded) return;
+      labState.isAnimating = true;
+      playTone('glass_clink');
+
+      const cyl = document.getElementById('obj-formalin-cyl');
+      const stream = document.getElementById('liquid-pour-stream');
+      cyl.setAttribute('transform', 'translate(238, 185) rotate(-65 19 40)');
+
+      setTimeout(() => {
+        stream.setAttribute('d', 'M 225 205 L 210 265');
+        stream.setAttribute('stroke', '#6ee7b7');
+        stream.setAttribute('opacity', '1');
+        playTone('pour');
+        document.getElementById('formalin-cyl-liq').setAttribute('opacity', '0.1');
+        document.getElementById('formalin-cyl-men').setAttribute('opacity', '0');
+        labState.formalinAdded = true;
+        updateVisuals();
+      }, 750);
+
+      setTimeout(() => {
+        stream.setAttribute('opacity', '0');
+        cyl.setAttribute('transform', 'translate(362, 296)');
+        playTone('chime');
+        labState.isAnimating = false;
+        advanceStep(1);
+      }, 1700);
+    }
+
+    // Step 3: Weigh & Add 2.000 g Phenol into 100 mL Beaker
+    function executeAddPhenol() {
+      if (labState.isAnimating || !labState.formalinAdded || labState.phenolAdded) return;
+      labState.isAnimating = true;
+      playTone('glass_clink');
+
+      const spatula = document.getElementById('obj-spatula');
+      const spatSalt = document.getElementById('spatula-phenol');
+      const readout = document.getElementById('balance-readout');
+
+      spatula.setAttribute('transform', 'translate(62, 286) rotate(-18)');
+
+      setTimeout(() => {
+        spatSalt.setAttribute('opacity', '1');
+        playTone('drop');
+        spatula.setAttribute('transform', 'translate(198, 232) rotate(8)');
+      }, 750);
+
+      setTimeout(() => {
+        spatSalt.setAttribute('opacity', '0');
+        playTone('drop');
+
+        let w = 0.0000;
+        const timer = setInterval(() => {
+          w += 0.2500;
+          if (w >= 2.0000) {
+            clearInterval(timer);
+            readout.textContent = '2.0000 g';
+            labState.phenolAdded = true;
+            updateVisuals();
+          } else {
+            readout.textContent = w.toFixed(4) + ' g';
+          }
+        }, 55);
+
+        spatula.setAttribute('transform', 'translate(112, 276)');
+      }, 1550);
+
+      setTimeout(() => {
+        playTone('chime');
+        labState.isAnimating = false;
+        advanceStep(2);
+      }, 2350);
+    }
+
+    // Step 4: Place 100 mL Reaction Beaker inside 250 mL Water Bath Beaker
+    function executePlaceInWaterBath() {
+      if (labState.isAnimating || !labState.phenolAdded || labState.inWaterBath) return;
+      labState.isAnimating = true;
+      playTone('glass_clink');
+
+      const rxnBeaker = document.getElementById('obj-reaction-beaker');
+      document.getElementById('balance-readout').textContent = '0.0000 g';
+
+      // Lift beaker above 250 mL bath then lower into water bath
+      rxnBeaker.setAttribute('transform', 'translate(455, 200)');
+
+      setTimeout(() => {
+        rxnBeaker.setAttribute('transform', 'translate(455, 296)');
+        playTone('pour');
+        labState.inWaterBath = true;
+        updateVisuals();
+      }, 850);
+
+      setTimeout(() => {
+        playTone('chime');
+        labState.isAnimating = false;
+        advanceStep(3);
+      }, 1650);
+    }
+
+    // Step 5: Add 8.0 mL Conc. HCl Dropwise with Stirring
+    function executeAddConcHCl() {
+      if (labState.isAnimating || !labState.inWaterBath || labState.hclVolume >= 8.0) return;
+      labState.isAnimating = true;
+      updateVisuals();
+
+      const dropper = document.getElementById('obj-hcl-dropper');
+      const dropNode = document.getElementById('hcl-drop-node');
+      const rod = document.getElementById('obj-glass-rod');
+
+      dropper.setAttribute('transform', 'translate(485, 226)');
+      dropper.setAttribute('opacity', '1');
+      rod.setAttribute('transform', 'translate(495, 232) rotate(14)');
+
+      let stepCount = 0;
+      const totalDrops = 8;
+
+      const dropInterval = setInterval(() => {
+        stepCount++;
+        playTone('drop');
+
+        dropNode.setAttribute('cy', '50');
+        dropNode.setAttribute('opacity', '1');
+
+        // Gentle glass rod stir motion
+        rod.setAttribute('transform', `translate(${stepCount % 2 === 0 ? 498 : 490}, 232) rotate(${stepCount % 2 === 0 ? 16 : 10})`);
+
+        setTimeout(() => {
+          dropNode.setAttribute('cy', '72');
+          dropNode.setAttribute('opacity', '0');
+          labState.hclVolume = parseFloat((stepCount * 1.0).toFixed(1));
+          updateVisuals();
+        }, 160);
+
+        if (stepCount >= totalDrops) {
+          clearInterval(dropInterval);
+          setTimeout(() => {
+            dropper.setAttribute('opacity', '0');
+            rod.setAttribute('transform', 'translate(638, 254)');
+            playTone('chime');
+            labState.isAnimating = false;
+            advanceStep(4);
+          }, 350);
+        }
+      }, 320);
+    }
+
+    // Step 6: Vigorous Stirring to Reach Polymerization Point (Pink Bakelite Mass)
+    function executeStirPolymerization() {
+      if (labState.isAnimating || labState.hclVolume < 8.0 || labState.polymerized) return;
+      labState.isAnimating = true;
+      updateVisuals();
+
+      const rod = document.getElementById('obj-glass-rod');
+      let cycles = 0;
+
+      const stirTimer = setInterval(() => {
+        cycles++;
+        const xOff = 483 + Math.sin(cycles * 0.9) * 12;
+        const rot = Math.sin(cycles * 0.9) * 14;
+        rod.setAttribute('transform', `translate(${xOff.toFixed(1)}, 232) rotate(${rot.toFixed(1)})`);
+        if (cycles % 3 === 0) playTone('glass_clink');
+
+        if (cycles >= 16) {
+          clearInterval(stirTimer);
+          labState.polymerized = true;
+          updateVisuals();
+          playTone('chime');
+
+          setTimeout(() => {
+            rod.setAttribute('transform', 'translate(638, 254)');
+            labState.isAnimating = false;
+            advanceStep(5);
+          }, 450);
+        }
+      }, 130);
+    }
+
+    // Step 7: Wash Pink Residue with Distilled Water to Remove Acid
+    function executeWashResin() {
+      if (labState.isAnimating || !labState.polymerized || labState.washed) return;
+      labState.isAnimating = true;
+      playTone('glass_clink');
+
+      const wash = document.getElementById('obj-wash-bottle');
+      const jet = document.getElementById('wash-jet-stream');
+
+      wash.setAttribute('transform', 'translate(535, 240) rotate(-18)');
+
+      setTimeout(() => {
+        jet.setAttribute('opacity', '1');
+        playTone('pour');
+      }, 750);
+
+      setTimeout(() => {
+        jet.setAttribute('opacity', '0');
+        wash.setAttribute('transform', 'translate(682, 296)');
+        labState.washed = true;
+        playTone('chime');
+        labState.isAnimating = false;
+        advanceStep(6);
+      }, 2100);
+    }
+
+    // Step 8: Filter Pink Polymer, Dry & Weigh on Watch Glass
+    function executeFilterAndWeigh() {
+      if (labState.isAnimating || !labState.washed || labState.driedWeighed) return;
+      labState.isAnimating = true;
+      playTone('glass_clink');
+
+      const rxnBeaker = document.getElementById('obj-reaction-beaker');
+      const filtrate = document.getElementById('filtrate-liquid');
+      const filterCake = document.getElementById('filtered-pink-cake');
+      const watchBakelite = document.getElementById('watchglass-bakelite');
+      const watchGlass = document.getElementById('obj-watch-glass');
+      const readout = document.getElementById('balance-readout');
+
+      // 1. Lift 100 mL beaker over filter funnel and pour
+      rxnBeaker.setAttribute('transform', 'translate(730, 195) rotate(68 30 40)');
+
+      setTimeout(() => {
+        playTone('pour');
+        filtrate.setAttribute('opacity', '0.45');
+        filterCake.setAttribute('opacity', '0.95');
+        labState.filtered = true;
+        updateVisuals();
+      }, 850);
+
+      // 2. Return beaker to bench & transfer dried pink cake to watch glass
+      setTimeout(() => {
+        rxnBeaker.setAttribute('transform', 'translate(455, 296)');
+        filterCake.setAttribute('opacity', '0');
+        watchBakelite.setAttribute('opacity', '0.95');
+        playTone('glass_clink');
+      }, 1900);
+
+      // 3. Place watch glass with Bakelite product onto analytical balance pan
+      setTimeout(() => {
+        watchGlass.setAttribute('transform', 'translate(166, 292)');
+        const w2 = labState.W1_empty + labState.yield_true;
+        readout.textContent = w2.toFixed(4) + ' g';
+        labState.driedWeighed = true;
+        playTone('chime');
+        updateVisuals();
+      }, 2800);
+
+      setTimeout(() => {
+        watchGlass.setAttribute('transform', 'translate(850, 350)');
+        labState.isAnimating = false;
+        advanceStep(7);
+      }, 4200);
+    }
+
+    function executeDryAndWeigh() {
+      if (!labState.washed) return;
+      executeFilterAndWeigh();
+    }
+
+    function resetSynthesis() {
+      if (labState.isAnimating) return;
+      labState.stepIndex = 0;
+      labState.aceticAdded = false;
+      labState.formalinAdded = false;
+      labState.phenolAdded = false;
+      labState.inWaterBath = false;
+      labState.hclVolume = 0.0;
+      labState.polymerized = false;
+      labState.washed = false;
+      labState.filtered = false;
+      labState.driedWeighed = false;
+
+      document.getElementById('balance-readout').textContent = '0.0000 g';
+      document.getElementById('acetic-cyl-liq').setAttribute('opacity', '0.5');
+      document.getElementById('acetic-cyl-men').setAttribute('opacity', '0.75');
+      document.getElementById('formalin-cyl-liq').setAttribute('opacity', '0.5');
+      document.getElementById('formalin-cyl-men').setAttribute('opacity', '0.75');
+      document.getElementById('obj-reaction-beaker').setAttribute('transform', 'translate(180, 252)');
+      document.getElementById('obj-glass-rod').setAttribute('transform', 'translate(638, 254)');
+      document.getElementById('filtrate-liquid').setAttribute('opacity', '0');
+      document.getElementById('filtered-pink-cake').setAttribute('opacity', '0');
+      document.getElementById('watchglass-bakelite').setAttribute('opacity', '0');
+      document.getElementById('obj-watch-glass').setAttribute('transform', 'translate(850, 350)');
+
+      renderProtocolSteps();
+      updateVisuals();
+    }
+
+    /* ================= RENDER GUIDED STEPS (DESKTOP & MOBILE ONE-STEP FOCUS) ================= */
+    function isMobileFocusActive() {
+      const mode = document.documentElement.getAttribute('data-layout-mode') || 'auto';
+      return mode === 'mobile' || (mode === 'auto' && window.matchMedia('(max-width: 700px)').matches);
+    }
+
+    function renderProtocolSteps() {
+      const container = document.getElementById('protocol-steps');
+      const cur = labState.stepIndex;
+
+      if (isMobileFocusActive()) {
+        const progressText = cur < synthesisSteps.length
+          ? `STEP ${cur + 1} OF ${synthesisSteps.length}`
+          : 'ALL STEPS COMPLETED';
+
+        if (cur >= synthesisSteps.length) {
+          container.innerHTML = `
+            <div class="mobile-step-progress">${progressText}</div>
+            <div class="step-card done active mobile-current-step">
+              <div class="step-top"><span>Bakelite Synthesis Completed</span><span>✓ Done</span></div>
+              <div class="step-desc">Pink phenol-formaldehyde resin synthesized, washed, filtered, and weighed (Yield = 2.2500 g). Open the Logbook to verify your result.</div>
+            </div>
+          `;
+          return;
+        }
+
+        const item = synthesisSteps[cur];
+        container.innerHTML = `
+          <div class="mobile-step-progress">${progressText}</div>
+          <div class="step-card active mobile-current-step">
+            <div class="step-top"><span>${item.label}</span><span>● In Progress</span></div>
+            <div class="step-desc">${item.text}</div>
+            <button class="step-exec-btn" onclick="synthesisSteps[${cur}].fn()">▶ Perform Task (${item.label})</button>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      synthesisSteps.forEach((item, idx) => {
+        const isDone = idx < cur;
+        const isActive = idx === cur;
+        const cls = isDone ? 'step-card done' : (isActive ? 'step-card active' : 'step-card');
+        html += `
+          <div class="${cls}">
+            <div class="step-top">
+              <span>${item.label}</span>
+              <span>${isDone ? '✓ Done' : (isActive ? '● In Progress' : '')}</span>
+            </div>
+            <div class="step-desc">${item.text}</div>
+            ${isActive ? `<button class="step-exec-btn" onclick="synthesisSteps[${idx}].fn()">▶ Perform Task</button>` : ''}
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    /* ================= MODALS & LOGBOOK CALCULATIONS ================= */
+    function openModalWindow(id) {
+      document.getElementById(id).classList.add('open');
+    }
+
+    function closeModalWindow(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    document.querySelectorAll('.modal-backdrop').forEach(m => {
+      m.addEventListener('click', (e) => {
+        if (e.target === m) m.classList.remove('open');
+      });
+    });
+
+    function logBakeliteYield() {
+      const w1 = labState.W1_empty;
+      const w2 = labState.W1_empty + labState.yield_true;
+      document.getElementById('obs-w1').value = w1.toFixed(4);
+      document.getElementById('obs-w2').value = w2.toFixed(4);
+      document.getElementById('obs-yield').value = labState.yield_true.toFixed(4);
+      openModalWindow('modal-calc');
+    }
+
+    function populateSimulatedYield() {
+      logBakeliteYield();
+      verifyYieldCalculation();
+    }
+
+    function verifyYieldCalculation() {
+      const banner = document.getElementById('verify-banner');
+      banner.style.display = 'block';
+
+      const w1 = parseFloat(document.getElementById('obs-w1').value);
+      const w2 = parseFloat(document.getElementById('obs-w2').value);
+      const yInput = parseFloat(document.getElementById('obs-yield').value);
+
+      if ([w1, w2, yInput].some(Number.isNaN)) {
+        banner.style.background = 'rgba(245, 158, 11, 0.2)';
+        banner.style.border = '1px solid #f59e0b';
+        banner.style.color = '#fde68a';
+        banner.innerHTML = '⚠️ Please enter W₁, W₂, and the calculated polymer yield (W₂ − W₁) before verifying.';
+        return;
+      }
+
+      const expected = w2 - w1;
+      if (expected > 0 && Math.abs(yInput - expected) <= 0.01) {
+        banner.style.background = 'rgba(16, 185, 129, 0.2)';
+        banner.style.border = '1px solid #10b981';
+        banner.style.color = '#6ee7b7';
+        banner.innerHTML = `<strong>✓ Result Verified!</strong> Yield of phenol-formaldehyde resin (Bakelite) prepared = W₂ − W₁ = ${w2.toFixed(4)} − ${w1.toFixed(4)} = <strong>${yInput.toFixed(4)} g</strong>.`;
+        playTone('chime');
+      } else {
+        banner.style.background = 'rgba(244, 63, 94, 0.2)';
+        banner.style.border = '1px solid #f43f5e';
+        banner.style.color = '#fca5a5';
+        banner.innerHTML = `<strong>Calculation Discrepancy:</strong> Yield = W₂ − W₁ = ${w2.toFixed(4)} − ${w1.toFixed(4)} = ${expected.toFixed(4)} g.`;
+      }
+    }
+
+    /* ================= LAYOUT MODE & FULLSCREEN CONTROLS ================= */
+    function setLayoutMode(mode) {
+      document.documentElement.setAttribute('data-layout-mode', mode);
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+      renderProtocolSteps();
+    }
+
+    async function toggleFullscreen() {
+      const target = document.documentElement;
+      try {
+        if (!document.fullscreenElement) {
+          if (target.requestFullscreen) await target.requestFullscreen();
+          else if (target.webkitRequestFullscreen) target.webkitRequestFullscreen();
+        } else {
+          if (document.exitFullscreen) await document.exitFullscreen();
+          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        }
+      } catch (e) {
+        alert('Full-screen mode is not available in this browser.');
+      }
+    }
+
+    function updateFullscreenButton() {
+      const active = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      document.getElementById('fullscreenBtn').textContent = active ? '⤢ Exit full screen' : '⛶ Full screen';
+    }
+
+    document.addEventListener('fullscreenchange', updateFullscreenButton);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+
+    const mobileMq = window.matchMedia('(max-width: 700px)');
+    if (mobileMq && typeof mobileMq.addEventListener === 'function') {
+      mobileMq.addEventListener('change', () => renderProtocolSteps());
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderProtocolSteps();
+      updateVisuals();
+    });
+  </script>
+</body>
+</html>

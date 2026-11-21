@@ -1,0 +1,2635 @@
+<!DOCTYPE html>
+<html lang="en" data-layout-mode="auto">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Engineering Chemistry Lab — Surface Tension by Stalagmometer</title>
+  <style>
+    :root {
+      --bg-space: #0a0f1d;
+      --panel-bg: rgba(15, 23, 42, 0.96);
+      --panel-border: rgba(255, 255, 255, 0.12);
+      --accent-cyan: #38bdf8;
+      --accent-blue: #0284c7;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    html, body {
+      height: 100vh;
+      max-height: 100vh;
+      width: 100vw;
+      background-color: var(--bg-space);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    header.lab-navbar {
+      height: 44px;
+      min-height: 44px;
+      background: rgba(15, 23, 42, 0.98);
+      border-bottom: 1px solid var(--panel-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 50;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: #fff;
+      font-size: 0.9rem;
+    }
+
+    .brand-title h1 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.1;
+    }
+
+    .brand-title p {
+      font-size: 0.62rem;
+      color: var(--accent-cyan);
+    }
+
+    .liquid-selector-group {
+      display: flex;
+      background: rgba(30, 41, 59, 0.7);
+      padding: 2px;
+      border-radius: 6px;
+      border: 1px solid var(--panel-border);
+      gap: 2px;
+    }
+
+    .liquid-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .liquid-tab-btn.active {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-nav {
+      background: #1e293b;
+      border: 1px solid var(--panel-border);
+      color: var(--text-main);
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-nav:hover {
+      border-color: var(--accent-cyan);
+      background: #334155;
+    }
+
+    .btn-nav.primary {
+      background: #0369a1;
+      border-color: var(--accent-cyan);
+    }
+
+    .lab-workspace {
+      flex: 1;
+      height: calc(100vh - 44px);
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    main.workbench-stage {
+      position: relative;
+      height: 100%;
+      background: #090e17;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .svg-viewport-wrapper {
+      flex: 1;
+      width: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at 50% 48%, #162436 0%, #0c1420 60%, #060a10 100%);
+    }
+
+    #stalagmometer-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .interactive-element {
+      cursor: pointer;
+      transition: filter 0.2s ease, transform 0.3s ease;
+    }
+    .interactive-element:hover {
+      filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.8));
+    }
+
+    .workbench-controls {
+      height: 42px;
+      background: rgba(15, 23, 42, 0.96);
+      border-top: 1px solid var(--panel-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 0 14px;
+      z-index: 30;
+    }
+
+    .ctrl-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-ctrl {
+      background: #1e293b;
+      color: var(--text-main);
+      border: 1px solid #334155;
+      padding: 5px 9px;
+      border-radius: 4px;
+      font-size: 0.71rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+
+    .btn-ctrl:hover:not(:disabled) {
+      background: #334155;
+      border-color: var(--accent-cyan);
+    }
+
+    .btn-ctrl.active-ctrl {
+      background: #0284c7;
+      border-color: var(--accent-cyan);
+      color: #fff;
+    }
+
+    .btn-ctrl:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .telemetry-bottom-panel {
+      flex: 0 0 170px;
+      min-height: 160px;
+      background: linear-gradient(135deg, rgba(10, 18, 30, 0.98), rgba(18, 30, 48, 0.98));
+      border-top: 1px solid rgba(56, 189, 248, 0.35);
+      padding: 8px 14px;
+      display: grid;
+      grid-template-columns: 240px 1fr 280px;
+      gap: 12px;
+      color: #e2e8f0;
+      font-size: 11px;
+    }
+
+    .dashboard-col {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow: hidden;
+    }
+
+    .badge-pill-row {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      flex-wrap: wrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .badge-pill {
+      background: #112235;
+      border: 1px solid #284766;
+      border-radius: 4px;
+      padding: 2.5px 6px;
+      font-size: 0.68rem;
+    }
+
+    .chart-container {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      height: 100%;
+    }
+
+    .chart-container svg {
+      width: 100%;
+      height: 120px;
+      background: linear-gradient(180deg, #07101c, #0a1728);
+      border: 1px solid #2d4560;
+      border-radius: 6px;
+    }
+
+    .obs-table-container {
+      overflow-y: auto;
+      border: 1px solid #2d4560;
+      border-radius: 6px;
+      background: #091322;
+      height: 120px;
+    }
+
+    .obs-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9.5px;
+      text-align: center;
+    }
+
+    .obs-table th, .obs-table td {
+      padding: 3.5px 5px;
+      border-bottom: 1px solid #1f3147;
+      white-space: nowrap;
+    }
+
+    .obs-table th {
+      position: sticky;
+      top: 0;
+      background: #152538;
+      color: var(--accent-cyan);
+      font-weight: 700;
+    }
+
+    aside.guide-panel {
+      background: var(--panel-bg);
+      border-left: 1px solid var(--panel-border);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+      z-index: 20;
+    }
+
+    .panel-head {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--panel-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-head h2 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--accent-cyan);
+      font-weight: 700;
+    }
+
+    .protocol-scroll-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .step-card {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 6px 9px;
+      transition: all 0.15s;
+    }
+
+    .step-card.active {
+      border-color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.12);
+      box-shadow: 0 2px 8px rgba(56, 189, 248, 0.2);
+    }
+
+    .step-card.done {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    .step-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--accent-cyan);
+      margin-bottom: 2px;
+    }
+
+    .step-card.done .step-top {
+      color: var(--accent-emerald);
+    }
+
+    .step-desc {
+      font-size: 0.72rem;
+      color: #f1f5f9;
+      line-height: 1.35;
+    }
+
+    .step-exec-btn {
+      margin-top: 5px;
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #fff;
+      padding: 4px 6px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .step-exec-btn:hover {
+      background: #0284c7;
+      border-color: var(--accent-cyan);
+    }
+
+    .telemetry-card {
+      margin: 6px 10px;
+      background: #090e1a;
+      border: 1px solid var(--panel-border);
+      border-radius: 6px;
+      padding: 6px 8px;
+    }
+
+    .telemetry-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2.5px 0;
+      font-size: 0.68rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .telemetry-row:last-child {
+      border-bottom: none;
+    }
+    .telemetry-label {
+      color: var(--text-muted);
+    }
+    .telemetry-val {
+      font-family: monospace;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      place-items: center;
+      padding: 16px;
+    }
+    .modal-backdrop.open {
+      display: grid;
+    }
+
+    .modal-window {
+      background: #0f172a;
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      width: 100%;
+      max-width: 860px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-head {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--panel-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(30, 41, 59, 0.4);
+    }
+    .modal-head h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .btn-close-modal {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 14px 18px;
+      overflow-y: auto;
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    .calc-card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 5px;
+      padding: 8px 12px;
+      margin: 8px 0;
+      font-family: monospace;
+      color: #bae6fd;
+    }
+
+    .modal-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 0.74rem;
+    }
+    .modal-table th, .modal-table td {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 5px 6px;
+      text-align: center;
+    }
+    .modal-table th {
+      background: rgba(30, 41, 59, 0.8);
+      color: var(--accent-cyan);
+    }
+    .modal-table input {
+      width: 72px;
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #fff;
+      padding: 2px 4px;
+      border-radius: 3px;
+      text-align: center;
+      font-weight: 700;
+    }
+  
+    /* ================= HEADER LAYOUT MODE & FULLSCREEN CONTROLS ================= */
+    .header-right-cluster {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .mode-selector {
+      display: flex;
+      gap: 3px;
+      padding: 2px;
+      border: 1px solid #334155;
+      border-radius: 7px;
+      background: #111c30;
+    }
+
+    .mode-btn {
+      border: 1px solid transparent;
+      background: transparent;
+      color: #cbd5e1;
+      padding: 4px 8px;
+      border-radius: 5px;
+      font-weight: 700;
+      font-size: 0.68rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .mode-btn:hover {
+      background: #1e293b;
+      color: #fff;
+    }
+
+    .mode-btn.active {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #fff;
+    }
+
+    .fullscreen-btn {
+      border: 1px solid #38bdf8;
+      background: #075985;
+      color: #fff;
+      padding: 4px 9px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.68rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .fullscreen-btn:hover {
+      background: #0284c7;
+    }
+
+    button:focus-visible {
+      outline: 2px solid #7dd3fc;
+      outline-offset: 2px;
+    }
+
+    :fullscreen {
+      background: #0a0f1d;
+    }
+
+    /* ================= MOBILE ONE-STEP FOCUS & RESPONSIVE MODES ================= */
+    .mobile-step-progress {
+      color: #38bdf8;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      padding: 3px 2px;
+    }
+
+    .mobile-current-step {
+      padding: 12px 13px !important;
+      border-width: 1px !important;
+    }
+
+    .mobile-current-step .step-desc {
+      font-size: 0.9rem !important;
+      line-height: 1.45 !important;
+    }
+
+    .mobile-current-step .step-exec-btn {
+      min-height: 42px !important;
+      font-size: 0.82rem !important;
+      margin-top: 8px !important;
+    }
+
+    @media (max-width: 1320px) {
+      html[data-layout-mode="auto"] header.lab-navbar {
+        height: auto;
+        min-height: 44px;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 7px 12px;
+      }
+      html[data-layout-mode="auto"] .lab-workspace {
+        height: calc(100vh - 82px);
+      }
+    }
+
+    @media (max-width: 700px) {
+      html[data-layout-mode="auto"],
+      html[data-layout-mode="mobile"] {
+        height: auto !important;
+        min-height: 100% !important;
+        max-height: none !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+      }
+
+      html[data-layout-mode="auto"] body,
+      html[data-layout-mode="mobile"] body {
+        height: auto !important;
+        min-height: 100% !important;
+        max-height: none !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+      }
+
+      html[data-layout-mode="auto"] header.lab-navbar,
+      html[data-layout-mode="mobile"] header.lab-navbar {
+        height: auto !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 7px !important;
+        padding: 8px 10px !important;
+      }
+
+      html[data-layout-mode="auto"] .liquid-selector-group,
+      html[data-layout-mode="mobile"] .liquid-selector-group {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        width: 100% !important;
+        gap: 3px !important;
+      }
+
+      html[data-layout-mode="auto"] .liquid-tab-btn,
+      html[data-layout-mode="mobile"] .liquid-tab-btn {
+        white-space: normal !important;
+        line-height: 1.2 !important;
+        padding: 6px 4px !important;
+        font-size: 0.68rem !important;
+        text-align: center !important;
+      }
+
+      html[data-layout-mode="auto"] .header-right-cluster,
+      html[data-layout-mode="mobile"] .header-right-cluster {
+        justify-content: space-between !important;
+        width: 100% !important;
+        gap: 6px !important;
+      }
+
+      html[data-layout-mode="auto"] .nav-actions,
+      html[data-layout-mode="mobile"] .nav-actions {
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+      }
+
+      html[data-layout-mode="auto"] .lab-workspace,
+      html[data-layout-mode="mobile"] .lab-workspace {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: 100% !important;
+        max-height: none !important;
+        overflow: visible !important;
+        align-items: stretch !important;
+      }
+
+      html[data-layout-mode="auto"] main.workbench-stage,
+      html[data-layout-mode="mobile"] main.workbench-stage {
+        display: flex !important;
+        flex-direction: column !important;
+        position: static !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        flex: 0 0 auto !important;
+      }
+
+      html[data-layout-mode="auto"] .svg-viewport-wrapper,
+      html[data-layout-mode="mobile"] .svg-viewport-wrapper {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 100 !important;
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        height: 40dvh !important;
+        min-height: 230px !important;
+        max-height: 360px !important;
+        padding: 4px 6px !important;
+        overflow: hidden !important;
+        background: #090e17 !important;
+        border-bottom: 1px solid rgba(56, 189, 248, 0.45) !important;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35) !important;
+      }
+
+      html[data-layout-mode="auto"] #stalagmometer-svg,
+      html[data-layout-mode="mobile"] #stalagmometer-svg {
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        object-fit: contain !important;
+      }
+
+      html[data-layout-mode="auto"] .workbench-controls,
+      html[data-layout-mode="mobile"] .workbench-controls {
+        position: relative !important;
+        z-index: 1 !important;
+        height: auto !important;
+        min-height: 42px !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 8px 10px !important;
+        gap: 6px !important;
+      }
+
+      html[data-layout-mode="auto"] .ctrl-group,
+      html[data-layout-mode="mobile"] .ctrl-group {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 5px !important;
+      }
+
+      html[data-layout-mode="auto"] .btn-ctrl,
+      html[data-layout-mode="mobile"] .btn-ctrl {
+        justify-content: center !important;
+        text-align: center !important;
+        padding: 6px 5px !important;
+        font-size: 0.68rem !important;
+      }
+
+      html[data-layout-mode="auto"] .telemetry-bottom-panel,
+      html[data-layout-mode="mobile"] .telemetry-bottom-panel {
+        position: relative !important;
+        z-index: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 0 0 auto !important;
+        height: auto !important;
+        min-height: 0 !important;
+        padding: 10px !important;
+        gap: 10px !important;
+      }
+
+      html[data-layout-mode="auto"] aside.guide-panel,
+      html[data-layout-mode="mobile"] aside.guide-panel {
+        position: relative !important;
+        z-index: 1 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        flex: 0 0 auto !important;
+        border-left: none !important;
+        border-top: 1px solid var(--panel-border) !important;
+      }
+
+      html[data-layout-mode="auto"] .protocol-scroll-box,
+      html[data-layout-mode="mobile"] .protocol-scroll-box {
+        flex: 0 0 auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        padding: 7px 9px !important;
+      }
+
+      html[data-layout-mode="auto"] input,
+      html[data-layout-mode="mobile"] input,
+      html[data-layout-mode="auto"] select,
+      html[data-layout-mode="mobile"] select,
+      html[data-layout-mode="auto"] textarea,
+      html[data-layout-mode="mobile"] textarea {
+        font-size: 16px !important;
+        max-width: 100% !important;
+      }
+
+      html[data-layout-mode="auto"] button,
+      html[data-layout-mode="mobile"] button {
+        min-height: 38px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      html[data-layout-mode="auto"] .svg-viewport-wrapper,
+      html[data-layout-mode="mobile"] .svg-viewport-wrapper {
+        height: 32dvh !important;
+        min-height: 195px !important;
+        max-height: 250px !important;
+      }
+    }
+
+    /* Explicit mobile mode remains mobile even on a wide desktop browser. */
+    html[data-layout-mode="mobile"] {
+      height: auto !important;
+      min-height: 100% !important;
+      max-height: none !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+    }
+    html[data-layout-mode="mobile"] body {
+      height: auto !important;
+      min-height: 100% !important;
+      max-height: none !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+    }
+    html[data-layout-mode="mobile"] header.lab-navbar {
+      height: auto !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 7px !important;
+      padding: 8px 10px !important;
+    }
+    html[data-layout-mode="mobile"] .liquid-selector-group {
+      display: grid !important;
+      grid-template-columns: repeat(2, 1fr) !important;
+      width: 100% !important;
+      gap: 3px !important;
+    }
+    html[data-layout-mode="mobile"] .liquid-tab-btn {
+      white-space: normal !important;
+      line-height: 1.2 !important;
+      padding: 6px 4px !important;
+      text-align: center !important;
+    }
+    html[data-layout-mode="mobile"] .header-right-cluster {
+      justify-content: space-between !important;
+      width: 100% !important;
+      gap: 6px !important;
+    }
+    html[data-layout-mode="mobile"] .nav-actions {
+      flex-wrap: wrap !important;
+      gap: 4px !important;
+    }
+    html[data-layout-mode="mobile"] .lab-workspace {
+      display: flex !important;
+      flex-direction: column !important;
+      height: auto !important;
+      min-height: 100% !important;
+      max-height: none !important;
+      overflow: visible !important;
+    }
+    html[data-layout-mode="mobile"] main.workbench-stage {
+      display: flex !important;
+      flex-direction: column !important;
+      position: static !important;
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      overflow: visible !important;
+      flex: 0 0 auto !important;
+    }
+    html[data-layout-mode="mobile"] .svg-viewport-wrapper {
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 100 !important;
+      flex: 0 0 auto !important;
+      width: 100% !important;
+      height: 40dvh !important;
+      min-height: 230px !important;
+      max-height: 360px !important;
+      padding: 4px 6px !important;
+      overflow: hidden !important;
+      background: #090e17 !important;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.45) !important;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35) !important;
+    }
+    html[data-layout-mode="mobile"] #stalagmometer-svg {
+      display: block !important;
+      width: 100% !important;
+      height: 100% !important;
+      max-height: 100% !important;
+      object-fit: contain !important;
+    }
+    html[data-layout-mode="mobile"] .workbench-controls {
+      position: relative !important;
+      z-index: 1 !important;
+      height: auto !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      padding: 8px 10px !important;
+      gap: 6px !important;
+    }
+    html[data-layout-mode="mobile"] .ctrl-group {
+      display: grid !important;
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 5px !important;
+    }
+    html[data-layout-mode="mobile"] .btn-ctrl {
+      justify-content: center !important;
+      text-align: center !important;
+      padding: 6px 5px !important;
+    }
+    html[data-layout-mode="mobile"] .telemetry-bottom-panel {
+      position: relative !important;
+      z-index: 1 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 0 0 auto !important;
+      height: auto !important;
+      min-height: 0 !important;
+      padding: 10px !important;
+      gap: 10px !important;
+    }
+    html[data-layout-mode="mobile"] aside.guide-panel {
+      position: relative !important;
+      z-index: 1 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      flex: 0 0 auto !important;
+      border-left: none !important;
+      border-top: 1px solid var(--panel-border) !important;
+    }
+    html[data-layout-mode="mobile"] .protocol-scroll-box {
+      flex: 0 0 auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      padding: 7px 9px !important;
+    }
+
+    /* Explicit desktop mode restores the original two-column workbench even on narrow screens. */
+    html[data-layout-mode="desktop"] {
+      height: 100vh !important;
+      max-height: 100vh !important;
+      overflow: hidden !important;
+    }
+    html[data-layout-mode="desktop"] body {
+      height: 100vh !important;
+      max-height: 100vh !important;
+      overflow: hidden !important;
+    }
+    html[data-layout-mode="desktop"] header.lab-navbar {
+      height: 44px !important;
+      min-height: 44px !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      flex-wrap: nowrap !important;
+    }
+    html[data-layout-mode="desktop"] .lab-workspace {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) 320px !important;
+      height: calc(100vh - 44px) !important;
+      max-height: calc(100vh - 44px) !important;
+      overflow: hidden !important;
+    }
+    html[data-layout-mode="desktop"] main.workbench-stage {
+      display: flex !important;
+      flex-direction: column !important;
+      height: 100% !important;
+      min-height: 0 !important;
+      max-height: 100% !important;
+      overflow: hidden !important;
+    }
+    html[data-layout-mode="desktop"] .svg-viewport-wrapper {
+      position: relative !important;
+      top: auto !important;
+      height: auto !important;
+      max-height: none !important;
+      min-height: 0 !important;
+      flex: 1 1 auto !important;
+    }
+    html[data-layout-mode="desktop"] aside.guide-panel {
+      height: 100% !important;
+      max-height: 100% !important;
+      overflow: hidden !important;
+    }
+
+  </style>
+</head>
+<body>
+
+  <header class="lab-navbar">
+    <div class="brand-group">
+      <div class="brand-badge">💧</div>
+      <div class="brand-title">
+        <h1>Engineering Chemistry Virtual Laboratory</h1>
+        <p>Surface Tension Determination by Traube Stalagmometer &amp; Pycnometer</p>
+      </div>
+    </div>
+
+    <div class="liquid-selector-group">
+      <button class="liquid-tab-btn active" id="tab-liq-water" onclick="selectTestLiquid('water')">Standard: Water</button>
+      <button class="liquid-tab-btn" id="tab-liq-ethanol" onclick="selectTestLiquid('ethanol')">Liquid 1: Ethanol</button>
+      <button class="liquid-tab-btn" id="tab-liq-acetone" onclick="selectTestLiquid('acetone')">Liquid 2: Acetone</button>
+      <button class="liquid-tab-btn" id="tab-liq-toluene" onclick="selectTestLiquid('toluene')">Liquid 3: Toluene</button>
+      <button class="liquid-tab-btn" id="tab-liq-soap" onclick="selectTestLiquid('soap')">Liquid 4: Surfactant</button>
+    </div>
+
+    <div class="header-right-cluster">
+      <div class="nav-actions">
+        <button class="btn-nav" id="sound-toggle-btn" onclick="toggleAudioEngine()">🔊 Sound: ON</button>
+        <button class="btn-nav" id="speed-toggle-btn" onclick="cycleSimulationSpeed()">⏩ Speed: 1x</button>
+        <button class="btn-nav" onclick="openModalWindow('modal-theory')">📖 Theory</button>
+        <button class="btn-nav primary" onclick="openModalWindow('modal-calc')">📊 Logbook &amp; Report</button>
+      </div>
+      <div class="mode-selector" role="group" aria-label="Display layout">
+        <button type="button" class="mode-btn active" data-mode="auto" onclick="setLayoutMode('auto')">Auto</button>
+        <button type="button" class="mode-btn" data-mode="desktop" onclick="setLayoutMode('desktop')">Desktop</button>
+        <button type="button" class="mode-btn" data-mode="mobile" onclick="setLayoutMode('mobile')">Mobile</button>
+      </div>
+      <button type="button" class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ Full screen</button>
+    </div>
+  </header>
+
+  <div class="lab-workspace">
+    <main class="workbench-stage">
+      <div class="svg-viewport-wrapper">
+        <svg id="stalagmometer-svg" viewBox="0 0 960 480" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <!-- STEEL & CHROME GRADIENTS -->
+            <linearGradient id="chrome-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#64748b"/>
+              <stop offset="30%" stop-color="#f8fafc"/>
+              <stop offset="65%" stop-color="#cbd5e1"/>
+              <stop offset="100%" stop-color="#475569"/>
+            </linearGradient>
+
+            <linearGradient id="iron-base-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#334155"/>
+              <stop offset="30%" stop-color="#1e293b"/>
+              <stop offset="100%" stop-color="#0f172a"/>
+            </linearGradient>
+
+            <linearGradient id="brass-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#b45309"/>
+              <stop offset="35%" stop-color="#fbbf24"/>
+              <stop offset="70%" stop-color="#d97706"/>
+              <stop offset="100%" stop-color="#78350f"/>
+            </linearGradient>
+
+            <linearGradient id="rubber-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#78350f"/>
+              <stop offset="35%" stop-color="#d97706"/>
+              <stop offset="75%" stop-color="#b45309"/>
+              <stop offset="100%" stop-color="#451a03"/>
+            </linearGradient>
+
+            <linearGradient id="glass-depth" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+              <stop offset="70%" stop-color="#cbd5e1" stop-opacity="0.06"/>
+              <stop offset="95%" stop-color="#64748b" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#1e293b" stop-opacity="0.65"/>
+            </linearGradient>
+
+            <!-- GROUND-FLAT CIRCULAR DISC FLANGE MATERIAL GRADIENT -->
+            <linearGradient id="disc-flange-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#94a3b8"/>
+              <stop offset="15%" stop-color="#ffffff"/>
+              <stop offset="50%" stop-color="#cbd5e1"/>
+              <stop offset="85%" stop-color="#ffffff"/>
+              <stop offset="100%" stop-color="#64748b"/>
+            </linearGradient>
+
+            <!-- FROSTED GROUND GLASS JOINT -->
+            <linearGradient id="frosted-glass-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#cbd5e1" stop-opacity="0.8"/>
+              <stop offset="50%" stop-color="#f8fafc" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="#94a3b8" stop-opacity="0.8"/>
+            </linearGradient>
+
+            <!-- LIQUID GRADIENTS -->
+            <linearGradient id="water-liq-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#0284c7" stop-opacity="0.88"/>
+              <stop offset="45%" stop-color="#38bdf8" stop-opacity="0.80"/>
+              <stop offset="85%" stop-color="#7dd3fc" stop-opacity="0.88"/>
+              <stop offset="100%" stop-color="#0369a1" stop-opacity="0.92"/>
+            </linearGradient>
+
+            <linearGradient id="ethanol-liq-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#059669" stop-opacity="0.88"/>
+              <stop offset="45%" stop-color="#34d399" stop-opacity="0.80"/>
+              <stop offset="100%" stop-color="#047857" stop-opacity="0.92"/>
+            </linearGradient>
+
+            <linearGradient id="acetone-liq-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#d97706" stop-opacity="0.90"/>
+              <stop offset="45%" stop-color="#fbbf24" stop-opacity="0.82"/>
+              <stop offset="100%" stop-color="#b45309" stop-opacity="0.94"/>
+            </linearGradient>
+
+            <linearGradient id="toluene-liq-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#7e22ce" stop-opacity="0.90"/>
+              <stop offset="45%" stop-color="#c084fc" stop-opacity="0.82"/>
+              <stop offset="100%" stop-color="#6b21a8" stop-opacity="0.94"/>
+            </linearGradient>
+
+            <linearGradient id="soap-liq-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#e11d48" stop-opacity="0.90"/>
+              <stop offset="45%" stop-color="#fb7185" stop-opacity="0.82"/>
+              <stop offset="100%" stop-color="#be123c" stop-opacity="0.94"/>
+            </linearGradient>
+
+            <filter id="shadow-filter" x="-10%" y="-10%" width="120%" height="120%">
+              <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#000" flood-opacity="0.6"/>
+            </filter>
+
+            <!-- SLENDER STALAGMOMETER INNER BORE CLIP (Bulb/Tube Ratio = 2.6:1) -->
+            <clipPath id="stalag-inner-bore-clip">
+              <path d="
+                M 197 38 
+                L 203 38 
+                L 203 145 
+                C 203 158, 211 168, 211 190 
+                C 211 212, 203 222, 203 238 
+                L 203 318 
+                L 201 318 
+                L 201 324 
+                L 199 324 
+                L 199 318 
+                L 197 318 
+                L 197 238 
+                C 197 222, 189 212, 189 190 
+                C 189 168, 197 158, 197 145 
+                Z" />
+            </clipPath>
+
+            <!-- PYCNOMETER INNER CAVITY CLIP -->
+            <clipPath id="pycno-cavity-clip">
+              <path d="M -16 52 L 16 52 C 24 52, 27 42, 24 24 C 21 8, 10 -6, 5 -18 L 5 -36 L -5 -36 L -5 -18 C -10 -6, -21 8, -24 24 C -27 42, -24 52, -16 52 Z"/>
+            </clipPath>
+          </defs>
+
+          <!-- WORKBENCH BACKGROUND TILES -->
+          <g id="workbench-backdrop">
+            <rect x="0" y="0" width="960" height="280" fill="#0f172a"/>
+            <rect x="0" y="0" width="960" height="24" fill="#1e293b"/>
+            <line x1="0" y1="24" x2="960" y2="24" stroke="#334155" stroke-width="2"/>
+            <path d="M0 80 H960 M0 140 H960 M0 200 H960 M0 260 H960" stroke="#1e293b" stroke-width="1.2" opacity="0.6"/>
+            <path d="M120 0 V280 M240 0 V280 M360 0 V280 M480 0 V280 M600 0 V280 M720 0 V280 M840 0 V280" stroke="#1e293b" stroke-width="1.2" opacity="0.6"/>
+            <rect x="0" y="300" width="960" height="180" fill="#0a0f16"/>
+            <rect x="0" y="280" width="960" height="20" fill="#1e2631"/>
+            <line x1="0" y1="280" x2="960" y2="280" stroke="#475569" stroke-width="2.5"/>
+            <line x1="0" y1="300" x2="960" y2="300" stroke="#334155" stroke-width="1.5"/>
+          </g>
+
+          <!-- 1. RETORT STAND & EXTENDED CLAMPS -->
+          <g id="retort-stand-assembly" transform="translate(100, 0)">
+            <path d="M -45 422 L 180 422 L 175 435 L -40 435 Z" fill="url(#iron-base-grad)" stroke="#475569" stroke-width="1.5" filter="url(#shadow-filter)"/>
+            <rect x="-38" y="435" width="212" height="4" fill="#020617"/>
+
+            <!-- Upright Rod -->
+            <rect x="0" y="25" width="10" height="400" rx="2" fill="url(#chrome-grad)" stroke="#334155" stroke-width="1.2"/>
+            <ellipse cx="5" cy="25" rx="5" ry="2" fill="#e2e8f0"/>
+
+            <!-- Upper Bosshead Clamp -->
+            <g id="bosshead-upper" transform="translate(5, 95)">
+              <rect x="-6" y="-8" width="16" height="16" rx="2" fill="#1e293b" stroke="#64748b" stroke-width="1"/>
+              <rect x="10" y="-3" width="185" height="6" fill="url(#chrome-grad)" stroke="#475569" stroke-width="0.8"/>
+              <rect x="-14" y="-2" width="8" height="4" fill="url(#brass-grad)"/>
+              <ellipse cx="-14" cy="0" rx="2" ry="6" fill="url(#brass-grad)"/>
+              <rect x="190" y="-7" width="4" height="14" rx="1.5" fill="#78350f"/>
+              <rect x="206" y="-7" width="4" height="14" rx="1.5" fill="#78350f"/>
+            </g>
+
+            <!-- Lower Bosshead Clamp -->
+            <g id="bosshead-lower" transform="translate(5, 285)">
+              <rect x="-6" y="-8" width="16" height="16" rx="2" fill="#1e293b" stroke="#64748b" stroke-width="1"/>
+              <rect x="10" y="-3" width="185" height="6" fill="url(#chrome-grad)" stroke="#475569" stroke-width="0.8"/>
+              <rect x="-14" y="-2" width="8" height="4" fill="url(#brass-grad)"/>
+              <ellipse cx="-14" cy="0" rx="2" ry="6" fill="url(#brass-grad)"/>
+              <rect x="190" y="-7" width="4" height="14" rx="1.5" fill="#78350f"/>
+              <rect x="206" y="-7" width="4" height="14" rx="1.5" fill="#78350f"/>
+            </g>
+          </g>
+
+          <!-- 2. HIGH-CONTRAST OPTICAL BACKDROP -->
+          <g id="optical-plate" transform="translate(265, 45)">
+            <rect x="0" y="0" width="70" height="280" rx="6" fill="#f8fafc" opacity="0.94" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow-filter)"/>
+            <line x1="35" y1="12" x2="35" y2="268" stroke="#e2e8f0" stroke-width="1.2" stroke-dasharray="3 3"/>
+            <text x="35" y="274" font-size="4.8" fill="#94a3b8" font-weight="bold" text-anchor="middle">CALIBRATION BACKDROP</text>
+          </g>
+
+          <!-- 3. REALISTIC SLENDER STALAGMOMETER ASSEMBLY (Movable for Beaker Submerging) -->
+          <g id="stalagmometer-assembly" transform="translate(100, 0)" style="transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); transform-origin: 200px 190px;">
+
+            <!-- Top Rubber Suction Tube -->
+            <path d="M 197 38 L 197 8 C 197 -8, 203 -8, 203 8 L 203 38 Z" fill="url(#rubber-grad)" stroke="#451a03" stroke-width="1"/>
+
+            <!-- Brass Screw Pinchcock Clamp -->
+            <g id="pinchcock-clamp" transform="translate(191, 14)" class="interactive-element" onclick="actionTogglePinchcock()">
+              <rect x="0" y="0" width="18" height="10" rx="2" fill="url(#brass-grad)" stroke="#451a03" stroke-width="0.8"/>
+              <rect x="7" y="-7" width="4" height="7" fill="url(#brass-grad)"/>
+              <ellipse cx="9" cy="-7" rx="6" ry="2.5" fill="url(#brass-grad)" stroke="#451a03" stroke-width="0.6"/>
+              <line x1="3" y1="5" x2="15" y2="5" stroke="#451a03" stroke-width="1.2"/>
+              <text x="22" y="7" font-size="5.5" font-weight="bold" fill="#f59e0b">PINCHCOCK</text>
+            </g>
+
+            <!-- Outer Borosilicate Glass Body with Slender Bulb B -->
+            <path d="
+              M 195 38 
+              L 205 38 
+              L 205 145 
+              C 205 158, 213 168, 213 190 
+              C 213 212, 205 222, 205 238 
+              L 205 316 
+              L 203 316 
+              L 203 323 
+              L 197 323 
+              L 197 316 
+              L 195 316 
+              L 195 238 
+              C 195 222, 187 212, 187 190 
+              C 187 168, 195 158, 195 145 
+              Z" 
+              fill="url(#glass-depth)" stroke="#cbd5e1" stroke-width="1.3" filter="drop-shadow(0 2px 5px rgba(0,0,0,0.4))"/>
+
+            <!-- Liquid Column inside Stalagmometer (Initially Empty) -->
+            <g clip-path="url(#stalag-inner-bore-clip)">
+              <rect id="stalag-liquid-fill" x="185" y="324" width="30" height="0" fill="url(#water-liq-grad)" opacity="0.95" style="transition: y 0.2s linear, height 0.2s linear;"/>
+              <ellipse id="stalag-meniscus" cx="200" cy="324" rx="3" ry="1.2" fill="#ffffff" opacity="0"/>
+            </g>
+
+            <!-- Glass Specular Reflection Highlight Paths -->
+            <path d="M 196 38 L 196 145 C 196 158, 188 168, 188 190 C 188 212, 196 222, 196 238 L 196 316" 
+                  fill="none" stroke="#ffffff" stroke-width="1.1" opacity="0.8"/>
+            <path d="M 204 38 L 204 145 C 204 158, 212 168, 212 190 C 212 212, 204 222, 204 238 L 204 316" 
+                  fill="none" stroke="#94a3b8" stroke-width="0.7" opacity="0.4"/>
+
+            <!-- Upper Stem Etched Millimeter Graduations -->
+            <g id="upper-stem-graduations" stroke="#ffffff" stroke-width="0.7" opacity="0.85">
+              <line x1="195" y1="50" x2="200" y2="50"/><line x1="195" y1="55" x2="198" y2="55"/>
+              <line x1="195" y1="60" x2="200" y2="60"/><line x1="195" y1="65" x2="198" y2="65"/>
+              <line x1="195" y1="70" x2="200" y2="70"/><line x1="195" y1="75" x2="201" y2="75"/>
+              <line x1="195" y1="80" x2="200" y2="80"/><line x1="195" y1="85" x2="198" y2="85"/>
+              <line x1="195" y1="90" x2="200" y2="90"/><line x1="195" y1="95" x2="198" y2="95"/>
+              <line x1="195" y1="100" x2="200" y2="100"/><line x1="195" y1="105" x2="198" y2="105"/>
+              <line x1="195" y1="110" x2="200" y2="110"/><line x1="195" y1="115" x2="198" y2="115"/>
+              <line x1="195" y1="120" x2="200" y2="120"/><line x1="195" y1="125" x2="198" y2="125"/>
+            </g>
+
+            <!-- Lower Stem Etched Millimeter Graduations -->
+            <g id="lower-stem-graduations" stroke="#ffffff" stroke-width="0.7" opacity="0.85">
+              <line x1="195" y1="245" x2="200" y2="245"/><line x1="195" y1="250" x2="198" y2="250"/>
+              <line x1="195" y1="255" x2="201" y2="255"/><line x1="195" y1="260" x2="198" y2="260"/>
+              <line x1="195" y1="265" x2="200" y2="265"/><line x1="195" y1="270" x2="198" y2="270"/>
+              <line x1="195" y1="275" x2="200" y2="275"/><line x1="195" y1="280" x2="198" y2="280"/>
+              <line x1="195" y1="285" x2="200" y2="285"/><line x1="195" y1="290" x2="198" y2="290"/>
+              <line x1="195" y1="295" x2="200" y2="295"/><line x1="195" y1="300" x2="198" y2="300"/>
+              <line x1="195" y1="305" x2="200" y2="305"/><line x1="195" y1="310" x2="198" y2="310"/>
+            </g>
+
+            <!-- Calibration Marks A and B -->
+            <g id="mark-a-group" transform="translate(190, 75)">
+              <line x1="-3" y1="0" x2="23" y2="0" stroke="#ef4444" stroke-width="1.8"/>
+              <polygon points="25,-2.5 30,0 25,2.5" fill="#ef4444"/>
+              <text x="33" y="2.5" font-size="6.5" font-weight="900" fill="#ef4444">MARK A (Start)</text>
+            </g>
+
+            <g id="mark-b-group" transform="translate(190, 255)">
+              <line x1="-3" y1="0" x2="23" y2="0" stroke="#ef4444" stroke-width="1.8"/>
+              <polygon points="25,-2.5 30,0 25,2.5" fill="#ef4444"/>
+              <text x="33" y="2.5" font-size="6.5" font-weight="900" fill="#ef4444">MARK B (Stop)</text>
+            </g>
+
+            <!-- BULB B ANNOTATION -->
+            <g id="bulb-b-annotation" transform="translate(216, 190)">
+              <line x1="-3" y1="0" x2="14" y2="0" stroke="#38bdf8" stroke-width="1" stroke-dasharray="2 2"/>
+              <circle cx="-3" cy="0" r="1.5" fill="#38bdf8"/>
+              <text x="18" y="2.5" font-size="6.5" font-weight="800" fill="#38bdf8">BULB B</text>
+              <text x="18" y="9" font-size="5" fill="#94a3b8">5.0 mL Reservoir</text>
+            </g>
+
+            <!-- Ground-Flat Circular Disc Flange Foot -->
+            <g id="ground-disc-flange-tip" transform="translate(200, 324)">
+              <polygon points="-3,-4 3,-4 4,-1 -4,-1" fill="#cbd5e1" stroke="#94a3b8" stroke-width="0.8"/>
+              <ellipse cx="0" cy="0" rx="11" ry="2.8" fill="url(#disc-flange-grad)" stroke="#64748b" stroke-width="0.9"/>
+              <rect x="-11" y="0" width="22" height="2.5" fill="url(#disc-flange-grad)" stroke="#475569" stroke-width="0.7"/>
+              <ellipse cx="0" cy="2.5" rx="11" ry="2.8" fill="#f8fafc" stroke="#334155" stroke-width="0.9"/>
+              <ellipse cx="0" cy="2.5" rx="9.5" ry="2.2" fill="none" stroke="#94a3b8" stroke-width="0.5"/>
+              <circle cx="0" cy="2.5" r="1.1" fill="#0f172a"/>
+              <text x="16" y="2.5" font-size="5.5" font-weight="bold" fill="#38bdf8">FLAT GROUND DISC TIP</text>
+            </g>
+
+            <!-- Droplet Forming at Disc Face -->
+            <path id="droplet-forming" d="M 197 326.5 C 196 330, 194 333, 194 336 C 194 340, 206 340, 206 336 C 206 333, 204 330, 203 326.5 Z" 
+                  fill="url(#water-liq-grad)" stroke="#bae6fd" stroke-width="0.6" opacity="0" style="transform-origin: 200px 326.5px; transition: transform 0.08s linear;"/>
+
+            <!-- Droplet Falling Animation -->
+            <ellipse id="droplet-falling" cx="200" cy="334" rx="2.8" ry="3.8" fill="url(#water-liq-grad)" stroke="#bae6fd" stroke-width="0.5" opacity="0"/>
+          </g>
+
+          <!-- 4. DROP DETECTOR HUD (Repositioned to Top Right Corner: X=840, Y=16) -->
+          <g id="drop-counter-station" transform="translate(840, 16)">
+            <rect x="0" y="0" width="105" height="96" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1.2" filter="url(#shadow-filter)"/>
+            <text x="52.5" y="14" font-size="7.5" font-weight="bold" fill="#f8fafc" text-anchor="middle">DROP DETECTOR</text>
+            
+            <rect x="10" y="22" width="85" height="30" rx="4" fill="#020617" stroke="#1e293b"/>
+            <text id="counter-display" x="52.5" y="44" font-family="'Courier New', monospace" font-size="21" font-weight="900" fill="#38bdf8" text-anchor="middle">000</text>
+            <text x="52.5" y="50" font-size="4.8" fill="#64748b" text-anchor="middle">TOTAL DROPS DETECTED</text>
+
+            <rect x="10" y="58" width="85" height="15" rx="3" fill="#111c2e"/>
+            <text id="rate-display" x="52.5" y="68.5" font-size="6.5" font-weight="bold" fill="#f59e0b" text-anchor="middle">RATE: 0.0 drops/min</text>
+
+            <g id="counter-active-led" transform="translate(14, 82)">
+              <circle id="led-indicator" cx="4" cy="4" r="3.2" fill="#334155"/>
+              <text x="12" y="6.5" font-size="5.8" fill="#94a3b8">Infrared Sensor</text>
+            </g>
+          </g>
+
+          <!-- 5. DIGITAL ANALYTICAL BALANCE STATION -->
+          <g id="balance-station" transform="translate(680, 250)">
+            <rect x="0" y="55" width="230" height="115" rx="6" fill="#cbd5e1" stroke="#475569" stroke-width="1.6" filter="url(#shadow-filter)"/>
+            <rect x="50" y="42" width="130" height="13" rx="3" fill="url(#chrome-grad)" stroke="#475569" stroke-width="1"/>
+            <rect x="108" y="52" width="14" height="4" fill="#64748b"/>
+
+            <rect x="35" y="80" width="160" height="42" rx="4" fill="#020617" stroke="#334155" stroke-width="1.2"/>
+            <text id="balance-lcd-text" x="115" y="108" font-family="'Courier New', monospace" font-size="20" font-weight="900" fill="#38bdf8" text-anchor="middle">0.000 g</text>
+            <text x="115" y="119" font-size="6" fill="#64748b" text-anchor="middle">PRECISION ANALYTICAL BALANCE (±0.001 g)</text>
+
+            <text x="115" y="152" font-size="7.5" font-weight="bold" fill="#1e293b" text-anchor="middle">DIGITAL TARE &amp; WEIGHING STATION</text>
+          </g>
+
+          <!-- STAGING BENCH MAT FOR PYCNOMETER ASIDE -->
+          <g id="pycno-staging-mat" transform="translate(650, 390)">
+            <ellipse cx="0" cy="0" rx="24" ry="5.5" fill="#1e293b" stroke="#334155" stroke-width="1.2" stroke-dasharray="3 2"/>
+            <text x="0" y="12" font-size="5" fill="#64748b" text-anchor="middle">Pycnometer Staging Mat</text>
+          </g>
+
+          <!-- 6. SPECIFIC GRAVITY BOTTLE -->
+          <g id="movable-pycnometer" class="interactive-element" onclick="actionToggleBottlePosition()" transform="translate(650, 340)" style="transition: transform 0.85s cubic-bezier(0.25, 1, 0.5, 1);">
+            <ellipse cx="0" cy="52" rx="16" ry="3.5" fill="#000000" opacity="0.4"/>
+            
+            <!-- Pycnometer Glass Body -->
+            <path d="M -16 52 L 16 52 C 24 52, 27 42, 24 24 C 21 8, 10 -6, 5 -18 L 5 -36 L -5 -36 L -5 -18 C -10 -6, -21 8, -24 24 C -27 42, -24 52, -16 52 Z" 
+                  fill="url(#glass-depth)" stroke="#cbd5e1" stroke-width="1.3"/>
+            
+            <!-- Frosted Glass Neck Joint -->
+            <rect x="-5" y="-36" width="10" height="18" fill="url(#frosted-glass-grad)" stroke="#94a3b8" stroke-width="0.8"/>
+
+            <!-- Liquid Collected inside Bottle -->
+            <g clip-path="url(#pycno-cavity-clip)">
+              <rect id="pycno-internal-liquid" x="-26" y="52" width="52" height="0" fill="url(#water-liq-grad)" opacity="0.9" style="transition: height 0.2s linear, y 0.2s linear;"/>
+              <ellipse id="pycno-internal-meniscus" cx="0" cy="52" rx="16" ry="2" fill="#bae6fd" opacity="0.8"/>
+            </g>
+
+            <rect x="-8" y="22" width="16" height="8" rx="2" fill="#ffffff" opacity="0.85"/>
+            <text x="0" y="27.5" font-size="4.5" font-weight="bold" fill="#0f172a" text-anchor="middle">25 mL</text>
+            <text id="pycno-caption-label" x="0" y="64" font-size="5.8" font-weight="bold" fill="#38bdf8" text-anchor="middle">Specific Gravity Bottle</text>
+
+            <!-- Ground Capillary Stopper -->
+            <g id="pycno-stopper-group" transform="translate(0, -36)" style="transition: transform 0.6s ease;">
+              <path d="M -5 0 L 5 0 L 4 -18 L -4 -18 Z" fill="url(#frosted-glass-grad)" stroke="#94a3b8" stroke-width="0.8"/>
+              <line x1="0" y1="-18" x2="0" y2="0" stroke="#ef4444" stroke-width="0.8"/>
+              <ellipse cx="0" cy="-18" rx="5" ry="2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8"/>
+            </g>
+          </g>
+
+          <!-- 7. REAGENT CHEMICAL SUPPLY BEAKERS -->
+          <!-- Water Supply Beaker (Center at X=420) -->
+          <g id="supply-water-beaker" class="interactive-element" onclick="actionSelectSupplyBeaker('water')" transform="translate(420, 310)">
+            <ellipse cx="0" cy="38" rx="22" ry="3.5" fill="#000000" opacity="0.45"/>
+            <path d="M -22 -35 L 22 -35 L 20 32 C 20 38, 15 40, 10 40 L -10 40 C -15 40, -20 38, -20 32 Z" fill="url(#glass-depth)" stroke="#94a3b8" stroke-width="1.2"/>
+            <rect x="-20" y="-12" width="40" height="50" fill="url(#water-liq-grad)" opacity="0.88"/>
+            <ellipse cx="0" cy="-12" rx="20" ry="2" fill="#bae6fd" opacity="0.7"/>
+            <text x="0" y="10" font-size="5.8" font-weight="bold" fill="#ffffff" text-anchor="middle">Distilled H₂O</text>
+            <text x="0" y="47" font-size="6.5" font-weight="bold" fill="#38bdf8" text-anchor="middle">Water Supply</text>
+          </g>
+
+          <!-- Test Liquid Supply Beaker (Center at X=540) -->
+          <g id="supply-test-beaker" class="interactive-element" onclick="actionSelectSupplyBeaker('test')" transform="translate(540, 310)">
+            <ellipse cx="0" cy="38" rx="22" ry="3.5" fill="#000000" opacity="0.45"/>
+            <path d="M -22 -35 L 22 -35 L 20 32 C 20 38, 15 40, 10 40 L -10 40 C -15 40, -20 38, -20 32 Z" fill="url(#glass-depth)" stroke="#94a3b8" stroke-width="1.2"/>
+            <rect id="supply-test-liquid-rect" x="-20" y="-12" width="40" height="50" fill="url(#ethanol-liq-grad)" opacity="0.88"/>
+            <ellipse id="supply-test-meniscus" cx="0" cy="-12" rx="20" ry="2" fill="#a7f3d0" opacity="0.7"/>
+            <text id="supply-test-label" x="0" y="10" font-size="5.8" font-weight="bold" fill="#ffffff" text-anchor="middle">Ethanol</text>
+            <text x="0" y="47" font-size="6.5" font-weight="bold" fill="#34d399" text-anchor="middle">Test Liquid</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="workbench-controls">
+        <div class="ctrl-group">
+          <button class="btn-ctrl" id="btn-ctrl-weigh-empty" onclick="actionWeighEmptyBottle()">⚖️ 1. Weigh Empty Bottle (w₁)</button>
+          <button class="btn-ctrl" id="btn-ctrl-position-bottle" onclick="actionPlaceBottleUnderTip()">📍 2. Place Bottle Under Tip</button>
+          <button class="btn-ctrl" id="btn-ctrl-draw-active" onclick="actionSuctionActiveLiquid()">💧 3. Draw Liquid (Mark A)</button>
+          <button class="btn-ctrl" id="btn-ctrl-collect-active" onclick="actionCollectActiveDrops()">⏱ 4. Collect Drops (A→B)</button>
+          <button class="btn-ctrl" id="btn-ctrl-weigh-active" onclick="actionWeighActiveFilled()">📊 5. Weigh Bottle + Liquid</button>
+          <button class="btn-ctrl primary" id="btn-ctrl-calc" onclick="actionOpenLogbookModal()">📝 6. Calculate &amp; Report</button>
+          <button class="btn-ctrl" style="color:var(--accent-rose);" onclick="resetSimulationRun()">↺ Reset Apparatus</button>
+        </div>
+      </div>
+
+      <section class="telemetry-bottom-panel">
+        <div class="dashboard-col">
+          <strong style="color:var(--accent-cyan); font-size:11.5px;">Apparatus Status &amp; Telemetry</strong>
+          <div class="badge-pill-row">
+            <span class="badge-pill" id="hud-bottle-pos-pill">Bottle: Staged Aside on Bench</span>
+            <span class="badge-pill" id="hud-pinchcock-pill">Pinchcock: Closed</span>
+            <span class="badge-pill" id="hud-fill-pill">Bore: Clean &amp; Dry (Empty)</span>
+          </div>
+          <div class="badge-pill-row">
+            <span class="badge-pill">Selected Liquid: <b id="hud-liquid-name" style="color:var(--accent-cyan);">Distilled Water</b></span>
+            <span class="badge-pill">Drop Count: <b id="hud-drop-count-val" style="color:#f59e0b;">0 drops</b></span>
+          </div>
+          <div class="badge-pill-row">
+            <span class="badge-pill">Drop Rate: <b id="hud-drop-rate-val">0.0 drops/min</b></span>
+            <span class="badge-pill">Balance: <b id="hud-balance-val">0.000 g</b></span>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="color:var(--accent-cyan); font-size:11px;">Surface Tension Comparison (γ in mN/m or dynes/cm)</strong>
+            <span id="chart-point-count" style="font-size:9px; color:#94a3b8;">1 Standard Calibrated</span>
+          </div>
+          <svg id="surface-chart-svg" viewBox="0 0 380 100">
+            <path d="M 40 12 V 85 H 365" fill="none" stroke="#475569" stroke-width="1.2"/>
+            <text x="8" y="16" fill="#94a3b8" font-size="8">γ (mN/m)</text>
+            <text x="200" y="96" fill="#94a3b8" font-size="7.5" text-anchor="middle">Liquid System [Water, Ethanol, Acetone, Toluene, Surfactant]</text>
+            
+            <line x1="40" y1="20" x2="365" y2="20" stroke="#1e293b" stroke-width="0.8" stroke-dasharray="2 2"/>
+            <text x="34" y="23" fill="#64748b" font-size="7" text-anchor="end">75</text>
+            <line x1="40" y1="42" x2="365" y2="42" stroke="#1e293b" stroke-width="0.8" stroke-dasharray="2 2"/>
+            <text x="34" y="45" fill="#64748b" font-size="7" text-anchor="end">50</text>
+            <line x1="40" y1="65" x2="365" y2="65" stroke="#1e293b" stroke-width="0.8" stroke-dasharray="2 2"/>
+            <text x="34" y="68" fill="#64748b" font-size="7" text-anchor="end">25</text>
+
+            <text x="75" y="93" fill="#64748b" font-size="7" text-anchor="middle">Water</text>
+            <text x="145" y="93" fill="#64748b" font-size="7" text-anchor="middle">Ethanol</text>
+            <text x="215" y="93" fill="#64748b" font-size="7" text-anchor="middle">Acetone</text>
+            <text x="285" y="93" fill="#64748b" font-size="7" text-anchor="middle">Toluene</text>
+            <text x="345" y="93" fill="#64748b" font-size="7" text-anchor="middle">Surfactant</text>
+
+            <g id="chart-bars-group">
+              <rect x="62" y="23" width="26" height="62" fill="#0284c7" rx="2" opacity="0.9"/>
+              <text x="75" y="20" fill="#38bdf8" font-size="7" font-weight="bold" text-anchor="middle">72.0</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="dashboard-col">
+          <strong style="color:var(--accent-cyan); font-size:11px;">Observed Readings Log</strong>
+          <div class="obs-table-container">
+            <table class="obs-table">
+              <thead>
+                <tr>
+                  <th>Liquid</th>
+                  <th>Drops n</th>
+                  <th>Empty w₁ (g)</th>
+                  <th>Full w (g)</th>
+                  <th>Δw (g)</th>
+                  <th>γ (mN/m)</th>
+                </tr>
+              </thead>
+              <tbody id="obs-table-body">
+                <tr>
+                  <td><strong>Water (Ref)</strong></td>
+                  <td>55</td>
+                  <td>18.420</td>
+                  <td>43.420</td>
+                  <td>25.000</td>
+                  <td style="color:#38bdf8; font-weight:bold;">72.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="guide-panel">
+      <div class="panel-head">
+        <h2>Interactive Protocol</h2>
+        <span id="guide-active-liquid-badge" style="font-size:0.65rem; color:var(--accent-cyan); font-weight:700;">WATER CALIBRATION</span>
+      </div>
+
+      <div class="protocol-scroll-box" id="protocol-steps-container"></div>
+
+      <div class="telemetry-card">
+        <div class="telemetry-row">
+          <span class="telemetry-label">Water Drops (n_W):</span>
+          <span class="telemetry-val" id="hud-nw-disp">55</span>
+        </div>
+        <div class="telemetry-row">
+          <span class="telemetry-label">Liquid Drops (n_L):</span>
+          <span class="telemetry-val" id="hud-nl-disp" style="color:var(--accent-amber);">—</span>
+        </div>
+        <div class="telemetry-row">
+          <span class="telemetry-label">Empty Bottle (w₁):</span>
+          <span class="telemetry-val" id="hud-w1-disp">18.420 g</span>
+        </div>
+        <div class="telemetry-row">
+          <span class="telemetry-label">Bottle + Water (w₂):</span>
+          <span class="telemetry-val" id="hud-w2-disp">43.420 g</span>
+        </div>
+        <div class="telemetry-row">
+          <span class="telemetry-label">Bottle + Liquid (w₃):</span>
+          <span class="telemetry-val" id="hud-w3-disp">—</span>
+        </div>
+        <div class="telemetry-row">
+          <span class="telemetry-label">Mass Collected (Δw):</span>
+          <span class="telemetry-val" id="hud-delta-w-disp" style="color:var(--accent-cyan);">—</span>
+        </div>
+        <div class="telemetry-row">
+          <span class="telemetry-label">Computed γ_L:</span>
+          <span class="telemetry-val" id="hud-gamma-disp" style="color:var(--accent-emerald);">—</span>
+        </div>
+      </div>
+
+      <div style="padding: 0 12px 10px;">
+        <button class="btn-nav primary" style="width:100%; justify-content:center; padding:7px;" onclick="openModalWindow('modal-calc')">
+          📝 View Logbook &amp; Report Calculations
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- THEORY MODAL -->
+  <div class="modal-backdrop" id="modal-theory">
+    <div class="modal-window">
+      <div class="modal-head">
+        <h3>Theory: Determination of Surface Tension by Stalagmometer (Drop-Weight &amp; Drop-Number Methods)</h3>
+        <button class="btn-close-modal" onclick="closeModalWindow('modal-theory')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h4 style="color:var(--accent-cyan);">1. Principle of the Stalagmometer</h4>
+        <p>Surface tension (γ) is the force per unit length acting perpendicularly across any line on the liquid surface. In a stalagmometer with a ground-flat circular dropping tip, a drop slowly forms, necks down, and detaches when its downward gravitational weight overcomes the upward perimeter surface tension force (Tate's Law):</p>
+        <div class="calc-card">
+          W = m · g = 2 · π · r · γ · f<br>
+          where m is single drop mass, r is the outer radius of the ground disc tip, γ is surface tension, and f is the Harkins-Brown correction factor.
+        </div>
+
+        <h4 style="color:var(--accent-cyan); margin-top:10px;">2. Direct Drop-Weight Method (Collected into Pycnometer)</h4>
+        <p>By collecting the total mass of drops discharged between calibration Mark A and Mark B directly into a pre-weighed specific gravity bottle:</p>
+        <div class="calc-card">
+          Weight of empty bottle = w₁ g<br>
+          Weight of bottle + water drops (A → B) = w₂ g  ⟹  Mass of water W_W = (w₂ - w₁)<br>
+          Weight of bottle + liquid drops (A → B) = w₃ g  ⟹  Mass of liquid W_L = (w₃ - w₁)<br><br>
+          γ_L / γ_W = (W_L / W_W) × (n_W / n_L) = [(w₃ - w₁) / (w₂ - w₁)] × (n_W / n_L)
+        </div>
+        <p>Because the fixed volume of Bulb B between Mark A and Mark B is identical for both liquids, the mass ratio also gives the exact density ratio d_L / d_W:</p>
+        <div class="calc-card" style="color:#86efac; border-color:#10b981;">
+          γ_L = γ_W × (n_W / n_L) × [(w₃ - w₁) / (w₂ - w₁)]<br><br>
+          Standard Surface Tension of Distilled Water (γ_W at 25°C) = <strong>72.00 dynes/cm (or mN/m)</strong>.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OBSERVATION LOGBOOK MODAL -->
+  <div class="modal-backdrop" id="modal-calc">
+    <div class="modal-window">
+      <div class="modal-head">
+        <h3>Laboratory Observation Logbook &amp; Verification</h3>
+        <button class="btn-close-modal" onclick="closeModalWindow('modal-calc')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h4 style="color:var(--accent-cyan);">Apparatus Specifications &amp; Constants</h4>
+        <p>Reference Temperature: <strong>25°C</strong> | Specific Gravity Bottle Capacity: <strong>25.0 mL</strong> | Standard Water Surface Tension: <strong>72.00 dynes/cm</strong> | Bulb B Volume: <strong>5.0 mL</strong></p>
+
+        <h4 style="color:var(--accent-cyan); margin-top:12px;">Observation &amp; Result Table</h4>
+        <table class="modal-table">
+          <thead>
+            <tr>
+              <th>Liquid System</th>
+              <th>Drops n</th>
+              <th>Empty w₁ (g)</th>
+              <th>Bottle+Liquid w (g)</th>
+              <th>Δw Mass (g)</th>
+              <th>γ_L Calc (mN/m)</th>
+              <th>Standard γ</th>
+              <th>% Error</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Water (Ref)</td>
+              <td><input type="number" id="inp-n-water" value="55" readonly style="background:#0f172a; color:#38bdf8;"></td>
+              <td><input type="number" id="inp-w1-water" value="18.42" readonly></td>
+              <td><input type="number" id="inp-w2-water" value="43.42" readonly></td>
+              <td>25.00</td>
+              <td>72.00</td>
+              <td>72.00</td>
+              <td>0.00%</td>
+            </tr>
+            <tr>
+              <td>Ethanol</td>
+              <td><input type="number" id="inp-n-ethanol" placeholder="140"></td>
+              <td><input type="number" id="inp-w1-ethanol" value="18.42"></td>
+              <td><input type="number" id="inp-w3-ethanol" placeholder="38.15"></td>
+              <td id="calc-dw-ethanol">—</td>
+              <td id="calc-gamma-ethanol" style="color:#38bdf8; font-weight:bold;">—</td>
+              <td>22.30</td>
+              <td id="calc-err-ethanol">—</td>
+            </tr>
+            <tr>
+              <td>Acetone</td>
+              <td><input type="number" id="inp-n-acetone" placeholder="132"></td>
+              <td><input type="number" id="inp-w1-acetone" value="18.42"></td>
+              <td><input type="number" id="inp-w3-acetone" placeholder="38.20"></td>
+              <td id="calc-dw-acetone">—</td>
+              <td id="calc-gamma-acetone" style="color:#38bdf8; font-weight:bold;">—</td>
+              <td>23.70</td>
+              <td id="calc-err-acetone">—</td>
+            </tr>
+            <tr>
+              <td>Toluene</td>
+              <td><input type="number" id="inp-n-toluene" placeholder="120"></td>
+              <td><input type="number" id="inp-w1-toluene" value="18.42"></td>
+              <td><input type="number" id="inp-w3-toluene" placeholder="40.10"></td>
+              <td id="calc-dw-toluene">—</td>
+              <td id="calc-gamma-toluene" style="color:#38bdf8; font-weight:bold;">—</td>
+              <td>28.50</td>
+              <td id="calc-err-toluene">—</td>
+            </tr>
+            <tr>
+              <td>Surfactant (1%)</td>
+              <td><input type="number" id="inp-n-soap" placeholder="114"></td>
+              <td><input type="number" id="inp-w1-soap" value="18.42"></td>
+              <td><input type="number" id="inp-w3-soap" placeholder="43.55"></td>
+              <td id="calc-dw-soap">—</td>
+              <td id="calc-gamma-soap" style="color:#38bdf8; font-weight:bold;">—</td>
+              <td>35.00</td>
+              <td id="calc-err-soap">—</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="display:flex; justify-content:space-between; margin-top:14px; gap:8px;">
+          <button class="btn-nav primary" onclick="computeLogbookVerification()">🔍 Compute &amp; Verify Equations</button>
+          <button class="btn-nav" onclick="fillGroundTruthData()">⚡ Auto-Fill From Simulation</button>
+        </div>
+
+        <div id="verify-feedback-banner" style="display:none; margin-top:10px; padding:8px 12px; border-radius:5px; font-size:0.8rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const labState = {
+      audio: true,
+      speedMultiplier: 1,
+      isAnimating: false,
+      stepIndex: 0,
+      activeLiquidKey: 'water',
+
+      bottleState: 'aside', // 'aside' | 'balance' | 'under_tip'
+      pinchcockOpen: false,
+      stalagFilled: false,
+      currentFillLiquid: null,
+      currentBalanceReading: 0.000,
+      emptyBottleMass: 18.420,
+
+      isDropping: false,
+      dropCount: 0,
+      dropInterval: null,
+      flowRate: 0.0,
+
+      benchmarks: {
+        water: {
+          name: "Distilled Water",
+          type: "standard",
+          drops: 55,
+          fullMass: 43.420,
+          collectedMass: 25.000,
+          gammaRef: 72.00,
+          gradColor: "url(#water-liq-grad)",
+          meniscusColor: "#bae6fd"
+        },
+        ethanol: {
+          name: "Ethanol",
+          type: "test",
+          drops: 140,
+          fullMass: 38.150,
+          collectedMass: 19.730,
+          gammaRef: 22.30,
+          gradColor: "url(#ethanol-liq-grad)",
+          meniscusColor: "#a7f3d0"
+        },
+        acetone: {
+          name: "Acetone",
+          type: "test",
+          drops: 132,
+          fullMass: 38.200,
+          collectedMass: 19.780,
+          gammaRef: 23.70,
+          gradColor: "url(#acetone-liq-grad)",
+          meniscusColor: "#fde047"
+        },
+        toluene: {
+          name: "Toluene",
+          type: "test",
+          drops: 120,
+          fullMass: 40.100,
+          collectedMass: 21.680,
+          gammaRef: 28.50,
+          gradColor: "url(#toluene-liq-grad)",
+          meniscusColor: "#e9d5ff"
+        },
+        soap: {
+          name: "Surfactant Sol. (1%)",
+          type: "test",
+          drops: 114,
+          fullMass: 43.550,
+          collectedMass: 25.130,
+          gammaRef: 35.00,
+          gradColor: "url(#soap-liq-grad)",
+          meniscusColor: "#fecdd3"
+        }
+      },
+
+      completedRuns: {
+        water: { drops: 55, w1: 18.420, wFull: 43.420, deltaW: 25.000, gamma: 72.00 }
+      }
+    };
+
+    let audioCtx = null;
+    function playSound(type) {
+      if (!labState.audio) return;
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
+
+      if (type === 'click') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.exponentialRampToValueAtTime(120, now + 0.03);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.03);
+      } else if (type === 'suction') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.linearRampToValueAtTime(540, now + 0.5);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.55);
+      } else if (type === 'plop') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(750, now);
+        osc.frequency.exponentialRampToValueAtTime(1300, now + 0.04);
+        osc.frequency.exponentialRampToValueAtTime(450, now + 0.09);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.09);
+      } else if (type === 'chime') {
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+          gain.gain.setValueAtTime(0.12, now + idx * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.35);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + idx * 0.06);
+          osc.stop(now + idx * 0.06 + 0.38);
+        });
+      }
+    }
+
+    function toggleAudioEngine() {
+      labState.audio = !labState.audio;
+      document.getElementById('sound-toggle-btn').innerText = labState.audio ? '🔊 Sound: ON' : '🔇 Sound: OFF';
+    }
+
+    function cycleSimulationSpeed() {
+      const speeds = [1, 2, 5];
+      const curIdx = speeds.indexOf(labState.speedMultiplier);
+      labState.speedMultiplier = speeds[(curIdx + 1) % speeds.length];
+      document.getElementById('speed-toggle-btn').innerText = `⏩ Speed: ${labState.speedMultiplier}x`;
+      playSound('click');
+    }
+
+    /* DYNAMIC PROTOCOL GENERATOR FOR THE CURRENT ACTIVE LIQUID */
+    function getActiveProtocolSteps() {
+      const key = labState.activeLiquidKey;
+      const bench = labState.benchmarks[key];
+      const isWater = (key === 'water');
+
+      return [
+        {
+          label: "Step 1",
+          title: "Weigh Empty Specific Gravity Bottle (w₁)",
+          desc: "Transfer the clean, dry pycnometer bottle with stopper onto the analytical balance pan to record tare mass w₁ = 18.420 g.",
+          action: actionWeighEmptyBottle
+        },
+        {
+          label: "Step 2",
+          title: "Place Bottle Under Stalagmometer Tip",
+          desc: "Move the bottle directly under the ground-flat disc tip and set the stopper aside so liquid drops enter cleanly.",
+          action: actionPlaceBottleUnderTip
+        },
+        {
+          label: "Step 3",
+          title: `Draw ${bench.name} to Mark A`,
+          desc: `Stalagmometer unclamps and submerges its tip into the ${bench.name} beaker. Liquid is drawn past Mark A, then re-clamps securely.`,
+          action: actionSuctionActiveLiquid
+        },
+        {
+          label: "Step 4",
+          title: `Collect ${bench.name} Drops (A→B)`,
+          desc: `Regulate pinchcock to 12-15 drops/min. Droplets detach from the flat tip into the bottle until Mark B is reached (n = ${bench.drops} drops).`,
+          action: actionCollectActiveDrops
+        },
+        {
+          label: "Step 5",
+          title: `Weigh Bottle + ${bench.name} (${isWater ? 'w₂' : 'w₃'})`,
+          desc: `Insert stopper, transfer bottle to the balance, and record filled weight (${bench.fullMass.toFixed(3)} g).`,
+          action: actionWeighActiveFilled
+        },
+        {
+          label: "Step 6",
+          title: isWater ? "Verify Water Standard Reference" : `Calculate γ for ${bench.name}`,
+          desc: isWater
+            ? "Record standard reference values (nW = 55 drops, Δw = 25.000 g, γ_W = 72.00 mN/m) for drop-weight comparisons."
+            : `Compute surface tension γ_L = γ_W × (nW / nL) × [(w₃ - w₁) / (w₂ - w₁)] = ${bench.gammaRef.toFixed(2)} mN/m. View comparison logbook.`,
+          action: actionOpenLogbookModal
+        }
+      ];
+    }
+
+    /* WHEN USER CLICKS ON ANOTHER LIQUID: ALL STEPS ARE ACTIVE AGAIN */
+    function selectTestLiquid(liquidKey) {
+      if (labState.isDropping || labState.isAnimating) {
+        // Halt any pending drop timers smoothly
+        if (labState.dropInterval) clearInterval(labState.dropInterval);
+        labState.isDropping = false;
+        labState.isAnimating = false;
+      }
+
+      labState.activeLiquidKey = liquidKey;
+
+      // Update tab selection states
+      const tabMap = {
+        water: 'tab-liq-water',
+        ethanol: 'tab-liq-ethanol',
+        acetone: 'tab-liq-acetone',
+        toluene: 'tab-liq-toluene',
+        soap: 'tab-liq-soap'
+      };
+      Object.values(tabMap).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('active');
+      });
+      if (tabMap[liquidKey]) {
+        document.getElementById(tabMap[liquidKey]).classList.add('active');
+      }
+
+      const bench = labState.benchmarks[liquidKey];
+      document.getElementById('hud-liquid-name').textContent = bench.name;
+      document.getElementById('guide-active-liquid-badge').textContent = (liquidKey === 'water') ? 'WATER CALIBRATION' : `${bench.name.toUpperCase()} TRIAL`;
+
+      // Update beaker liquid fill visuals
+      const testRect = document.getElementById('supply-test-liquid-rect');
+      const testMeniscus = document.getElementById('supply-test-meniscus');
+      const testLabel = document.getElementById('supply-test-label');
+      if (testRect && testMeniscus && testLabel) {
+        testRect.setAttribute('fill', bench.gradColor);
+        testMeniscus.setAttribute('fill', bench.meniscusColor);
+        testLabel.textContent = bench.name;
+      }
+
+      // RESET APPARATUS & MAKE ALL STEPS ACTIVE AGAIN FOR THE NEW LIQUID
+      resetApparatusForNewLiquid(liquidKey);
+      playSound('click');
+    }
+
+    function resetApparatusForNewLiquid(liquidKey) {
+      const bench = labState.benchmarks[liquidKey];
+
+      // 1. Stalagmometer returns to stand, bore emptied
+      const stalag = document.getElementById('stalagmometer-assembly');
+      if (stalag) stalag.style.transform = 'translate(100px, 0px)';
+
+      const fillRect = document.getElementById('stalag-liquid-fill');
+      if (fillRect) {
+        fillRect.style.transition = 'none';
+        fillRect.setAttribute('y', '324');
+        fillRect.setAttribute('height', '0');
+      }
+
+      const meniscus = document.getElementById('stalag-meniscus');
+      if (meniscus) {
+        meniscus.setAttribute('cy', '324');
+        meniscus.setAttribute('opacity', '0');
+      }
+
+      labState.stalagFilled = false;
+      labState.pinchcockOpen = false;
+
+      // 2. Pycnometer emptied, stopper fitted, set aside on bench staging mat
+      const bottle = document.getElementById('movable-pycnometer');
+      const pycnoLiquid = document.getElementById('pycno-internal-liquid');
+      const pycnoStopper = document.getElementById('pycno-stopper-group');
+
+      if (pycnoLiquid) pycnoLiquid.setAttribute('height', '0');
+      if (pycnoStopper) pycnoStopper.style.transform = 'translate(0px, -36px)';
+      if (bottle) bottle.style.transform = 'translate(650px, 340px)';
+      labState.bottleState = 'aside';
+
+      // 3. Reset Digital Balance & Drop Detector HUD
+      labState.currentBalanceReading = 0.000;
+      document.getElementById('balance-lcd-text').textContent = '0.000 g';
+      document.getElementById('counter-display').textContent = '000';
+      document.getElementById('rate-display').textContent = 'RATE: 0.0 drops/min';
+      document.getElementById('led-indicator').setAttribute('fill', '#334155');
+
+      // 4. Reset Telemetry pills
+      labState.dropCount = 0;
+      document.getElementById('hud-balance-val').textContent = '0.000 g';
+      document.getElementById('hud-drop-count-val').textContent = '0 drops';
+      document.getElementById('hud-drop-rate-val').textContent = '0.0 drops/min';
+      document.getElementById('hud-bottle-pos-pill').textContent = 'Bottle: Staged Aside on Bench';
+      document.getElementById('hud-bottle-pos-pill').style.borderColor = '#284766';
+      document.getElementById('hud-pinchcock-pill').textContent = 'Pinchcock: Closed';
+      document.getElementById('hud-pinchcock-pill').style.borderColor = '#284766';
+      document.getElementById('hud-fill-pill').textContent = 'Bore: Clean & Dry (Empty)';
+      document.getElementById('hud-fill-pill').style.borderColor = '#284766';
+
+      // 5. Update Telemetry Card for active liquid
+      if (labState.completedRuns[liquidKey]) {
+        const run = labState.completedRuns[liquidKey];
+        if (liquidKey === 'water') {
+          document.getElementById('hud-nw-disp').textContent = run.drops;
+          document.getElementById('hud-w2-disp').textContent = run.wFull.toFixed(3) + ' g';
+        } else {
+          document.getElementById('hud-nl-disp').textContent = run.drops;
+          document.getElementById('hud-w3-disp').textContent = run.wFull.toFixed(3) + ' g';
+        }
+        document.getElementById('hud-w1-disp').textContent = run.w1.toFixed(3) + ' g';
+        document.getElementById('hud-delta-w-disp').textContent = run.deltaW.toFixed(3) + ' g';
+        document.getElementById('hud-gamma-disp').textContent = run.gamma.toFixed(2) + ' mN/m';
+      } else {
+        if (liquidKey === 'water') {
+          document.getElementById('hud-nw-disp').textContent = '55';
+          document.getElementById('hud-w2-disp').textContent = '43.420 g';
+        } else {
+          document.getElementById('hud-nl-disp').textContent = '—';
+          document.getElementById('hud-w3-disp').textContent = '—';
+        }
+        document.getElementById('hud-w1-disp').textContent = '—';
+        document.getElementById('hud-delta-w-disp').textContent = '—';
+        document.getElementById('hud-gamma-disp').textContent = '—';
+      }
+
+      // 6. ALL STEPS ARE ACTIVE AGAIN (Reset to step 0)
+      labState.stepIndex = 0;
+      renderProtocol();
+      updateUI();
+    }
+
+    /* STEP 1: WEIGH EMPTY BOTTLE (w1) */
+    function actionWeighEmptyBottle() {
+      if (labState.isAnimating) return;
+      labState.isAnimating = true;
+      playSound('click');
+
+      const bottle = document.getElementById('movable-pycnometer');
+      bottle.style.transform = 'translate(795px, 240px)';
+      labState.bottleState = 'balance';
+
+      document.getElementById('pycno-stopper-group').style.transform = 'translate(0px, -36px)';
+
+      setTimeout(() => {
+        const tare = labState.emptyBottleMass;
+        labState.currentBalanceReading = tare;
+        document.getElementById('balance-lcd-text').textContent = tare.toFixed(3) + ' g';
+        document.getElementById('hud-balance-val').textContent = tare.toFixed(3) + ' g';
+        document.getElementById('hud-w1-disp').textContent = tare.toFixed(3) + ' g';
+        document.getElementById('hud-bottle-pos-pill').textContent = 'Bottle: On Balance Pan (18.420 g) ✓';
+        document.getElementById('hud-bottle-pos-pill').style.borderColor = '#10b981';
+        playSound('chime');
+
+        labState.isAnimating = false;
+        advanceStep(0);
+        updateUI();
+      }, 700);
+    }
+
+    /* STEP 2: PLACE BOTTLE UNDER DISK TIP */
+    function actionPlaceBottleUnderTip() {
+      if (labState.isAnimating) return;
+      labState.isAnimating = true;
+      playSound('click');
+
+      const bottle = document.getElementById('movable-pycnometer');
+      bottle.style.transform = 'translate(300px, 385px)';
+      labState.bottleState = 'under_tip';
+
+      document.getElementById('balance-lcd-text').textContent = '0.000 g';
+      document.getElementById('hud-balance-val').textContent = '0.000 g';
+
+      setTimeout(() => {
+        document.getElementById('pycno-stopper-group').style.transform = 'translate(32px, 35px) rotate(90deg)';
+        document.getElementById('hud-bottle-pos-pill').textContent = 'Bottle: Under Tip (Open) ✓';
+        document.getElementById('hud-bottle-pos-pill').style.borderColor = '#38bdf8';
+        playSound('click');
+
+        labState.isAnimating = false;
+        advanceStep(1);
+        updateUI();
+      }, 750);
+    }
+
+    function actionToggleBottlePosition() {
+      if (labState.bottleState === 'aside') {
+        actionWeighEmptyBottle();
+      } else if (labState.bottleState === 'balance') {
+        actionPlaceBottleUnderTip();
+      } else if (labState.bottleState === 'under_tip') {
+        actionWeighActiveFilled();
+      }
+    }
+
+    function actionTogglePinchcock() {
+      labState.pinchcockOpen = !labState.pinchcockOpen;
+      document.getElementById('hud-pinchcock-pill').textContent = labState.pinchcockOpen ? 'Pinchcock: Open (12-15 drops/min)' : 'Pinchcock: Closed';
+      document.getElementById('hud-pinchcock-pill').style.borderColor = labState.pinchcockOpen ? '#10b981' : '#284766';
+      playSound('click');
+    }
+
+    /* STEP 3: SUCTION LIQUID (ACTIVE LIQUID: WATER OR SELECTED TEST LIQUID) */
+    function actionSuctionActiveLiquid() {
+      if (labState.isAnimating || labState.isDropping) return;
+      labState.isAnimating = true;
+      playSound('click');
+
+      const beakerKey = labState.activeLiquidKey;
+      const stalag = document.getElementById('stalagmometer-assembly');
+      const fillRect = document.getElementById('stalag-liquid-fill');
+      const meniscus = document.getElementById('stalag-meniscus');
+      const bench = labState.benchmarks[beakerKey];
+
+      // Empty any collected drops from prior collection in bottle
+      document.getElementById('pycno-internal-liquid').setAttribute('height', '0');
+
+      fillRect.setAttribute('fill', bench.gradColor);
+      fillRect.style.transition = 'none';
+      fillRect.setAttribute('y', '324');
+      fillRect.setAttribute('height', '0');
+      meniscus.setAttribute('cy', '324');
+      meniscus.setAttribute('opacity', '0');
+
+      document.getElementById('hud-fill-pill').textContent = 'Stalagmometer: Unclamping & moving...';
+      document.getElementById('hud-fill-pill').style.borderColor = '#f59e0b';
+
+      const targetX = (beakerKey === 'water') ? 220 : 340;
+      const speed = labState.speedMultiplier;
+
+      // Unclamp and lift
+      stalag.style.transform = 'translate(100px, -45px)';
+
+      setTimeout(() => {
+        // Glide to beaker
+        stalag.style.transform = `translate(${targetX}px, -45px)`;
+
+        setTimeout(() => {
+          // Submerge tip in beaker
+          stalag.style.transform = `translate(${targetX}px, 2px)`;
+          document.getElementById('hud-fill-pill').textContent = `Tip: Submerged in ${bench.name}`;
+          playSound('click');
+
+          setTimeout(() => {
+            playSound('suction');
+
+            setTimeout(() => {
+              // Draw liquid to Mark A
+              fillRect.style.transition = `y ${1.4 / speed}s ease-out, height ${1.4 / speed}s ease-out`;
+              fillRect.setAttribute('y', '75');
+              fillRect.setAttribute('height', '249');
+              meniscus.setAttribute('opacity', '0.9');
+              meniscus.style.transition = `cy ${1.4 / speed}s ease-out`;
+              meniscus.setAttribute('cy', '75');
+
+              setTimeout(() => {
+                playSound('chime');
+                document.getElementById('hud-fill-pill').textContent = `${bench.name}: Sucked to Mark A ✓`;
+                document.getElementById('hud-fill-pill').style.borderColor = '#10b981';
+
+                setTimeout(() => {
+                  // Lift from beaker
+                  stalag.style.transform = `translate(${targetX}px, -45px)`;
+
+                  setTimeout(() => {
+                    // Glide back to stand
+                    stalag.style.transform = 'translate(100px, -45px)';
+
+                    setTimeout(() => {
+                      // Clamp in stand
+                      stalag.style.transform = 'translate(100px, 0px)';
+                      playSound('click');
+
+                      setTimeout(() => {
+                        labState.stalagFilled = true;
+                        labState.currentFillLiquid = beakerKey;
+                        labState.isAnimating = false;
+                        document.getElementById('hud-fill-pill').textContent = `${bench.name}: Clamped at Mark A ✓`;
+                        advanceStep(2);
+                        updateUI();
+                      }, 400 / speed);
+
+                    }, 400 / speed);
+                  }, 400 / speed);
+                }, 350 / speed);
+              }, 1400 / speed);
+            }, 250 / speed);
+          }, 350 / speed);
+        }, 450 / speed);
+      }, 350 / speed);
+    }
+
+    /* STEP 4: COLLECT DROPS (A → B) FOR ACTIVE LIQUID */
+    function actionCollectActiveDrops() {
+      if (labState.isAnimating || labState.isDropping || !labState.stalagFilled) return;
+      if (labState.bottleState !== 'under_tip') {
+        actionPlaceBottleUnderTip();
+        setTimeout(actionCollectActiveDrops, 850);
+        return;
+      }
+
+      labState.isDropping = true;
+      labState.pinchcockOpen = true;
+      document.getElementById('hud-pinchcock-pill').textContent = 'Pinchcock: Regulated (15 dpm)';
+      document.getElementById('led-indicator').setAttribute('fill', '#10b981');
+
+      const bench = labState.benchmarks[labState.activeLiquidKey];
+      const targetDrops = bench.drops;
+
+      animateDropCollection(targetDrops, labState.activeLiquidKey, () => {
+        labState.isDropping = false;
+        labState.stalagFilled = false;
+        labState.pinchcockOpen = false;
+        document.getElementById('hud-pinchcock-pill').textContent = 'Pinchcock: Closed at Mark B';
+        document.getElementById('hud-fill-pill').textContent = 'Bore: Drained to Mark B';
+        document.getElementById('led-indicator').setAttribute('fill', '#334155');
+
+        if (labState.activeLiquidKey === 'water') {
+          document.getElementById('hud-nw-disp').textContent = targetDrops;
+          document.getElementById('inp-n-water').value = targetDrops;
+        } else {
+          document.getElementById('hud-nl-disp').textContent = targetDrops;
+          const inp = document.getElementById('inp-n-' + labState.activeLiquidKey);
+          if (inp) inp.value = targetDrops;
+        }
+
+        advanceStep(3);
+        updateUI();
+      });
+    }
+
+    /* STEP 5: WEIGH BOTTLE WITH COLLECTED LIQUID */
+    function actionWeighActiveFilled() {
+      if (labState.isAnimating || labState.isDropping) return;
+      labState.isAnimating = true;
+      playSound('click');
+
+      const bottle = document.getElementById('movable-pycnometer');
+      document.getElementById('pycno-stopper-group').style.transform = 'translate(0px, -36px)';
+
+      setTimeout(() => {
+        bottle.style.transform = 'translate(795px, 240px)';
+        labState.bottleState = 'balance';
+
+        setTimeout(() => {
+          const bench = labState.benchmarks[labState.activeLiquidKey];
+          const fullMass = bench.fullMass;
+          labState.currentBalanceReading = fullMass;
+          document.getElementById('balance-lcd-text').textContent = fullMass.toFixed(3) + ' g';
+          document.getElementById('hud-balance-val').textContent = fullMass.toFixed(3) + ' g';
+
+          const deltaW = fullMass - labState.emptyBottleMass;
+          document.getElementById('hud-delta-w-disp').textContent = deltaW.toFixed(3) + ' g';
+
+          if (labState.activeLiquidKey === 'water') {
+            document.getElementById('hud-w2-disp').textContent = fullMass.toFixed(3) + ' g';
+            document.getElementById('hud-bottle-pos-pill').textContent = 'Bottle: Weighed with Water ✓';
+            labState.completedRuns['water'] = {
+              drops: 55,
+              w1: labState.emptyBottleMass,
+              wFull: fullMass,
+              deltaW: deltaW,
+              gamma: 72.00
+            };
+          } else {
+            document.getElementById('hud-w3-disp').textContent = fullMass.toFixed(3) + ' g';
+            document.getElementById('hud-bottle-pos-pill').textContent = `Bottle: Weighed with ${bench.name} ✓`;
+
+            const inp = document.getElementById('inp-w3-' + labState.activeLiquidKey);
+            if (inp) inp.value = fullMass.toFixed(2);
+
+            // Calculate surface tension relative to water
+            const w1 = labState.emptyBottleMass;
+            const w2 = labState.benchmarks.water.fullMass;
+            const w3 = fullMass;
+            const nW = labState.benchmarks.water.drops;
+            const nL = bench.drops;
+            const gammaL = 72.00 * (nW / nL) * ((w3 - w1) / (w2 - w1));
+
+            labState.completedRuns[labState.activeLiquidKey] = {
+              drops: nL,
+              w1: w1,
+              wFull: w3,
+              deltaW: deltaW,
+              gamma: gammaL
+            };
+
+            document.getElementById('hud-gamma-disp').textContent = gammaL.toFixed(2) + ' mN/m';
+          }
+
+          playSound('chime');
+          updateObservationTable();
+          renderSurfaceTensionChart();
+
+          labState.isAnimating = false;
+          advanceStep(4);
+          updateUI();
+        }, 750);
+      }, 350);
+    }
+
+    /* CORE ANIMATION ENGINE: DROPS FALLING INTO PYCNOMETER */
+    function animateDropCollection(targetDrops, liquidKey, onFinish) {
+      const bench = labState.benchmarks[liquidKey];
+      const fillRect = document.getElementById('stalag-liquid-fill');
+      const meniscus = document.getElementById('stalag-meniscus');
+      const dropForming = document.getElementById('droplet-forming');
+      const dropFalling = document.getElementById('droplet-falling');
+      const pycnoLiquid = document.getElementById('pycno-internal-liquid');
+      const pycnoMeniscus = document.getElementById('pycno-internal-meniscus');
+
+      dropForming.setAttribute('fill', bench.gradColor);
+      dropFalling.setAttribute('fill', bench.gradColor);
+      pycnoLiquid.setAttribute('fill', bench.gradColor);
+      dropForming.setAttribute('opacity', '1');
+
+      labState.dropCount = 0;
+      let currentDrop = 0;
+      const baseDelay = 110 / labState.speedMultiplier;
+
+      const yStart = 75;
+      const yEnd = 255;
+      const totalDrainDistance = yEnd - yStart;
+      const totalInitialHeight = 249;
+
+      const dropTimer = setInterval(() => {
+        currentDrop++;
+        labState.dropCount = currentDrop;
+
+        playSound('plop');
+
+        document.getElementById('counter-display').textContent = String(currentDrop).padStart(3, '0');
+        document.getElementById('hud-drop-count-val').textContent = `${currentDrop} drops`;
+        document.getElementById('rate-display').textContent = `RATE: ${(14.5 * labState.speedMultiplier).toFixed(1)} drops/min`;
+        document.getElementById('hud-drop-rate-val').textContent = `${(14.5 * labState.speedMultiplier).toFixed(1)} drops/min`;
+
+        const progress = currentDrop / targetDrops;
+        const curY = yStart + (progress * totalDrainDistance);
+        const curH = totalInitialHeight - (progress * totalDrainDistance);
+
+        fillRect.setAttribute('y', curY);
+        fillRect.setAttribute('height', curH);
+        meniscus.setAttribute('cy', curY);
+
+        dropFalling.setAttribute('opacity', '1');
+        dropFalling.setAttribute('cy', '334');
+
+        setTimeout(() => {
+          dropFalling.setAttribute('cy', '385');
+        }, baseDelay * 0.2);
+
+        setTimeout(() => {
+          dropFalling.setAttribute('opacity', '0');
+        }, baseDelay * 0.65);
+
+        const curPycnoH = progress * 62;
+        const curPycnoY = 52 - curPycnoH;
+        pycnoLiquid.setAttribute('y', curPycnoY);
+        pycnoLiquid.setAttribute('height', curPycnoH);
+        pycnoMeniscus.setAttribute('cy', curPycnoY);
+
+        if (currentDrop >= targetDrops) {
+          clearInterval(dropTimer);
+          dropForming.setAttribute('opacity', '0');
+          dropFalling.setAttribute('opacity', '0');
+          playSound('chime');
+          if (onFinish) onFinish();
+        }
+      }, baseDelay);
+    }
+
+    function actionSelectSupplyBeaker(type) {
+      if (type === 'water') {
+        selectTestLiquid('water');
+        actionSuctionActiveLiquid();
+      } else {
+        actionSuctionActiveLiquid();
+      }
+    }
+
+    function actionOpenLogbookModal() {
+      computeLogbookVerification();
+      openModalWindow('modal-calc');
+      advanceStep(5);
+    }
+
+    function advanceStep(idx) {
+      if (idx === labState.stepIndex) {
+        labState.stepIndex++;
+        renderProtocol();
+      }
+    }
+
+    /* RENDER DYNAMIC PROTOCOL CARDS WITH ACTIVE EXECUTE BUTTONS */
+    function isMobileFocusActive() {
+      const mode = document.documentElement.getAttribute('data-layout-mode') || 'auto';
+      return mode === 'mobile' || (mode === 'auto' && window.matchMedia('(max-width: 700px)').matches);
+    }
+
+    function renderProtocol() {
+      const container = document.getElementById('protocol-steps-container');
+      container.innerHTML = '';
+      const steps = getActiveProtocolSteps();
+
+      if (isMobileFocusActive()) {
+        const progress = document.createElement('div');
+        progress.className = 'mobile-step-progress';
+        progress.textContent = labState.stepIndex < steps.length
+          ? `STEP ${labState.stepIndex + 1} OF ${steps.length}`
+          : 'ALL STEPS COMPLETED';
+        container.appendChild(progress);
+
+        if (labState.stepIndex >= steps.length) {
+          const done = document.createElement('div');
+          done.className = 'step-card done active mobile-current-step';
+          done.innerHTML = '<div class="step-top"><span>Experiment completed</span><span>✓ DONE</span></div><div class="step-desc">All operations for this liquid have been completed. Select another liquid tab above or open the Logbook.</div>';
+          container.appendChild(done);
+          return;
+        }
+
+        const step = steps[labState.stepIndex];
+        const card = document.createElement('div');
+        card.className = 'step-card active mobile-current-step';
+        card.innerHTML = `
+          <div class="step-top">
+            <span>${step.label}: ${step.title}</span>
+            <span>● IN PROGRESS</span>
+          </div>
+          <div class="step-desc">${step.desc}</div>
+          <button class="step-exec-btn" style="background:#0284c7; border-color:#38bdf8;" onclick="getActiveProtocolSteps()[${labState.stepIndex}].action()">
+            ▶ Execute ${step.label}
+          </button>
+        `;
+        container.appendChild(card);
+        return;
+      }
+
+      steps.forEach((step, idx) => {
+        const card = document.createElement('div');
+        const isActive = (idx === labState.stepIndex);
+        const isDone = (idx < labState.stepIndex);
+
+        card.className = `step-card ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}`;
+        card.innerHTML = `
+          <div class="step-top">
+            <span>${step.label}: ${step.title}</span>
+            <span>${isDone ? '✓ DONE' : (isActive ? '● IN PROGRESS' : '○ READY')}</span>
+          </div>
+          <div class="step-desc">${step.desc}</div>
+          <button class="step-exec-btn" style="${isActive ? 'background:#0284c7; border-color:#38bdf8;' : ''}" onclick="getActiveProtocolSteps()[${idx}].action()">
+            ${isDone ? '↺ Re-run ' + step.label : '▶ Execute ' + step.label}
+          </button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    /* UPDATE BOTTOM WORKBENCH CONTROLS DYNAMICALLY */
+    function updateUI() {
+      const isWater = (labState.activeLiquidKey === 'water');
+      const bench = labState.benchmarks[labState.activeLiquidKey];
+
+      // Update Toolbar Button Labels for the selected liquid
+      document.getElementById('btn-ctrl-draw-active').innerHTML = isWater ? '💧 3. Draw Water (Mark A)' : `🧪 3. Draw ${bench.name} (Mark A)`;
+      document.getElementById('btn-ctrl-collect-active').innerHTML = isWater ? '⏱ 4. Collect Water (A→B)' : `⏱ 4. Collect ${bench.name} (A→B)`;
+      document.getElementById('btn-ctrl-weigh-active').innerHTML = isWater ? '📊 5. Weigh Bottle+Water (w₂)' : `📊 5. Weigh Bottle+${bench.name} (w₃)`;
+
+      // Highlight the current recommended step button
+      const btns = [
+        'btn-ctrl-weigh-empty',
+        'btn-ctrl-position-bottle',
+        'btn-ctrl-draw-active',
+        'btn-ctrl-collect-active',
+        'btn-ctrl-weigh-active',
+        'btn-ctrl-calc'
+      ];
+      btns.forEach((id, idx) => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (idx === labState.stepIndex) el.classList.add('active-ctrl');
+          else el.classList.remove('active-ctrl');
+        }
+      });
+    }
+
+    function updateObservationTable() {
+      const tbody = document.getElementById('obs-table-body');
+      tbody.innerHTML = '';
+
+      const keys = ['water', 'ethanol', 'acetone', 'toluene', 'soap'];
+      keys.forEach(k => {
+        if (labState.completedRuns[k]) {
+          const run = labState.completedRuns[k];
+          const bench = labState.benchmarks[k];
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${bench.name}</strong></td>
+            <td>${run.drops}</td>
+            <td>${run.w1.toFixed(3)}</td>
+            <td>${run.wFull.toFixed(3)}</td>
+            <td>${run.deltaW.toFixed(3)}</td>
+            <td style="color:#38bdf8; font-weight:bold;">${run.gamma.toFixed(2)}</td>
+          `;
+          tbody.appendChild(tr);
+        }
+      });
+    }
+
+    function renderSurfaceTensionChart() {
+      const barsGroup = document.getElementById('chart-bars-group');
+      barsGroup.innerHTML = '';
+
+      const positions = {
+        water: 62,
+        ethanol: 132,
+        acetone: 202,
+        toluene: 272,
+        soap: 332
+      };
+
+      const keys = Object.keys(labState.completedRuns);
+      document.getElementById('chart-point-count').textContent = `${keys.length} Liquid System${keys.length > 1 ? 's' : ''} Tested`;
+
+      keys.forEach(k => {
+        const run = labState.completedRuns[k];
+        const x = positions[k];
+        const height = (run.gamma / 85.0) * 62;
+        const y = 85 - height;
+
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', x);
+        rect.setAttribute('y', y);
+        rect.setAttribute('width', '26');
+        rect.setAttribute('height', height);
+        rect.setAttribute('rx', '2');
+        rect.setAttribute('fill', k === 'water' ? '#0284c7' : '#10b981');
+        rect.setAttribute('opacity', '0.9');
+        barsGroup.appendChild(rect);
+
+        const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        txt.setAttribute('x', x + 13);
+        txt.setAttribute('y', y - 3);
+        txt.setAttribute('fill', '#bae6fd');
+        txt.setAttribute('font-size', '6.8');
+        txt.setAttribute('font-weight', 'bold');
+        txt.setAttribute('text-anchor', 'middle');
+        txt.textContent = run.gamma.toFixed(1);
+        barsGroup.appendChild(txt);
+      });
+    }
+
+    function resetSimulationRun() {
+      resetApparatusForNewLiquid(labState.activeLiquidKey);
+    }
+
+    function openModalWindow(id) {
+      document.getElementById(id).classList.add('open');
+    }
+
+    function closeModalWindow(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    function fillGroundTruthData() {
+      ['ethanol', 'acetone', 'toluene', 'soap'].forEach(k => {
+        const b = labState.benchmarks[k];
+        const inpN = document.getElementById('inp-n-' + k);
+        const inpW1 = document.getElementById('inp-w1-' + k);
+        const inpW3 = document.getElementById('inp-w3-' + k);
+        if (inpN) inpN.value = b.drops;
+        if (inpW1) inpW1.value = labState.emptyBottleMass.toFixed(2);
+        if (inpW3) inpW3.value = b.fullMass.toFixed(2);
+      });
+      computeLogbookVerification();
+    }
+
+    function computeLogbookVerification() {
+      const banner = document.getElementById('verify-feedback-banner');
+      banner.style.display = 'block';
+
+      const nW = 55;
+      const w1Std = 18.42;
+      const w2Std = 43.42;
+      const gammaW = 72.00;
+
+      ['ethanol', 'acetone', 'toluene', 'soap'].forEach(k => {
+        const inpN = document.getElementById('inp-n-' + k);
+        const inpW1 = document.getElementById('inp-w1-' + k);
+        const inpW3 = document.getElementById('inp-w3-' + k);
+
+        if (inpN && inpW3) {
+          const nL = parseFloat(inpN.value);
+          const w1 = (inpW1 && parseFloat(inpW1.value)) ? parseFloat(inpW1.value) : w1Std;
+          const w3 = parseFloat(inpW3.value);
+
+          if (!isNaN(nL) && !isNaN(w3) && nL > 0 && w3 > w1) {
+            const deltaW = w3 - w1;
+            const deltaWater = w2Std - w1Std;
+            const gammaL = gammaW * (nW / nL) * (deltaW / deltaWater);
+            const ref = labState.benchmarks[k].gammaRef;
+            const pctErr = Math.abs((gammaL - ref) / ref) * 100.0;
+
+            const dwEl = document.getElementById('calc-dw-' + k);
+            const gmEl = document.getElementById('calc-gamma-' + k);
+            const erEl = document.getElementById('calc-err-' + k);
+
+            if (dwEl) dwEl.textContent = deltaW.toFixed(2) + ' g';
+            if (gmEl) gmEl.textContent = gammaL.toFixed(2) + ' mN/m';
+            if (erEl) erEl.textContent = pctErr.toFixed(2) + '%';
+          }
+        }
+      });
+
+      banner.style.background = 'rgba(16, 185, 129, 0.2)';
+      banner.style.border = '1px solid #10b981';
+      banner.style.color = '#86efac';
+      banner.innerHTML = '<strong>✓ Verification Successful:</strong> Surface Tension γ_L = γ_W · (n_W / n_L) · [(w₃ - w₁) / (w₂ - w₁)] verified with full mass balance in the specific gravity bottle.';
+      playSound('chime');
+    }
+
+    /* ================= LAYOUT MODE (AUTO / DESKTOP / MOBILE) & FULLSCREEN ================= */
+    let layoutMode = 'auto';
+
+    function setLayoutMode(mode) {
+      layoutMode = mode;
+      document.documentElement.setAttribute('data-layout-mode', mode);
+      document.body.classList.toggle('layout-desktop', mode === 'desktop');
+      document.body.classList.toggle('layout-mobile', mode === 'mobile');
+      document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+      renderProtocol();
+      window.dispatchEvent(new Event('resize'));
+    }
+
+    async function toggleFullscreen() {
+      const target = document.documentElement;
+      try {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+          if (target.requestFullscreen) await target.requestFullscreen();
+          else if (target.webkitRequestFullscreen) target.webkitRequestFullscreen();
+        } else {
+          if (document.exitFullscreen) await document.exitFullscreen();
+          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        }
+      } catch (e) {
+        alert('Full-screen mode is not available in this browser. Try Chrome.');
+      }
+    }
+
+    function updateFullscreenButton() {
+      const active = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      const b = document.getElementById('fullscreenBtn');
+      if (b) b.textContent = active ? '⤢ Exit full screen' : '⛶ Full screen';
+    }
+
+    document.addEventListener('fullscreenchange', updateFullscreenButton);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+
+    const mobileMq = window.matchMedia('(max-width: 700px)');
+    if (mobileMq && typeof mobileMq.addEventListener === 'function') {
+      mobileMq.addEventListener('change', () => {
+        if (layoutMode === 'auto') renderProtocol();
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      setLayoutMode('auto');
+      renderProtocol();
+      updateUI();
+    });
+  </script>
+</body>
+</html>
